@@ -53,7 +53,9 @@ public abstract class EthereumNetworkBase implements EthereumNetworkRepositoryTy
     public static native String getInfuraKey();
 
     //Fallback nodes: these nodes are used if there's no Amberdata key, and also as a fallback in case the primary node times out while attempting a call
-    public static final String MAINNET_RPC_URL = "https://mainnet.infura.io/v3/" + getInfuraKey();
+    //public static final String MAINNET_RPC_URL = "https://mainnet.infura.io/v3/" + getInfuraKey();
+    //ToDo it should come from flavor
+    public static final String MAINNET_RPC_URL = "http://18.193.173.193/rpc/eth/" + getInfuraKey();
     public static final String RINKEBY_RPC_URL = "https://rinkeby.infura.io/v3/" + getInfuraKey();
 
     //Note that AlphaWallet now uses a double node configuration. See class AWHttpService comment 'try primary node'.
@@ -77,7 +79,9 @@ public abstract class EthereumNetworkBase implements EthereumNetworkRepositoryTy
     public static final String BINANCE_MAIN_RPC_URL = "https://bsc-dataseed1.binance.org:443";
     public static final String BINANCE_MAIN_FALLBACK_RPC_URL = "https://bsc-dataseed2.ninicoin.io:443";
 
-    public static final int MAINNET_ID = 1;
+    //public static final int MAINNET_ID = 1;
+    //ToDo it should come from flavor
+    public static final int MAINNET_ID = 1768711028;
     public static final int CLASSIC_ID = 61;
     public static final int POA_ID = 99;
     public static final int KOVAN_ID = 42;
