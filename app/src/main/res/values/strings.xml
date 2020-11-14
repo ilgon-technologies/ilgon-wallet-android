@@ -100,7 +100,7 @@
     <string name="error_fail_load_tokens">Failed to load tokens list</string>
     <string name="error_create_wallet">Failed to create a wallet</string>
 
-    <string name="app_name">AlphaWallet</string>
+    <string name="app_name">Ilgoin  wallet</string>
     <string name="all">All</string>
     <string name="currency">Currencies</string>
     <string name="advanced">Advanced Options</string>
@@ -213,7 +213,7 @@
     <string name="ethereum_blockchain">Ethereum Blockchain</string>
     <string name="issuer">Issuer:</string>
     <string name="root_title">DEVICE SECURITY COMPROMISED</string>
-    <string name="root_body">Your phone is rooted but the keys are still protected by Android secure enclave encryption. The attack vector would be from a keyboard app or clipboard viewer learning your key when you enter it. AlphaWallet does its best to mitigate this risk by switching off keyboard auto-suggest. If you run root, recommend you only use mainstream keyboard apps, run a good quality anti-virus app and use a respected open source root manager such as Magisk or SuperSU to limit access to root privileges. Ultimately key safety is your responsibility.</string>
+    <string name="root_body">Your phone is rooted but the keys are still protected by Android secure enclave encryption. The attack vector would be from a keyboard app or clipboard viewer learning your key when you enter it. Ilgoin Wallet does its best to mitigate this risk by switching off keyboard auto-suggest. If you run root, recommend you only use mainstream keyboard apps, run a good quality anti-virus app and use a respected open source root manager such as Magisk or SuperSU to limit access to root privileges. Ultimately key safety is your responsibility.</string>
     <string name="contact_us">Still need help? Contact us</string>
     <string name="confirm_sale_title">Confirm Sale?</string>
     <string name="dialog_cancel_back">Cancel and Go Back</string>
@@ -232,7 +232,7 @@
     <string name="tx_label">Transactions</string>
     <string name="browser_label">Browser</string>
     <string name="settings_label">Settings</string>
-    <string name="activity_label">Activity</string>
+    <string name="activity_label">History</string>
     <string name="toolbar_header_importing_tickets">Importing Tokens</string>
     <string name="ticket">Ticket</string>
     <string name="tickets">Tickets</string>
@@ -331,7 +331,7 @@
     <string name="ticket_not_valid">Invalid Token</string>
     <string name="ticket_not_valid_body">No valid contract at this address on this network. The contract could have been terminated or it may be on a different network. Try changing to \'Ropsten (Test)\'.</string>
     <string name="new_version_title">Update available</string>
-    <string name="new_version">Version update is available on the AlphaWallet website.</string>
+    <string name="new_version">Version update is available on the Ilgoin Wallet website.</string>
     <string name="confirm_update">Download and Install</string>
     <string name="dialog_later">Later</string>
     <string name="alphawallet_update">Alphawallet update</string>
@@ -521,7 +521,7 @@
     <string name="provide_authentication">Provide authentication to create key</string>
     <string name="import_error">Import Error, Try re-import again.</string>
     <string name="watch_exists">Wallet %1$s already full wallet - no need to watch</string>
-    <string name="welcome_to_alphawallet">Welcome to AlphaWallet</string>
+    <string name="welcome_to_alphawallet">Welcome to Ilgoin wallet</string>
     <string name="lock_seed_phrase">Lock Seed Phrase</string>
     <string name="no_key">No Key found</string>
     <string name="pending_transaction">Pending Transaction ...</string>
