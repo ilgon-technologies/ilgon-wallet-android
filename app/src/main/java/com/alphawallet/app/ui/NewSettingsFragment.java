@@ -3,6 +3,8 @@ package com.alphawallet.app.ui;
 
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -60,6 +62,7 @@ public class NewSettingsFragment extends BaseFragment {
     private SettingsItemView supportSetting;
     private SettingsItemView walletConnectSetting;
 
+
     private LinearLayout layoutBackup;
     private View warningSeparator;
     private Button backupButton;
@@ -111,6 +114,8 @@ public class NewSettingsFragment extends BaseFragment {
         }
     }
 
+
+
     private void initBackupWarningViews(View view) {
         layoutBackup = view.findViewById(R.id.layout_item_warning);
         backupTitle = view.findViewById(R.id.text_title);
@@ -155,6 +160,7 @@ public class NewSettingsFragment extends BaseFragment {
                         .withListener(this::onWalletConnectSettingClicked)
                         .build();
 
+
         notificationsSetting =
                 new SettingsItemView.Builder(getContext())
                         .withType(SettingsItemView.Type.TOGGLE)
@@ -191,6 +197,7 @@ public class NewSettingsFragment extends BaseFragment {
                         .withTitle(R.string.title_support)
                         .withListener(this::onSupportSettingClicked)
                         .build();
+
     }
 
     private void addSettingsToLayout() {
@@ -211,8 +218,8 @@ public class NewSettingsFragment extends BaseFragment {
 
         if (biometricsSetting != null) systemSettingsLayout.addView(biometricsSetting, systemIndex++);
 
-        if (EthereumNetworkRepository.showNetworkFilters())
-            systemSettingsLayout.addView(selectNetworksSetting, systemIndex++);
+//        if (EthereumNetworkRepository.showNetworkFilters())
+//            systemSettingsLayout.addView(selectNetworksSetting, systemIndex++);
 
         systemSettingsLayout.addView(advancedSetting, systemIndex++);
 
