@@ -64,6 +64,9 @@ public class SendViewModel extends BaseViewModel {
 
     public String getChainName(int chainId)
     {
+        if(networkRepository.getNameById(chainId).equals("Ethereum")){
+            return "Ilgoin";
+        }
         return networkRepository.getNameById(chainId);
     }
 

@@ -6,7 +6,9 @@
     android:background="@color/colorPrimary"
     android:orientation="vertical">
 
-    <include layout="@layout/layout_network_switch_toolbar" />
+    <include
+        layout="@layout/layout_network_switch_toolbar"
+        android:visibility="gone" />
 
     <ScrollView
         android:layout_width="match_parent"
