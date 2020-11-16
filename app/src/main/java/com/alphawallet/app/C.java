@@ -36,7 +36,7 @@ public abstract class C {
     public static final String POA_TICKER = "poa";
 
     public static final String USD_SYMBOL = "$";
-    public static final String ETH_SYMBOL = "ETH";
+    public static final String ETH_SYMBOL = "SNC";
     public static final String xDAI_SYMBOL = "xDai";
     public static final String POA_SYMBOL = "POA";
     public static final String ETC_SYMBOL = "ETC";
