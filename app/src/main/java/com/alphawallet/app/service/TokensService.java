@@ -343,7 +343,12 @@ public class TokensService
     public String getNetworkName(int chainId)
     {
         NetworkInfo info = ethereumNetworkRepository.getNetworkByChain(chainId);
-        if (info != null) return info.getShortName();
+        if (info != null){
+            if(info.getShortName().equals("Ethereum")){
+                return "Ilgoin";
+            }
+            return info.getShortName();
+        }
         else return "";
     }
 
