@@ -38,6 +38,9 @@ public class RealmToken extends RealmObject {
 }
 
     public String getSymbol() {
+        if(symbol.equals("ETH")){
+            return "SNC";
+        }
         return symbol;
     }
 
@@ -46,6 +49,9 @@ public class RealmToken extends RealmObject {
     }
 
     public String getName() {
+        if(name.equals("Ethereum")){
+            return "SystemCoin";
+        }
         return name;
     }
 

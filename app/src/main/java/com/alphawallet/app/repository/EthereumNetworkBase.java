@@ -346,7 +346,7 @@ public abstract class EthereumNetworkBase implements EthereumNetworkRepositoryTy
         switch (networkId)
         {
             case MAINNET_ID:
-                return R.drawable.ic_ethereum_logo;
+                return R.drawable.grey_logo;
             case KOVAN_ID:
                 return R.drawable.kovan_logo;
             case ROPSTEN_ID:
