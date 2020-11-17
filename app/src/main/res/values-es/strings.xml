@@ -64,7 +64,7 @@
     <string name="action_add_token">Añadir token</string>
     <string name="action_open_etherscan">Ver en Etherscan</string>
     <string name="action_coinbase">Coinbase</string>
-    <string name="action_localeth">LocalEthereum</string>
+    <string name="action_localeth">LocalIlgoin</string>
     <string name="action_changelly">Changelly (compra con tarjeta de crédito)</string>
     <!-- Subject -->
     <string name="subject_transaction_detail">Detalle de la transacción</string>
@@ -82,7 +82,7 @@
     <string name="dummy_transaction_value">&#45;&#45;</string>
     <string name="title_dialog_sending">Enviando...</string>
     <string name="scan_qr">Obtener dirección a partir del código QR</string>
-    <string name="info_gas_price">Cuanto más alto sea el precio del gas, más cara será la tarifa de tu transacción, pero más rápido se procesará por la red Ethereum.</string>
+    <string name="info_gas_price">Cuanto más alto sea el precio del gas, más cara será la tarifa de tu transacción, pero más rápido se procesará por la red Ilgoin.</string>
     <string name="info_gas_limit">El límite de gas evita que los contratos inteligentes consuman todo tu Ethereum. Intentaremos calcular el límite de gas de forma automática, pero algunos contratos inteligentes requieren un límite de gas personalizado.</string>
     <string name="title_send_settings">Avanzado</string>
     <!--<string name="title_activity_barcode">Barcode Scan</string>-->
@@ -130,7 +130,7 @@
     <string name="filter_distance_label">Distancia</string>
     <string name="filter_timeframe_label">Periodo de tiempo</string>
     <string name="set_a_price">Fija un precio:</string>
-    <string name="learn_more_about_ethereum">Más información sobre Ethereum</string>
+    <string name="learn_more_about_ethereum">Más información sobre Ilgoin</string>
     <string name="price_per_ticket">Precio por ticket</string>
     <string name="set_price_subtext_abr">Fijar el precio en %1s (%2s)</string>
     <string name="transfer_tickets">Transferir tickets</string>
@@ -174,7 +174,7 @@
     <string-array name="filter_search_date">
         <item>DD/MM/YY</item>
     </string-array>
-    <string name="eth">ETH</string>
+    <string name="eth">SNC</string>
     <string name="quantity_of_tickets">Cantidad de tickets</string>
     <string name="total_cost_label">Coste total:</string>
     <string name="equivalent_in_usd">Equivalente en USD</string>
@@ -185,18 +185,18 @@
     <string name="filter_search_class">Clase</string>
     <string name="filter_search_seats">N.º de asientos juntos</string>
     <string name="search_label_match">Coincidencia</string>
-    <string name="help_question1">¿Qué es el ETH/Ethereum?</string>
-    <string name="help_question2">¿Por qué aWallet utiliza Ethereum?</string>
+    <string name="help_question1">¿Qué es el SNC/Ilgoin?</string>
+    <string name="help_question2">¿Por qué aWallet utiliza Ilgoin?</string>
     <string name="help_question3">¿Cómo obtengo mi dinero?</string>
     <string name="help_question4">¿Qué es una frase semilla?</string>
-    <string name="help_question5">¿Cómo transfiero ETH a mi monedero?</string>
+    <string name="help_question5">¿Cómo transfiero SNC a mi monedero?</string>
     <string name="help_question6">¿Qué es TokenScript?</string>
     <string name="tokenscript_explaination">tokenscript_explaination.html</string>
     <string name="twenty_four_hours">24 horas</string>
     <string name="appreciation">Valoración</string>
     <string name="eth_per_ticket">%1s/ticket</string>
-    <string name="ethereum">Ethereum</string>
-    <string name="ethereum_blockchain">Cadena de bloques de Ethereum</string>
+    <string name="ethereum">Ilgoin</string>
+    <string name="ethereum_blockchain">Cadena de bloques de Ilgoin</string>
     <string name="issuer">Emisor:</string>
     <string name="root_title">SEGURIDAD DEL DISPOSITIVO COMPROMETIDA</string>
     <string name="root_body">Tu teléfono está rooteado, pero las claves siguen estando protegidas por el cifrado \"secure enclave\" de Android. El vector de ataque vendría de una aplicación de teclado o un visor del portapapeles que obtendría tu clave mientras la introduces. AlphaWallet hace todo lo posible para mitigar este riesgo desactivando las sugerencias automáticas del teclado. Si ejecutas el root, te recomendamos que solo utilices aplicaciones de teclado convencionales, que uses una aplicación de antivirus de buena calidad y que emplees una herramienta de root de código abierto respetable como Magisk o SuperSU para limitar el acceso a los privilegios de root. En última instancia, la seguridad de las claves es tu responsabilidad.</string>
@@ -256,14 +256,14 @@
     <string name="date_hint">DD/MM/YYYY</string>
     <string name="universal_link_notice">Antes de que expire el enlace, cualquiera que tenga el MagicLink puede comprar tus tickets con un clic.</string>
     <string name="label_important">Importante</string>
-    <string name="eth_00">0,00 ETH</string>
+    <string name="eth_00">0,00 SNC</string>
     <string name="toolbar_title_wallets">Cambiar monedero</string>
     <string name="facebook">Facebook</string>
     <string name="twitter">Twitter</string>
     <string name="erc20">ERC 20</string>
     <string name="erc875">ERC 875</string>
     <string name="erc875legacy">ERC 875*</string>
-    <string name="what_is_eth">Ethereum es una plataforma informática y un sistema operativo de código abierto, público, de distribución basada en las cadenas de bloques, con funcionalidad de contratos inteligentes (scripting). Es la infraestructura de los productos y servicios de cadena de bloques.\n\nEl ETH/Ether es una criptomoneda cuya cadena de bloques la genera la plataforma Ethereum. El Ether se puede transferir entre cuentas y se puede utilizar para compensar a los nodos mineros participantes por los cálculos realizados. Ethereum proporciona una máquina virtual de Turing completo descentralizada, la Ethereum Virtual Machine (EVM), que puede ejecutar scripts usando una red internacional de nodos públicos. El \"gas\", un mecanismo interno de fijación de precios para las transacciones, se emplea para mitigar el spam y asignar los recursos en la red.</string>
+    <string name="what_is_eth">Ilgoin es una plataforma informática y un sistema operativo de código abierto, público, de distribución basada en las cadenas de bloques, con funcionalidad de contratos inteligentes (scripting). Es la infraestructura de los productos y servicios de cadena de bloques.\n\nEl SNC/SystemNativeCoin es una criptomoneda cuya cadena de bloques la genera la plataforma Ilgoin. El Ether se puede transferir entre cuentas y se puede utilizar para compensar a los nodos mineros participantes por los cálculos realizados. Ethereum proporciona una máquina virtual de Turing completo descentralizada, la Ethereum Virtual Machine (EVM), que puede ejecutar scripts usando una red internacional de nodos públicos. El \"gas\", un mecanismo interno de fijación de precios para las transacciones, se emplea para mitigar el spam y asignar los recursos en la red.</string>
     <string name="why_alphawallet_eth">En la actualidad, Ethereum es la mayor y mejor cadena de bloques para el desarrollo de aplicaciones y servicios de contratos inteligentes. AlphaWallet comienza apoyando la cadena de bloques de Ethereum y ayuda a mejorar su tecnología.</string>
     <string name="how_i_get_money">Puedes convertir el Ethereum en dinero fíat y transferirlo a tu cuenta bancaria a través de cualquier plataforma de intercambio de criptomonedas.</string>
     <string name="how_i_transfer_into_wallet">Puedes proporcionar la dirección de tu monedero al remitente. Pueden transferirte ETH con la dirección de tu monedero.</string>
