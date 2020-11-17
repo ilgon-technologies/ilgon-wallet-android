@@ -140,6 +140,23 @@
                     <include layout="@layout/item_input_send_address" />
 
                     <include layout="@layout/item_input_amount" />
+
+                    <Button
+                        android:id="@+id/send_all_button"
+                        style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/selector_round_button"
+                        android:fontFamily="@font/font_semibold"
+                        android:gravity="center"
+                        android:paddingTop="15dp"
+                        android:paddingBottom="15dp"
+                        android:text="@string/send_all"
+                        android:textAllCaps="false"
+                        android:textColor="@color/button_text_color"
+                        android:textSize="16sp" />
+
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>
