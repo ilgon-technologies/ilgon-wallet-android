@@ -87,8 +87,10 @@ public class SendActivity extends BaseActivity implements ItemClickListener, Amo
     private AutoCompleteTextView toAddressEditText;
     private TextView pasteText;
     private Button nextBtn;
+    private Button sendAllBtn;
     private String currentAmount;
     private QRResult currentResult;
+    private BigDecimal ethBalance;
 
     private AmountEntryItem amountInput;
 
@@ -170,6 +172,12 @@ public class SendActivity extends BaseActivity implements ItemClickListener, Amo
             onNext();
         });
 
+        sendAllBtn = findViewById(R.id.send_all_button);
+        sendAllBtn.setOnClickListener(v -> {
+            onSendAll();
+        });
+
+
         scanQrImageView = findViewById(R.id.img_scan_qr);
         scanQrImageView.setOnClickListener(v -> {
             Intent intent = new Intent(this, QRScanningActivity.class);
@@ -214,6 +222,11 @@ public class SendActivity extends BaseActivity implements ItemClickListener, Amo
             boolean sendingTokens = !token.isEthereum();
             viewModel.openConfirmation(this, to, amountInSubunits, token.getAddress(), token.tokenInfo.decimals, token.getSymbol(), sendingTokens, ensHandler.getEnsName(), currentChain);
         }
+    }
+    private void onSendAll() {
+        String value = getEthString(ethBalance.doubleValue());
+       amountInput.setAmountText(value);
+
     }
 
     private void onBack() {
@@ -527,7 +540,7 @@ public class SendActivity extends BaseActivity implements ItemClickListener, Amo
 
         TokenInfo tokenInfo = token.tokenInfo;
         BigDecimal decimalDivisor = new BigDecimal(Math.pow(10, tokenInfo.decimals));
-        BigDecimal ethBalance = tokenInfo.decimals > 0
+        ethBalance = tokenInfo.decimals > 0
                 ? token.balance.divide(decimalDivisor, Token.TOKEN_BALANCE_PRECISION, RoundingMode.DOWN).stripTrailingZeros() : token.balance;
         String value = getEthString(ethBalance.doubleValue());
         tokenBalanceText.setText(value);

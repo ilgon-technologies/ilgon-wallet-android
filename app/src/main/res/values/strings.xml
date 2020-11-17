@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- String related to sending -->
     <string name="action_send">Send</string>
@@ -323,6 +323,7 @@
     <string name="ticket_magiclink_purchase">Magiclink Purchase</string>
 
     <string name="action_next">Next</string>
+    <string name="send_all" tools:ignore="MissingTranslation">Send All</string>
     <string name="action_save">Save</string>
     <string name="action_contract_info">Contract Info</string>
     <string name="contract_address">Contract Address</string>
