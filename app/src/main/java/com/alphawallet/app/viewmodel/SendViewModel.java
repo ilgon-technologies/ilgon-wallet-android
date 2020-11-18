@@ -53,8 +53,8 @@ public class SendViewModel extends BaseViewModel {
 
     public MutableLiveData<Token> tokenFinalised() { return finalisedToken; }
 
-    public void openConfirmation(Context context, String to, BigInteger amount, String contractAddress, int decimals, String symbol, boolean sendingTokens, String ensDetails, int chainId) {
-        confirmationRouter.open(context, to, amount, contractAddress, decimals, symbol, sendingTokens, ensDetails, chainId);
+    public void openConfirmation(Context context, String to, BigInteger amount, String contractAddress, int decimals, String symbol, boolean sendingTokens, String ensDetails, int chainId, boolean isSendMax) {
+        confirmationRouter.open(context, to, amount, contractAddress, decimals, symbol, sendingTokens, ensDetails, chainId,isSendMax);
     }
 
     public void showContractInfo(Context ctx, Wallet wallet, Token token)

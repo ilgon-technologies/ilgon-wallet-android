@@ -19,7 +19,7 @@ import java.math.BigInteger;
 
 //TODO: Refactor when we add token type to token class
 public class ConfirmationRouter {
-    public void open(Context context, String to, BigInteger amount, String contractAddress, int decimals, String symbol, boolean sendingTokens, String ensDetails, int chainId) {
+    public void open(Context context, String to, BigInteger amount, String contractAddress, int decimals, String symbol, boolean sendingTokens, String ensDetails, int chainId, boolean isSendMax) {
         Intent intent = new Intent(context, ConfirmationActivity.class);
         intent.putExtra(C.EXTRA_TO_ADDRESS, to);
         intent.putExtra(C.EXTRA_AMOUNT, amount.toString());
@@ -29,6 +29,7 @@ public class ConfirmationRouter {
         intent.putExtra(C.EXTRA_SENDING_TOKENS, sendingTokens);
         intent.putExtra(C.EXTRA_ENS_DETAILS, ensDetails);
         intent.putExtra(C.EXTRA_NETWORKID, chainId);
+        intent.putExtra(C.EXTRA_IS_SEND_MAX, isSendMax);
         int tokenType = ConfirmationType.ETH.ordinal();
         if (sendingTokens) tokenType = ConfirmationType.ERC20.ordinal();
         intent.putExtra(C.TOKEN_TYPE, tokenType);
@@ -37,7 +38,7 @@ public class ConfirmationRouter {
     }
 
     //Sign transaction for dapp browser
-    public void open(Activity context, Web3Transaction transaction, String networkName, String requesterURL, int chainId) throws TransactionTooLargeException
+    public void open(Activity context, Web3Transaction transaction, String networkName, String requesterURL, int chainId, boolean isSendMax) throws TransactionTooLargeException
     {
         Intent intent = new Intent(context, ConfirmationActivity.class);
         intent.putExtra(C.EXTRA_WEB3TRANSACTION, transaction);
@@ -47,6 +48,7 @@ public class ConfirmationRouter {
         intent.putExtra(C.EXTRA_ACTION_NAME, requesterURL);
         intent.putExtra(C.EXTRA_NETWORKID, chainId);
         intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+        intent.putExtra(C.EXTRA_IS_SEND_MAX, isSendMax);
         context.startActivityForResult(intent, C.REQUEST_TRANSACTION_CALLBACK);
     }
 
