@@ -191,7 +191,7 @@ public class DappBrowserViewModel extends BaseViewModel  {
 
     public void openConfirmation(Activity context, Web3Transaction transaction, String requesterURL, NetworkInfo networkInfo) throws TransactionTooLargeException
     {
-        confirmationRouter.open(context, transaction, networkInfo.name, requesterURL, networkInfo.chainId);
+        confirmationRouter.open(context, transaction, networkInfo.name, requesterURL, networkInfo.chainId,false);
     }
 
     public void setLastUrl(Context context, String url) {

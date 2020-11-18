@@ -72,6 +72,7 @@ public abstract class C {
     public static final String EXTRA_STATE = "TRANSFER_STATE";
     public static final String EXTRA_WEB3TRANSACTION = "WEB3_TRANSACTION";
     public static final String EXTRA_NETWORK_NAME = "NETWORK_NAME";
+    public static final String EXTRA_IS_SEND_MAX = "SEND_MAX";
     public static final String EXTRA_NETWORK_MAINNET = "NETWORK_MAINNET";
     public static final String EXTRA_ENS_DETAILS = "ENS_DETAILS";
     public static final String EXTRA_HAS_DEFINITION = "HAS_TOKEN_DEF";

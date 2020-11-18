@@ -18,6 +18,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.alphawallet.app.entity.AmountUpdateCallback;
+import com.alphawallet.app.entity.GasSettings;
 import com.alphawallet.app.entity.CryptoFunctions;
 import com.alphawallet.app.entity.NetworkInfo;
 import com.alphawallet.app.entity.QRResult;
@@ -91,6 +92,7 @@ public class SendActivity extends BaseActivity implements ItemClickListener, Amo
     private String currentAmount;
     private QRResult currentResult;
     private BigDecimal ethBalance;
+    private boolean isSendMax;
 
     private AmountEntryItem amountInput;
 
@@ -105,6 +107,8 @@ public class SendActivity extends BaseActivity implements ItemClickListener, Amo
         viewModel = new ViewModelProvider(this, sendViewModelFactory)
                 .get(SendViewModel.class);
         handler = new Handler();
+
+        isSendMax = false;
 
         contractAddress = getIntent().getStringExtra(C.EXTRA_CONTRACT_ADDRESS);
 
@@ -220,12 +224,13 @@ public class SendActivity extends BaseActivity implements ItemClickListener, Amo
         if (isValid) {
             BigInteger amountInSubunits = BalanceUtils.baseToSubunit(currentAmount, decimals);
             boolean sendingTokens = !token.isEthereum();
-            viewModel.openConfirmation(this, to, amountInSubunits, token.getAddress(), token.tokenInfo.decimals, token.getSymbol(), sendingTokens, ensHandler.getEnsName(), currentChain);
+            viewModel.openConfirmation(this, to, amountInSubunits, token.getAddress(), token.tokenInfo.decimals, token.getSymbol(), sendingTokens, ensHandler.getEnsName(), currentChain,isSendMax);
         }
     }
     private void onSendAll() {
         String value = getEthString(ethBalance.doubleValue());
        amountInput.setAmountText(value);
+       isSendMax = true;
 
     }
 
@@ -562,6 +567,7 @@ public class SendActivity extends BaseActivity implements ItemClickListener, Amo
     @Override
     public void amountChanged(String newAmount)
     {
+        isSendMax = false;
         currentAmount = newAmount;
     }
 

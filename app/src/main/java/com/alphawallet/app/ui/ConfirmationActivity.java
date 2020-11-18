@@ -98,6 +98,7 @@ public class ConfirmationActivity extends BaseActivity implements SignAuthentica
     private TextView infoText;
     private View parentLayout;
     private View valueLayout;
+    private boolean isSendMax;
 
     private BigDecimal amount;
     private String tokenIds;
@@ -164,6 +165,7 @@ public class ConfirmationActivity extends BaseActivity implements SignAuthentica
         String symbol = getIntent().getStringExtra(C.EXTRA_SYMBOL);
         tokenIds = getIntent().getStringExtra(C.EXTRA_TOKENID_LIST);
         token = getIntent().getParcelableExtra(C.EXTRA_TOKEN_ID);
+        isSendMax = getIntent().getBooleanExtra(C.EXTRA_IS_SEND_MAX,false);
         chainId = token != null ? token.tokenInfo.chainId : getIntent().getIntExtra(C.EXTRA_NETWORKID, 1);
         String functionDetails = getIntent().getStringExtra(C.EXTRA_FUNCTION_NAME);
 
@@ -685,8 +687,19 @@ public class ConfirmationActivity extends BaseActivity implements SignAuthentica
 
         BigDecimal networkFeeBD = new BigDecimal(gasPrice.multiply(gasEstimate));
 
+
+
         String networkFee = BalanceUtils.getScaledValue(networkFeeBD, C.ETHER_DECIMALS, 8)
                 + " " + viewModel.getNetworkSymbol(chainId);
+        if(isSendMax){
+            amount = amount.subtract(networkFeeBD);
+            String bal = BalanceUtils.getScaledValue(amount, C.ETHER_DECIMALS, decimals);
+            
+            valueText.setText(bal);
+        }
+
+
+
         networkFeeText.setText(networkFee);
         gasEstimateText.setText(String.valueOf(gasEstimate));
 
