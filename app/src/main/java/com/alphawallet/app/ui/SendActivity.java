@@ -209,10 +209,10 @@ public class SendActivity extends BaseActivity implements ItemClickListener, Amo
         KeyboardUtils.hideKeyboard(getCurrentFocus());
         boolean isValid = amountInput.checkValidAmount();
 
-        if (isBalanceZero(currentAmount)) {
-            amountInput.setError(R.string.error_zero_balance);
-            isValid = false;
-        }
+//        if (isBalanceZero(currentAmount)) {
+//            amountInput.setError(R.string.error_zero_balance);
+//            isValid = false;
+//        }
         if (!isBalanceEnough(currentAmount)) {
             amountInput.setError(R.string.error_insufficient_funds);
             isValid = false;
@@ -229,7 +229,7 @@ public class SendActivity extends BaseActivity implements ItemClickListener, Amo
     }
     private void onSendAll() {
         String value = getEthString(ethBalance.doubleValue());
-       amountInput.setAmountText(value);
+       amountInput.setAmountText(value.replace(",","."));
        isSendMax = true;
 
     }
