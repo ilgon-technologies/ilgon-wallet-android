@@ -44,7 +44,7 @@ public class GasService implements ContractGasProvider
     private final static long FETCH_GAS_PRICE_INTERVAL = 30;
     private final MutableLiveData<BigInteger> gasPrice = new MutableLiveData<>();
 
-    private BigInteger currentGasPrice;
+    private final BigInteger currentGasPrice;
     private BigInteger currentGasPriceOverride;
     private BigInteger currentGasLimitOverride;
     private int currentChainId;
@@ -55,7 +55,7 @@ public class GasService implements ContractGasProvider
     {
         this.networkRepository = networkRepository;
         currentChainId = 0;
-        currentGasPrice = BigInteger.ZERO;
+        currentGasPrice = new BigInteger(C.DEFAULT_GAS_PRICE);//BigInteger.ZERO;
         currentGasLimitOverride = BigInteger.ZERO;
         currentGasPriceOverride = BigInteger.ZERO;
         web3j = null;
@@ -68,23 +68,23 @@ public class GasService implements ContractGasProvider
 
     public void fetchGasPriceForChain(int chainId)
     {
-        if (EthereumNetworkRepository.hasGasOverride(chainId))
+        /*if (EthereumNetworkRepository.hasGasOverride(chainId))
         {
             currentGasPrice = EthereumNetworkRepository.gasOverrideValue(chainId);
         }
         else
         {
             if (setupWeb3j(chainId)) fetchCurrentGasPrice();
-        }
+        }*/
     }
 
     public void startGasListener(int chainId)
     {
-        if (setupWeb3j(chainId) && (gasFetchDisposable == null || gasFetchDisposable.isDisposed()))
-        {
-            gasFetchDisposable = Observable.interval(0, FETCH_GAS_PRICE_INTERVAL, TimeUnit.SECONDS)
-                    .doOnNext(l -> fetchCurrentGasPrice()).subscribe();
-        }
+        //if (setupWeb3j(chainId) && (gasFetchDisposable == null || gasFetchDisposable.isDisposed()))
+        //{
+        //    gasFetchDisposable = Observable.interval(0, FETCH_GAS_PRICE_INTERVAL, TimeUnit.SECONDS)
+        //            .doOnNext(l -> fetchCurrentGasPrice()).subscribe();
+        //}
     }
 
     private boolean setupWeb3j(int chainId)
@@ -96,7 +96,7 @@ public class GasService implements ContractGasProvider
         }
         else if (EthereumNetworkRepository.hasGasOverride(chainId))
         {
-            currentGasPrice = EthereumNetworkRepository.gasOverrideValue(chainId);
+           // currentGasPrice = EthereumNetworkRepository.gasOverrideValue(chainId);
             return false;
         }
         else if (web3j == null || currentChainId != chainId)
@@ -121,7 +121,7 @@ public class GasService implements ContractGasProvider
     }
 
     private void fetchCurrentGasPrice()
-    {
+    {/*
         Single.fromCallable(() -> web3j
                 .ethGasPrice()
                 .send())
@@ -138,7 +138,7 @@ public class GasService implements ContractGasProvider
                 gasPrice.postValue(currentGasPrice);
             }
         }, this::onGasFetchError)
-        .isDisposed();
+        .isDisposed();*/
     }
 
     private void onGasFetchError(Throwable e)
@@ -205,15 +205,17 @@ public class GasService implements ContractGasProvider
     @Override
     public BigInteger getGasPrice()
     {
-        if (!currentGasPriceOverride.equals(BigInteger.ZERO)) return currentGasPriceOverride;
-        else return currentGasPrice;
+        return new BigInteger(C.DEFAULT_GAS_PRICE);
+       // if (!currentGasPriceOverride.equals(BigInteger.ZERO)) return currentGasPriceOverride;
+       // else return currentGasPrice;
     }
 
     @Override
     public BigInteger getGasPrice(String contractFunc)
     {
-        if (!currentGasPriceOverride.equals(BigInteger.ZERO)) return currentGasPriceOverride;
-        else return currentGasPrice;
+        return new BigInteger(C.DEFAULT_GAS_PRICE);
+        //if (!currentGasPriceOverride.equals(BigInteger.ZERO)) return currentGasPriceOverride;
+        //else return currentGasPrice;
     }
 
     @Override
@@ -286,7 +288,7 @@ public class GasService implements ContractGasProvider
     }
 
     private void setCurrentPrice(int chainId)
-    {
+    {/*
         if (EthereumNetworkRepository.hasGasOverride(chainId))
         {
             currentGasPrice = EthereumNetworkRepository.gasOverrideValue(chainId);
@@ -302,7 +304,7 @@ public class GasService implements ContractGasProvider
                     currentGasPrice = new BigInteger(C.DEFAULT_GAS_PRICE);
                     break;
             }
-        }
+        }*/
     }
 
     public Single<EthEstimateGas> calculateGasEstimate(byte[] transactionBytes, int chainId, String toAddress, BigInteger amount, Wallet wallet)

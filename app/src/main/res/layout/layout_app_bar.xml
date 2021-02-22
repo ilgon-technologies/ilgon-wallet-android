@@ -10,7 +10,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorPrimary"
+        android:background="@color/ilgoin_background_color"
         android:contentInsetStart="0dp"
         android:contentInsetLeft="0dp"
         android:contentInsetEnd="0dp"
@@ -30,7 +30,8 @@
             android:layout_gravity="center"
             android:fontFamily="@font/font_semibold"
             android:gravity="center"
-            android:textColor="@color/black"
-            android:textSize="20sp" />
+            android:textColor="@color/red"
+            android:textSize="20sp"
+            android:visibility="gone" />
     </androidx.appcompat.widget.Toolbar>
 </com.google.android.material.appbar.AppBarLayout>

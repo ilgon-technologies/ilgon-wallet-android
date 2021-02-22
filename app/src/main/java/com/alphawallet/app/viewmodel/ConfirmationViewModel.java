@@ -260,6 +260,9 @@ public class ConfirmationViewModel extends BaseViewModel {
 
     public String getNetworkName(int chainId)
     {
+        if(findDefaultNetworkInteract.getNetworkName(chainId).equals("Ethereum")){
+            return "ILGON";
+        }
         return findDefaultNetworkInteract.getNetworkName(chainId);
     }
 

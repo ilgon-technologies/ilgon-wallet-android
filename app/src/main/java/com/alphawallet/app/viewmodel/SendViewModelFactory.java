@@ -11,6 +11,7 @@ import com.alphawallet.app.router.MyAddressRouter;
 import com.alphawallet.app.service.AnalyticsService;
 import com.alphawallet.app.service.AnalyticsServiceType;
 import com.alphawallet.app.service.AssetDefinitionService;
+import com.alphawallet.app.service.GasService;
 import com.alphawallet.app.service.GasService2;
 import com.alphawallet.app.service.KeyService;
 import com.alphawallet.app.service.TokensService;
@@ -25,7 +26,7 @@ public class SendViewModelFactory implements ViewModelProvider.Factory {
     private final FetchTransactionsInteract fetchTransactionsInteract;
     private final AddTokenInteract addTokenInteract;
     private final CreateTransactionInteract createTransactionInteract;
-    private final GasService2 gasService;
+    private final GasService gasService;
     private final AssetDefinitionService assetDefinitionService;
     private final KeyService keyService;
     private final AnalyticsServiceType analyticsService;
@@ -36,7 +37,7 @@ public class SendViewModelFactory implements ViewModelProvider.Factory {
                                 FetchTransactionsInteract fetchTransactionsInteract,
                                 AddTokenInteract addTokenInteract,
                                 CreateTransactionInteract createTransactionInteract,
-                                GasService2 gasService,
+                                GasService gasService,
                                 AssetDefinitionService assetDefinitionService,
                                 KeyService keyService,
                                 AnalyticsServiceType analyticsService) {

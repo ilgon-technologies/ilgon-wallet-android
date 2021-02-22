@@ -282,7 +282,6 @@ public class KeyService implements AuthenticationCallback, PinAuthenticationCall
         activity = callingActivity;
         currentWallet = wallet;
         if (isChecking()) return; //guard against resetting existing dialog request
-
         switch (wallet.type)
         {
             case KEYSTORE_LEGACY:

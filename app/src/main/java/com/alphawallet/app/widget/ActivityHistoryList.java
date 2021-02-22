@@ -53,6 +53,7 @@ public class ActivityHistoryList extends LinearLayout
     private final ProgressBar loadingTransactions;
     private final Handler handler = new Handler();
     private final Context context;
+    private Token token;
 
     public ActivityHistoryList(Context context, @Nullable AttributeSet attrs)
     {
@@ -75,6 +76,7 @@ public class ActivityHistoryList extends LinearLayout
     public void startActivityListeners(Realm realm, Wallet wallet, Token token, BigInteger tokenId, final int historyCount)
     {
         this.realm = realm;
+        this.token = token;
 
         activityAdapter.setItemLimit(historyCount);
 
@@ -89,7 +91,7 @@ public class ActivityHistoryList extends LinearLayout
         }
         else
         {
-            realmUpdateQuery = getContractListener(token.tokenInfo.chainId, token.getAddress(), historyCount);
+            realmUpdateQuery = getContractListener(token.tokenInfo.chainId, wallet, token.getAddress(), historyCount);
             initViews(false);
         }
 
@@ -118,7 +120,8 @@ public class ActivityHistoryList extends LinearLayout
         for (RealmTransaction item : realmTransactions)
         {
             TransactionMeta tm = new TransactionMeta(item.getHash(), item.getTimeStamp(), item.getTo(), item.getChainId(), item.getBlockNumber());
-            metas.add(tm);
+            if(token != null && tm.contractAddress.equals(token.tokenInfo.address))
+                metas.add(tm);
             if (tm.isPending) hasPending = true;
         }
 
@@ -150,13 +153,12 @@ public class ActivityHistoryList extends LinearLayout
         }
     }
 
-    private RealmQuery<RealmTransaction> getContractListener(int chainId, String tokenAddress, int count)
+    private RealmQuery<RealmTransaction> getContractListener(int chainId, Wallet wallet, String tokenAddress, int count)
     {
         return realm.where(RealmTransaction.class)
                 .sort("timeStamp", Sort.DESCENDING)
-                .beginGroup().not().equalTo("input", "0x").and().equalTo("to", tokenAddress, Case.INSENSITIVE).endGroup()
-                .equalTo("chainId", chainId)
-                .limit(count);
+                .beginGroup().equalTo("input", "0x").or().equalTo("from", wallet.address, Case.INSENSITIVE).endGroup()
+                .equalTo("chainId", chainId);
     }
 
     private RealmQuery<RealmTransaction> getEthListener(int chainId, Wallet wallet, int count)
@@ -169,8 +171,7 @@ public class ActivityHistoryList extends LinearLayout
                 .or()
                 .equalTo("from", wallet.address, Case.INSENSITIVE)
                 .endGroup()
-                .equalTo("chainId", chainId)
-                .limit(count);
+                .equalTo("chainId", chainId);
     }
 
     private void addItems(List<ActivityMeta> metas)

@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:custom="http://schemas.android.com/apk/res-auto"
-    android:background="@color/colorPrimary"
+    android:background="@color/ilgoin_background_color"
     android:orientation="vertical">
 
     <include layout="@layout/layout_white_toolbar" />

@@ -167,8 +167,9 @@ public class TransactionHolder extends BinderViewHolder<TransactionMeta> impleme
     public void onClick(View view)
     {
         Intent intent = new Intent(getContext(), TokenActivity.class);
+        intent.putExtra(C.EXTRA_STATE,true);
         intent.putExtra(C.EXTRA_TXHASH, transaction.hash);
-        intent.putExtra(C.EXTRA_STATE, fromTokenView);
+        //intent.putExtra(C.EXTRA_STATE, fromTokenView);
         intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         getContext().startActivity(intent);
     }
@@ -209,7 +210,7 @@ public class TransactionHolder extends BinderViewHolder<TransactionMeta> impleme
         }
         else if (transactionBackground != null)
         {
-            transactionBackground.setBackgroundResource(R.color.white);
+            transactionBackground.setBackgroundResource(R.color.ilgoin_background_color);
         }
     }
 }

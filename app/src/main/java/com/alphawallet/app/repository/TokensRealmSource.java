@@ -376,7 +376,7 @@ public class TokensRealmSource implements TokenLocalSource {
     }
 
     @Override
-    public boolean updateTokenBalance(Wallet wallet, int chainId, String tokenAddress, BigDecimal balance, List<BigInteger> balanceArray, ContractType type)
+    public boolean updateTokenBalance(Wallet wallet, int chainId, String tokenAddress, BigDecimal balance, List<BigInteger> balanceArray, ContractType type, BigDecimal stakingBalance)
     {
         boolean balanceChanged = false;
         if (tokenAddress == null) tokenAddress = wallet.address; //base chain update
@@ -391,7 +391,9 @@ public class TokensRealmSource implements TokenLocalSource {
             if (realmToken != null)
             {
                 String currentBalance = realmToken.getBalance();
+                String currentStakingBalance = realmToken.getStakingBalance();
                 String newBalance = balance.toString();
+                String newStakingBalance = stakingBalance.toString();
                 if (balanceArray != null) newBalance = Token.bigIntListToString(balanceArray, true);
 
                 if (type == ContractType.ERC721 || type == ContractType.ERC721_LEGACY)
@@ -407,11 +409,12 @@ public class TokensRealmSource implements TokenLocalSource {
                         balanceChanged = true;
                     }
                 }
-                else if (!newBalance.equals(currentBalance))
+                else if (!newBalance.equals(currentBalance) || !newStakingBalance.equals(currentStakingBalance))
                 {
                     realm.beginTransaction();
                     //updating balance
                     realmToken.setBalance(newBalance);
+                    realmToken.setStakingBalance(newStakingBalance);
                     realmToken.setUpdateTime(System.currentTimeMillis());
                     Log.d(TAG, "Update Token Balance: " + realmToken.getName() + " :" + tokenAddress);
                     balanceChanged = true;
@@ -450,6 +453,7 @@ public class TokensRealmSource implements TokenLocalSource {
             {
                 realm.beginTransaction();
                 token.setRealmBalance(realmToken);
+                token.setRealmStakingBalance(realmToken);
                 realmToken.updateTokenInfoIfRequired(token.tokenInfo);
                 token.setRealmInterfaceSpec(realmToken);
                 realm.commitTransaction();

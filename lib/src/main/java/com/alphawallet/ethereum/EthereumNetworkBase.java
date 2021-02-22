@@ -8,8 +8,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public abstract class EthereumNetworkBase { // implements EthereumNetworkRepositoryType
-    public static final int MAINNET_ID = 1;
-    public static final int CLASSIC_ID = 61;
+    public static final int MAINNET_ID = 6909031;
+    public static final int CLASSIC_ID = 1768712052;
     public static final int POA_ID = 99;
     public static final int KOVAN_ID = 42;
     public static final int ROPSTEN_ID = 3;
@@ -22,8 +22,8 @@ public abstract class EthereumNetworkBase { // implements EthereumNetworkReposit
     public static final int BINANCE_TEST_ID = 97;
     public static final int BINANCE_MAIN_ID = 56;
 
-    public static final String MAINNET_RPC_URL = "https://mainnet.infura.io/v3/da3717f25f824cc1baa32d812386d93f";
-    public static final String CLASSIC_RPC_URL = "https://www.ethercluster.com/etc";
+    public static final String MAINNET_RPC_URL = "https://mainnet-rpc.ilgonwallet.com/";
+    public static final String CLASSIC_RPC_URL = "https://wallet.ilgointest.e-diploma.org/rpc/ilgtest/";
     public static final String XDAI_RPC_URL = "https://dai.poa.network";
     public static final String POA_RPC_URL = "https://core.poa.network/";
     public static final String ROPSTEN_RPC_URL = "https://ropsten.infura.io/v3/da3717f25f824cc1baa32d812386d93f";
@@ -35,12 +35,11 @@ public abstract class EthereumNetworkBase { // implements EthereumNetworkReposit
     public static final String ARTIS_TAU1_RPC_URL = "https://rpc.tau1.artis.network";
     public static final String BINANCE_TEST_RPC_URL = "https://data-seed-prebsc-1-s3.binance.org:8545";
     public static final String BINANCE_MAIN_RPC_URL = "https://bsc-dataseed1.binance.org:443";
-
     static Map<Integer, NetworkInfo> networkMap = new LinkedHashMap<Integer, NetworkInfo>() {
         {
-            put(MAINNET_ID, new NetworkInfo("Ethereum", "ETH", MAINNET_RPC_URL, "https://etherscan.io/tx/",
+            put(MAINNET_ID, new NetworkInfo("ILGON", "ILG", MAINNET_RPC_URL, "https://ilgonexplorer.com/tx/",
                     MAINNET_ID, true));
-            put(CLASSIC_ID, new NetworkInfo("Ethereum Classic", "ETC", CLASSIC_RPC_URL, "https://blockscout.com/etc/mainnet/tx/",
+            put(CLASSIC_ID, new NetworkInfo("ILGON Test", "ILGT", CLASSIC_RPC_URL, "https://explorer.ilgointest.e-diploma.org/tx/",
                     CLASSIC_ID, true));
             put(XDAI_ID, new NetworkInfo("xDAI", "xDAI", XDAI_RPC_URL, "https://blockscout.com/poa/dai/tx/",
                     XDAI_ID, false));
@@ -96,7 +95,7 @@ public abstract class EthereumNetworkBase { // implements EthereumNetworkReposit
         }
         else
         {
-            return networkMap.get(0).symbol;
+            return networkMap.get(1).symbol;
         }
     }
 }

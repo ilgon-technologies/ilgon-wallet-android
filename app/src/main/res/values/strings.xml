@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- String related to sending -->
     <string name="action_send">Send</string>
@@ -74,9 +74,9 @@
     <string name="action_more_details">More details</string>
     <string name="action_add_wallet">Add wallet</string>
     <string name="action_add_token">Add Token</string>
-    <string name="action_open_etherscan">View in Etherscan</string>
+    <string name="action_open_etherscan">View in Explorer</string>
     <string name="action_coinbase">Coinbase</string>
-    <string name="action_localeth">LocalEthereum</string>
+    <string name="action_localeth">LocalILGON</string>
     <string name="action_changelly">Changelly (Buy with Credit card)</string>
     <!-- Subject -->
     <string name="subject_transaction_detail">Transaction detail</string>
@@ -95,8 +95,8 @@
     <string name="dummy_transaction_value">&#45;&#45;</string>
     <string name="title_dialog_sending">Sending...</string>
     <string name="scan_qr">Get address from QR Code</string>
-    <string name="info_gas_price">The higher the gas price, the more expensive your transaction fee will be, but the quicker your transaction will be processed by the Ethereum network.</string>
-    <string name="info_gas_limit">The gas limit prevents smart contracts from consuming all your Ethereum. We will try to calculate the gas limit automatically for you, but some smart contracts may require a custom gas limit.</string>
+    <string name="info_gas_price">The higher the gas price, the more expensive your transaction fee will be, but the quicker your transaction will be processed by the ILGON network.</string>
+    <string name="info_gas_limit">The gas limit prevents smart contracts from consuming all your ILGON. We will try to calculate the gas limit automatically for you, but some smart contracts may require a custom gas limit.</string>
     <string name="title_send_settings">Advanced</string>
     <!--<string name="title_activity_barcode">Barcode Scan</string>-->
     <string name="error_add_token">Could not add token.</string>
@@ -105,9 +105,8 @@
     <string name="error_fail_load_tokens">Failed to load tokens list</string>
     <string name="error_create_wallet">Failed to create a wallet</string>
 
-    <string name="app_name">AlphaWallet</string>
     <string name="all">All</string>
-    <string name="currency">Currencies</string>
+    <string name="currency">Assets</string>
     <string name="advanced">Advanced Options</string>
     <string name="copy_wallet_address">Copy Wallet Address</string>
     <string name="hint_contract_name">Name</string>
@@ -144,7 +143,7 @@
     <string name="filter_distance_label">Distance</string>
     <string name="filter_timeframe_label">Timeframe</string>
     <string name="set_a_price">Set a Price:</string>
-    <string name="learn_more_about_ethereum">Learn more about Ethereum</string>
+    <string name="learn_more_about_ethereum">Learn more about ILGON</string>
     <string name="price_per_ticket">Price Per Ticket</string>
     <string name="set_price_subtext_abr">Set price in %1$s (%2$s)</string>
     <string name="transfer_tickets">Transfer Tickets</string>
@@ -200,8 +199,8 @@
     <string name="filter_search_class">Class</string>
     <string name="filter_search_seats">No. of Seats Together</string>
     <string name="search_label_match">Match</string>
-    <string name="help_question1">What is ETH/Ethereum?</string>
-    <string name="help_question2">Why does aWallet use Ethereum?</string>
+    <string name="help_question1">What is ILG/ILGONCoin?</string>
+    <string name="help_question2">Why does aWallet use ILGON?</string>
     <string name="help_question3">How do I get my money?</string>
     <string name="help_question4">What is a Seed Phrase?</string>
     <string name="help_question5">How do I transfer ETH into my wallet?</string>
@@ -214,11 +213,11 @@
     <string name="twenty_four_hours">24 hours</string>
     <string name="appreciation">Appreciation</string>
     <string name="eth_per_ticket">%1$s/Ticket</string>
-    <string name="ethereum">Ethereum</string>
-    <string name="ethereum_blockchain">Ethereum Blockchain</string>
+    <string name="ethereum">ILGON</string>
+    <string name="ethereum_blockchain">ILGON Blockchain</string>
     <string name="issuer">Issuer:</string>
     <string name="root_title">DEVICE SECURITY COMPROMISED</string>
-    <string name="root_body">Your phone is rooted but the keys are still protected by Android secure enclave encryption. The attack vector would be from a keyboard app or clipboard viewer learning your key when you enter it. AlphaWallet does its best to mitigate this risk by switching off keyboard auto-suggest. If you run root, recommend you only use mainstream keyboard apps, run a good quality anti-virus app and use a respected open source root manager such as Magisk or SuperSU to limit access to root privileges. Ultimately key safety is your responsibility.</string>
+    <string name="root_body">Your phone is rooted but the keys are still protected by Android secure enclave encryption. The attack vector would be from a keyboard app or clipboard viewer learning your key when you enter it. ILGON Wallet does its best to mitigate this risk by switching off keyboard auto-suggest. If you run root, recommend you only use mainstream keyboard apps, run a good quality anti-virus app and use a respected open source root manager such as Magisk or SuperSU to limit access to root privileges. Ultimately key safety is your responsibility.</string>
     <string name="contact_us">Still need help? Contact us</string>
     <string name="confirm_sale_title">Confirm Sale?</string>
     <string name="dialog_cancel_back">Cancel and Go Back</string>
@@ -237,7 +236,7 @@
     <string name="tx_label">Transactions</string>
     <string name="browser_label">Browser</string>
     <string name="settings_label">Settings</string>
-    <string name="activity_label">Activity</string>
+    <string name="activity_label">History</string>
     <string name="toolbar_header_importing_tickets">Importing Tokens</string>
     <string name="ticket">Ticket</string>
     <string name="tickets">Tickets</string>
@@ -275,17 +274,17 @@
     <string name="date_hint">DD/MM/YYYY</string>
     <string name="universal_link_notice">Before the link expires, anyone with the MagicLink can purchase your tickets with one click.</string>
     <string name="label_important">Important</string>
-    <string name="eth_00">0.00 ETH</string>
+    <string name="eth_00">0.00 ILG</string>
     <string name="toolbar_title_wallets">Change Wallet</string>
     <string name="facebook">Facebook</string>
     <string name="twitter">Twitter</string>
     <string name="erc20">ERC 20</string>
     <string name="erc875">ERC 875</string>
     <string name="erc875legacy">ERC 875*</string>
-    <string name="what_is_eth">Ethereum is an open-source, public, blockchain-based distributed computing platform and operating system featuring smart contract (scripting) functionality. It is the infrastructure for blockchain products and services.\n\nETH/Ether is a cryptocurrency whose blockchain is generated by the Ethereum platform. Ether can be transferred between accounts and used to compensate participant mining nodes for computations performed. Ethereum provides a decentralised Turing-complete virtual machine, the Ethereum Virtual Machine (EVM), which can execute scripts using an international network of public nodes. "Gas", an internal transaction pricing mechanism, is used to mitigate spam and allocate resources on the network.</string>
-    <string name="why_alphawallet_eth">Currently, Ethereum is the best and largest blockchain for developing smart contract application and services. AlphaWallet starts with supporting Ethereum blockchain and helps improving its technology.</string>
-    <string name="how_i_get_money">You can convert Ethereum to fiat money and transfer it to your bank account through any cryptocurrency exchange.</string>
-    <string name="how_i_transfer_into_wallet">You can provide your wallet address to the sender. They can transfer ETH to you with your wallet address.</string>
+    <string name="what_is_eth">ILGON is an open-source, public, blockchain-based distributed computing platform and operating system featuring smart contract (scripting) functionality. It is the infrastructure for blockchain products and services.\n\nILG/ILGONCoin is a cryptocurrency whose blockchain is generated by the ILGON platform. ILGONNativeCoin can be transferred between accounts and used to compensate participant mining nodes for computations performed. ILGON provides a decentralised Turing-complete virtual machine, the ILGON Virtual Machine (EVM), which can execute scripts using an international network of public nodes. "Gas", an internal transaction pricing mechanism, is used to mitigate spam and allocate resources on the network.</string>
+    <string name="why_alphawallet_eth">Currently, ILGON is the best and largest blockchain for developing smart contract application and services. ILGON wallet starts with supporting ILGON blockchain and helps improving its technology.</string>
+    <string name="how_i_get_money">You can convert ILGON to fiat money and transfer it to your bank account through any cryptocurrency exchange.</string>
+    <string name="how_i_transfer_into_wallet">You can provide your wallet address to the sender. They can transfer ILG to you with your wallet address.</string>
     <string name="ticket_import_valid">Tickets Valid for Import</string>
     <string name="ticket_already_imported">Tickets already imported</string>
     <string name="ticket_range_inavlid">Tickets partially imported</string>
@@ -328,25 +327,26 @@
     <string name="ticket_magiclink_purchase">Magiclink Purchase</string>
 
     <string name="action_next">Next</string>
+    <string name="send_all" tools:ignore="MissingTranslation">Send All</string>
     <string name="action_save">Save</string>
     <string name="action_contract_info">Contract Info</string>
     <string name="contract_address">Contract Address</string>
-    <string name="input_address">Ethereum address or ENS name</string>
+    <string name="input_address">ILGON address or ENS name</string>
     <string name="ens_name">ENS name</string>
     <string name="enter_ens">Your ENS name</string>
     <string name="ticket_range_expired">Magiclink Expired</string>
     <string name="ticket_not_valid">Invalid Token</string>
     <string name="ticket_not_valid_body">No valid contract at this address on this network. The contract could have been terminated or it may be on a different network. Try changing to \'Ropsten (Test)\'.</string>
     <string name="new_version_title">Update available</string>
-    <string name="new_version">Version update is available on the AlphaWallet website.</string>
+    <string name="new_version">Version update is available on the ILGON Wallet website.</string>
     <string name="confirm_update">Download and Install</string>
     <string name="dialog_later">Later</string>
-    <string name="alphawallet_update">Alphawallet update</string>
+    <string name="alphawallet_update">ILGON wallet update</string>
     <string name="install_error">Unable to update App</string>
     <string name="require_write_permission">Storage write permission not given.</string>
     <string name="dialog_not_again">Skip until next release</string>
     <string name="enable_xml_override_dir">Enable XML Override</string>
-    <string name="explain_xml_override">Enable XML override will create a directory \'AlphaWallet\' in your phone storage. Token config files (XML) can be dropped into this directory which will override default or network Token configs.</string>
+    <string name="explain_xml_override">Enable XML override will create a directory \'ILGON wallet\' in your phone storage. Token config files (XML) can be dropped into this directory which will override default or network Token configs.</string>
     <string name="ask_user_about_xml_override">Do you wish to enable Token config override directory?</string>
     <string name="label_contract">Contract</string>
     <string name="toolbar_header_browser">DApp Browser</string>
@@ -385,7 +385,7 @@
     <string name="no_recent_transactions">You have no transactions yet</string>
     <string name="paste">Paste</string>
     <string name="no_recent_transactions_subtext">When you send or receive %1$s,\n your transactions will appear here</string>
-    <string name="no_recent_transactions_subtext_ether">ether</string>
+    <string name="no_recent_transactions_subtext_ether">ILGONCoin</string>
     <string name="no_recent_transactions_subtext_tokens">tokens</string>
     <string name="invalid_transaction">Invalid Transaction</string>
     <string name="contains_no_data">DApp transaction contains no data</string>
@@ -398,8 +398,8 @@
     <string name="dust_value"><![CDATA[~0.00]]></string>
     <string name="action_scan_dapp">Scan QR Code</string>
     <string name="toast_invalid_code">Invalid Scan Result</string>
-    <string name="address_found">Ethereum Address</string>
-    <string name="is_address">Just scanned an Ethereum address. Do you want to try to load this as a Token?</string>
+    <string name="address_found">ILGON Address</string>
+    <string name="is_address">Just scanned an ILGON address. Do you want to try to load this as a Token?</string>
     <string name="dialog_load_as_contract">Load Token</string>
     <string name="blockchain">%1$s Blockchain</string>
     <string name="currency_00">0.00 %s</string>
@@ -413,7 +413,7 @@
     <string name="wallet_name">Wallet Name</string>
     <string name="wallet_name_template">Wallet %1$d</string>
     <string name="no_token_found_title">Token Not Found</string>
-    <string name="no_token_found">No Token contract found at this address on any active Ethereum chain.</string>
+    <string name="no_token_found">No Token contract found at this address on any active ILGON chain.</string>
     <string name="welcome_to_the_decentralized_web">Welcome to the Decentralized web</string>
     <string name="action_remove">Remove</string>
     <string name="title_remove_dapp">Remove DApp</string>
@@ -439,12 +439,12 @@
     <string name="select_active_networks">Select Active Networks</string>
     <string name="collectibles">Collectibles</string>
     <string name="token_function">Token Function</string>
-    <string name="channel_description">Alphawallet notification channel</string>
+    <string name="channel_description">ILGON wallet notification channel</string>
     <string name="error_camera_permission_denied">Permission to use the camera was denied.</string>
     <string name="confirm_tokenscript_transaction">Confirm TokenScript Transaction</string>
     <string name="tokenscript_send_native">Send %1$s %2$s to %3$s (%4$s)</string>
     <string name="current_funds">Current funds: %1$s %2$s</string>
-    <string name="invalid_address_explain">%1$s is not a valid ethereum address</string>
+    <string name="invalid_address_explain">%1$s is not a valid ILGON address</string>
     <string name="select_single_network">Active Network</string>
     <string name="searching_for_token">Scanning for Token</string>
     <string name="token_selection">Token Selection</string>
@@ -478,7 +478,7 @@
     <string name="set_keystore_password">Set Keystore Password</string>
     <string name="keystore_loss_warning">NOTE: You must remember your password. We do not store your password elsewhere. KeyStore is always encrypted, otherwise whoever has it can gain the money.</string>
     <string name="save_keystore">Save Keystore</string>
-    <string name="do_not_share">Do not share your backup. AlphaWallet team members will not ask for it.</string>
+    <string name="do_not_share">Do not share your backup. ILGON wallet team members will not ask for it.</string>
     <string name="enter_seed_phrase">Enter seed phrase</string>
     <string name="seed_phrase_conversion_message">If your seed phrase is not in English, please convert it to English on your own using tools like this https://iancoleman.io/bip39/</string>
     <string name="bad_seed_phrase">Invalid recovery phrase. Please check and try again.</string>
@@ -505,8 +505,8 @@
     <string name="watch">WATCH</string>
     <string name="already_have_a_wallet">I already have a wallet:</string>
     <string name="watch_wallet">Watch-only Wallets</string>
-    <string name="suggestion_address">Enter Ethereum Address</string>
-    <string name="ethereum_address_hint">Ethereum Address: 0x then 40 characters of 0–9 a-f A-F</string>
+    <string name="suggestion_address">Enter ILGON Address</string>
+    <string name="ethereum_address_hint">ILGON Address: 0x then 40 characters of 0–9 a-f A-F</string>
     <string name="action_watch_account">Watch Wallet</string>
     <string name="receive_payment">Receive Payment</string>
     <string name="title_back_up_your_wallet">Back up your Wallet</string>
@@ -517,7 +517,7 @@
     <string name="back_up_now">Back up now!</string>
     <string name="key_secure">Do not share your key</string>
     <string name="lock_key_upgrade">Lock your seed phrase to increase security</string>
-    <string name="upgrade_key_security_detail">AlphaWallet security is being upgraded to the best achievable. Lock your seed phrase with biometrics.</string>
+    <string name="upgrade_key_security_detail">ILGON wallet security is being upgraded to the best achievable. Lock your seed phrase with biometrics.</string>
     <string name="action_upgrade_key">Upgrade key security</string>
     <string name="backup_wallet_detail">We highly recommend you back up your wallet.</string>
     <string name="skip_upgrade">Skip Upgrade</string>
@@ -529,7 +529,7 @@
     <string name="provide_authentication">Provide authentication to create key</string>
     <string name="import_error">Import Error, Try re-import again.</string>
     <string name="watch_exists">Wallet %1$s already full wallet - no need to watch</string>
-    <string name="welcome_to_alphawallet">Welcome to AlphaWallet</string>
+    <string name="welcome_to_alphawallet">Welcome to ILGON wallet</string>
     <string name="lock_seed_phrase">Lock Seed Phrase</string>
     <string name="no_key">No Key found</string>
     <string name="pending_transaction">Pending Transaction ...</string>
@@ -605,7 +605,7 @@
     <string name="your_wallets">Your Wallets</string>
     <string name="action_copy">Copy</string>
     <string name="title_version_support_warning">Important Update</string>
-    <string name="message_version_support_warning">Starting Version 3.0, AlphaWallet will no longer support devices running on Android 6.0 and below.</string>
+    <string name="message_version_support_warning">Starting Version 3.0, ILGON wallet will no longer support devices running on Android 6.0 and below.</string>
     <string name="hide_notification">Hide Notification</string>
     <string name="card_view_not_found_error">%1$s not found</string>
     <string name="tokenscript_management">TokenScript Management</string>
@@ -617,12 +617,12 @@
     <string name="fast">Fast</string>
     <string name="label_estimated_transaction_time">Estimated Transaction Time</string>
     <string name="minutes_0">0 min</string>
-    <string name="created_aw_directory">Created AlphaWallet Directory</string>
-    <string name="created_aw_directory_detail">AlphaWallet directory created. Drop scripts into this directory to use your scripts. See tokenscript.org for more details on how to easily create a secure and useful interface to your tokens.</string>
+    <string name="created_aw_directory">Created ILGON wallet Directory</string>
+    <string name="created_aw_directory_detail">ILGON wallet directory created. Drop scripts into this directory to use your scripts. See tokenscript.org for more details on how to easily create a secure and useful interface to your tokens.</string>
     <string name="title_no_need_to_watch">Already Watching</string>
     <string name="error_while_signing_transaction">Error occurred while signing transaction. Please re-import the key for this wallet.</string>
     <string name="error_not_whitelisted">Page Not Whitelisted</string>
-    <string name="explain_not_whitelisted">TokenScript attempting to redirect to non-whitelisted page %1$s. If you are the owner of this site please submit PR to AlphaWallet repo to add page for whitelisting.</string>
+    <string name="explain_not_whitelisted">TokenScript attempting to redirect to non-whitelisted page %1$s. If you are the owner of this site please submit PR to ILGON wallet repo to add page for whitelisting.</string>
     <string name="token_spec">%1$s (%2$s)</string>
     <string name="check_function_availability">Function Availability</string>
     <string name="invalid_parameters">Invalid parameter while calling TokenScript Transaction. Please check inputs.</string>
@@ -666,7 +666,7 @@
     <string name="search_for_tokens">Search for Tokens...</string>
     <string name="title_wallet_connect">WalletConnect</string>
     <string name="action_end_session">End Session</string>
-    <string name="dialog_send_eth_transaction">Send ETH Transaction</string>
+    <string name="dialog_send_eth_transaction">Send ILG Transaction</string>
     <string name="message_reject_request">Rejected by the user</string>
     <string name="dialog_title_disconnect_session">Disconnect Session</string>
     <string name="message_authentication_failed">Authentication failed</string>
@@ -686,7 +686,7 @@
     <string name="tokenscript_call">TokenScript call:</string>
     <string name="testnet" translatable="false">Testnet</string>
     <string name="today">Today</string>
-    <string name="go_to_token">Go to Token</string>
+    <string name="go_to_token">Details</string>
     <string name="invalid_walletconnect_session">Invalid WalletConnect Session</string>
     <string name="restart_walletconnect_session">Previous WalletConnect session not correctly terminated. Please return to webpage and disconnect, then start a new session.</string>
     <string name="invalid_walletconnect_data">Invalid WalletConnect QR data</string>
@@ -720,14 +720,14 @@
     <string name="new_balance">(New: %1$s %2$s)</string>
     <string name="set_speed_title">Set Speed</string>
     <string name="gas_price_widget">Gas Price: %1$s</string>
-    <string name="gas_message">Fees are based on current Ethereum blockchain network load. They are not up to AlphaWallet. AlphaWallet uses the gasnow.org live oracle and updates the gas prices every 15 seconds.</string>
+    <string name="gas_message">Fees are based on current blockchain network load. They are not up to ILGON Wallet.</string>
     <string name="set_your_speed">Set Your Own</string>
     <string name="nonce_optional">Nonce (optional)</string>
     <string name="calc_gas_limit">Calculating Gas Limit</string>
     <string name="wallet_address">Wallet Address</string>
     <string name="transaction_in_progress">Transaction in Progress</string>
-    <string name="transaction_progress_detail">The transaction is sent to the Ethereum blockchain. It might take few minutes to be confirmed by miners.</string>
-    <string name="action_show_tx_details">Show Transaction Details</string>
+    <string name="transaction_progress_detail">The transaction is sent to the blockchain. It might take few minutes to be confirmed by miners.</string>
+    <string name="action_show_tx_details">Back</string>
     <string name="default_to">Sent %1$s %2$s to %3$s</string>
     <string name="default_from">Received %1$s %2$s from %3$s</string>
     <string name="default_approved">You have received approval to move %1$s %2$s from %3$s</string>

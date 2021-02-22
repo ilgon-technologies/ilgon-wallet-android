@@ -487,7 +487,7 @@ public class BackupKeyActivity extends BaseActivity implements
     }
 
     private void onWordClick(TextView tv) {
-        tv.setTextColor(getColor(R.color.alabaster));
+        tv.setTextColor(getColor(R.color.ilgoin_background_color));
         tv.setBackgroundResource(R.drawable.background_seed_word_selected);
         tv.setOnClickListener(null);
         String currentText = verifyTextBox.getText().toString();

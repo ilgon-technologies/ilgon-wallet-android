@@ -6,7 +6,7 @@
     android:id="@+id/layout_background"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/white"
+    android:background="@color/ilgoin_background_color"
     android:orientation="horizontal"
     android:padding="@dimen/dp8"
     android:minHeight="80dp">
@@ -30,6 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
+            android:background="@color/ilgoin_background_color"
             android:layout_toStartOf="@id/value"
             android:orientation="horizontal">
 

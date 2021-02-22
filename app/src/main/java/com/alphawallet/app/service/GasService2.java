@@ -52,6 +52,7 @@ import static com.alphawallet.app.repository.TokensRealmSource.TICKER_DB;
  * Starts a cycle to update the gas settings stored in the database
  * Service automatically cleans up after itself - erasing readings older than 12 hours
  */
+
 public class GasService2 implements ContractGasProvider
 {
     private final static String GAS_NOW_API = "https://www.gasnow.org/api/v3/gas/price?utm_source=AlphaWallet";
@@ -305,7 +306,7 @@ public class GasService2 implements ContractGasProvider
         switch (token.getInterfaceSpec())
         {
             case ETHEREUM:
-                return hasPayload ? BigInteger.valueOf(GAS_LIMIT_CONTRACT) : BigInteger.valueOf(GAS_LIMIT_MIN);
+                return hasPayload ? BigInteger.valueOf(GAS_LIMIT_CONTRACT) : BigInteger.valueOf(GAS_LIMIT_DEFAULT);
             case ERC20:
                 return BigInteger.valueOf(GAS_LIMIT_DEFAULT);
             case ERC875_LEGACY:

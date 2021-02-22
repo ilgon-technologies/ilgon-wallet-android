@@ -51,7 +51,7 @@ public class Erc20DetailActivity extends BaseActivity implements StandardFunctio
     Erc20DetailViewModelFactory erc20DetailViewModelFactory;
     Erc20DetailViewModel viewModel;
 
-    public static final int HISTORY_LENGTH = 5;
+    public static final int HISTORY_LENGTH = 100;
 
     private String symbol;
     private Wallet wallet;

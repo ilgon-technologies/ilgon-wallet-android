@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -62,12 +63,16 @@ import dagger.android.AndroidInjection;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
+import static com.alphawallet.app.C.DEFAULT_GAS_LIMIT;
+import static com.alphawallet.app.C.GAS_LIMIT_DEFAULT;
 import static com.alphawallet.app.C.GAS_LIMIT_MIN;
+import static com.alphawallet.app.C.GAS_PRICE_DEFAULT;
 import static com.alphawallet.app.C.Key.WALLET;
 import static com.alphawallet.app.repository.EthereumNetworkBase.MAINNET_ID;
 import static com.alphawallet.app.repository.EthereumNetworkBase.hasGasOverride;
 import static com.alphawallet.app.widget.AWalletAlertDialog.ERROR;
 import static com.alphawallet.app.widget.AWalletAlertDialog.WARNING;
+import static com.alphawallet.token.tools.Convert.getEthString;
 import static org.web3j.crypto.WalletUtils.isValidAddress;
 
 public class SendActivity extends BaseActivity implements AmountReadyCallback, StandardFunctionInterface, AddressReadyCallback, ActionSheetCallback
@@ -92,6 +97,12 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
     private BigDecimal sendAmount;
     private BigDecimal sendGasPrice;
     private ActionSheetDialog confirmationDialog;
+    //private Button sendAllBtn;
+    private BigDecimal ethBalance;
+    //private boolean isSendMax;
+
+    private SignAuthenticationCallback signCallback;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -103,6 +114,8 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
         viewModel = new ViewModelProvider(this, sendViewModelFactory)
                 .get(SendViewModel.class);
 
+        //isSendMax = false;
+
         String contractAddress = getIntent().getStringExtra(C.EXTRA_CONTRACT_ADDRESS);
         wallet = getIntent().getParcelableExtra(WALLET);
         token = getIntent().getParcelableExtra(C.EXTRA_TOKEN_ID);
@@ -111,8 +124,13 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
         viewModel.transactionFinalised().observe(this, this::txWritten);
         viewModel.transactionError().observe(this, this::txError);
 
+        //sendAllBtn = findViewById(R.id.send_all_button);
+        //sendAllBtn.setOnClickListener(v -> {
+        //    onSendAll();
+        //});
+
         sendAddress = null;
-        sendGasPrice = BigDecimal.ZERO;
+        sendGasPrice = BigDecimal.valueOf(GAS_PRICE_DEFAULT);//BigDecimal.ZERO;
         sendAmount = NEGATIVE;
 
         if (!checkTokenValidity(currentChain, contractAddress)) { return; }
@@ -263,6 +281,9 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
                     ));
                     break;
             }
+        } else if (signCallback != null){
+            signCallback.gotAuthorisation(resultCode == RESULT_OK);
+            signCallback = null;
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -466,16 +487,18 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
     }
 
     @Override
-    public void amountReady(BigDecimal value, BigDecimal gasPrice)
+    public void amountReady(BigDecimal value, BigDecimal gasFee)
     {
         Token base = viewModel.getToken(token.tokenInfo.chainId, wallet.address);
         //validate that we have sufficient balance
-        if ((token.isEthereum() && token.balance.subtract(value).compareTo(BigDecimal.ZERO) > 0) // if sending base ethereum then check we have more than just the value
-             || (hasGasOverride(token.tokenInfo.chainId) && token.getBalanceRaw().subtract(value).compareTo(BigDecimal.ZERO) >= 0) //allow for chains with no gas requirement
-             || (base.balance.compareTo(BigDecimal.ZERO) > 0 && token.getBalanceRaw().subtract(value).compareTo(BigDecimal.ZERO) >= 0)) // contract token, check gas and sufficient token balance
+        if ((token.isEthereum() && token.balance.subtract(value).subtract(gasFee).compareTo(BigDecimal.ZERO) >= 0) // if sending base ethereum then check we have more than just the value
+             //|| (hasGasOverride(token.tokenInfo.chainId) && token.getBalanceRaw().subtract(value).compareTo(BigDecimal.ZERO) >= 0) //allow for chains with no gas requirement
+             || (!token.isEthereum()
+                && base.balance.compareTo(BigDecimal.ZERO) > 0
+                && token.getBalanceRaw().subtract(value).compareTo(BigDecimal.ZERO) >= 0)) // contract token, check gas and sufficient token balance
         {
             sendAmount = value;
-            sendGasPrice = gasPrice;
+            //sendGasPrice = gasPrice;
             calculateTransactionCost();
         }
         else
@@ -569,6 +592,7 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
     private void checkConfirm(final BigInteger sendGasLimit, final byte[] transactionBytes, final String txSendAddress)
     {
         BigInteger ethValue = token.isEthereum() ? sendAmount.toBigInteger() : BigInteger.ZERO;
+        Log.d("DEBUG", "Check confirm "+sendGasLimit+" "+sendGasPrice);
         Web3Transaction w3tx = new Web3Transaction(
                 new Address(txSendAddress),
                 new Address(token.getAddress()),
@@ -602,6 +626,7 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
     @Override
     public void getAuthorisation(SignAuthenticationCallback callback)
     {
+        signCallback = callback;
         viewModel.getAuthentication(this, wallet, callback);
     }
 
@@ -662,7 +687,7 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
         dialog.setButtonText(R.string.button_ok);
         dialog.setSecondaryButtonText(R.string.action_cancel);
         dialog.setButtonListener(v -> {
-            BigInteger gasEstimate = GasService2.getDefaultGasLimit(token, w3tx);
+            BigInteger gasEstimate = new BigInteger(DEFAULT_GAS_LIMIT);//GasService2.getDefaultGasLimit(token, w3tx);
             checkConfirm(gasEstimate, transactionBytes, txSendAddress);
         });
 

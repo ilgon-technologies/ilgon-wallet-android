@@ -24,6 +24,7 @@ import com.alphawallet.app.repository.EthereumNetworkRepository;
 import com.alphawallet.app.repository.EthereumNetworkRepositoryType;
 import com.alphawallet.app.repository.PreferenceRepositoryType;
 import com.alphawallet.app.repository.TokenRepositoryType;
+import com.alphawallet.app.ui.widget.onTokenBalanceChangedListener;
 import com.alphawallet.token.entity.ContractAddress;
 
 import java.math.BigDecimal;
@@ -74,6 +75,16 @@ public class TokensService
     private long nextOpenSeaCheck;
     private int openSeaCount;
     private boolean appHasFocus = true;
+
+    public onTokenBalanceChangedListener getOnTokenBalanceChangedListener() {
+        return onTokenBalanceChangedListener;
+    }
+
+    public void setOnTokenBalanceChangedListener(com.alphawallet.app.ui.widget.onTokenBalanceChangedListener onTokenBalanceChangedListener) {
+        this.onTokenBalanceChangedListener = onTokenBalanceChangedListener;
+    }
+
+    private onTokenBalanceChangedListener onTokenBalanceChangedListener;
 
     @Nullable
     private Disposable tokenCheckDisposable;
@@ -341,7 +352,12 @@ public class TokensService
     public String getNetworkName(int chainId)
     {
         NetworkInfo info = ethereumNetworkRepository.getNetworkByChain(chainId);
-        if (info != null) return info.getShortName();
+        if (info != null){
+            if(info.getShortName().equals("Ethereum")){
+                return "ILGON";
+            }
+            return info.getShortName();
+        }
         else return "";
     }
 
@@ -405,7 +421,7 @@ public class TokensService
 
         if (t != null)
         {
-            if (BuildConfig.DEBUG) Log.d("TOKEN", "Updating: " + t.tokenInfo.chainId + (t.isEthereum()? " (Base Chain) ":"") + " : " + t.getAddress() + " : " + t.getFullName());
+            Log.d("TOKEN", "Updating: " +t.tokenInfo.symbol+ t.tokenInfo.chainId + (t.isEthereum()? " (Base Chain) ":"") + " : " + t.getAddress());
             balanceCheckDisposable = tokenRepository.updateTokenBalance(currentAddress, t.tokenInfo.chainId, t.getAddress(), t.getInterfaceSpec())
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -423,6 +439,9 @@ public class TokensService
 
     private void onBalanceChange(Boolean balanceChange, int chainId)
     {
+        if(onTokenBalanceChangedListener != null && balanceChange){
+            onTokenBalanceChangedListener.onTokenBalanceChanged();
+        }
         // could still be pending transactions so let's keep checking for a short while
         if (balanceChange && BuildConfig.DEBUG) Log.d("TOKEN", "Change Registered: * " + chainId);
     }
@@ -451,13 +470,16 @@ public class TokensService
         nextOpenSeaCheck = System.currentTimeMillis() + OPENSEA_CHECK_INTERVAL;
         final Wallet wallet = new Wallet(currentAddress);
         NetworkInfo info = openSeaCount != OPENSEA_RINKEBY_CHECK ? ethereumNetworkRepository.getNetworkByChain(MAINNET_ID) : ethereumNetworkRepository.getNetworkByChain(RINKEBY_ID);
-        if (BuildConfig.DEBUG) Log.d("OPENSEA", "Fetch from opensea : " + currentAddress + " : " + info.getShortName());
-        tokenCheckDisposable = openseaService.getTokens(currentAddress, info.chainId, info.getShortName(), this)
-                .flatMap(tokens -> tokenRepository.checkInterface(tokens, wallet)) //check the token interface
-                .flatMap(tokens -> tokenRepository.storeTokens(wallet, tokens)) //store fetched tokens
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::checkERC20, this::onOpenseaError);
+        if(info != null) {
+            if (BuildConfig.DEBUG)
+                Log.d("OPENSEA", "Fetch from opensea : " + currentAddress + " : " + info.getShortName());
+            tokenCheckDisposable = openseaService.getTokens(currentAddress, info.chainId, info.getShortName(), this)
+                    .flatMap(tokens -> tokenRepository.checkInterface(tokens, wallet)) //check the token interface
+                    .flatMap(tokens -> tokenRepository.storeTokens(wallet, tokens)) //store fetched tokens
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(this::checkERC20, this::onOpenseaError);
+        }
 
         if (openSeaCount >= OPENSEA_RINKEBY_CHECK) openSeaCount = 0;
     }
@@ -582,11 +604,11 @@ public class TokensService
             long lastUpdateDiff = currentTime - check.lastUpdate;
             float weighting = check.calculateBalanceUpdateWeight();
 
-            if (!appHasFocus && !token.isEthereum()) continue; //only check chains when wallet out of focus
+            //if (!appHasFocus && !token.isEthereum()) continue; //only check chains when wallet out of focus
 
             //simply multiply the weighting by the last diff.
             float updateFactor = weighting * (float) lastUpdateDiff;
-            long cutoffCheck = 30*DateUtils.SECOND_IN_MILLIS; //normal minimum update frequency for token 30 seconds
+            long cutoffCheck = 5*DateUtils.SECOND_IN_MILLIS; //normal minimum update frequency for token 5 seconds
 
             if (focusToken != null && token.tokenInfo.chainId == focusToken.chainId && token.getAddress().equalsIgnoreCase(focusToken.address))
             {

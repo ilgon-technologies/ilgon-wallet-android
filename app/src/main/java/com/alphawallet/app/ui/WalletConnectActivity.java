@@ -18,6 +18,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.alphawallet.app.BuildConfig;
 import com.alphawallet.app.C;
 import com.alphawallet.app.R;
 import com.alphawallet.app.entity.CryptoFunctions;
@@ -117,6 +118,8 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
     private boolean sessionStarted = false;
     private boolean waitForWalletConnectSession = false;
 
+    private int channelId = BuildConfig.MAIN_CHAIN_ID;
+
     private final Handler handler = new Handler();
 
     @Nullable
@@ -134,6 +137,14 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
         toolbar();
 
         setTitle(getString(R.string.title_wallet_connect));
+
+        if (getIntent() != null && getIntent().getExtras() != null) {
+            Integer id = getIntent().getExtras().getInt(C.EXTRA_WALLET_CONNECT_CHANNEL_ID);
+            if (id != null) {
+                channelId = id;
+                chainIdOverride = channelId;
+            }
+        }
 
         initViews();
 
@@ -266,7 +277,7 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
     {
         viewModel = new ViewModelProvider(this, viewModelFactory)
                 .get(WalletConnectViewModel.class);
-
+        viewModel.setChainId(channelId);
         viewModel.defaultWallet().observe(this, this::onDefaultWallet);
         viewModel.serviceReady().observe(this, this::onServiceReady);
     }
@@ -436,7 +447,7 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
 
     private void invalidSession()
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder(WalletConnectActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.MyDialogStyle);
         AlertDialog dialog = builder.setTitle(R.string.invalid_walletconnect_session)
                 .setMessage(R.string.restart_walletconnect_session)
                 .setPositiveButton(R.string.dialog_ok, (d, w) -> finish())
@@ -561,10 +572,11 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
         peerName.setText(peer.getName());
         peerUrl.setText(peer.getUrl());
         signCount.setText(R.string.empty);
-        final int chainId = chainIdOverride > 0 ? chainIdOverride : chainIdHint;
+        //final int chainId = chainIdOverride > 0 ? chainIdOverride : chainIdHint;
+        final int chainId = channelId;
         chainName.setChainID(chainId);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(WalletConnectActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyDialogStyle);
         AlertDialog dialog = builder
                 .setIcon(icon.getDrawable())
                 .setTitle(peer.getName())
@@ -632,7 +644,7 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
             return;
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(WalletConnectActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyDialogStyle);
         AlertDialog dialog = builder.setTitle(R.string.title_dialog_error)
                 .setMessage(throwable.getMessage())
                 .setPositiveButton(R.string.try_again, (d, w) -> {
@@ -807,7 +819,7 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
             return;
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(WalletConnectActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyDialogStyle);
         AlertDialog dialog = builder.setTitle(R.string.title_dialog_error)
                 .setMessage(message)
                 .setPositiveButton(R.string.try_again, (d, w) -> {
@@ -833,7 +845,7 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
             return;
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(WalletConnectActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyDialogStyle);
         AlertDialog dialog = builder.setTitle(title)
                 .setMessage(message)
                 .setPositiveButton(R.string.action_cancel, (d, w) -> {
@@ -878,7 +890,7 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
         }
 
         runOnUiThread(() -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(WalletConnectActivity.this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyDialogStyle);
             AlertDialog dialog = builder.setTitle(R.string.dialog_title_disconnect_session)
                     .setPositiveButton(R.string.dialog_ok, (d, w) -> {
                         killSession();
@@ -906,7 +918,7 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
         }
 
         runOnUiThread(() -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(WalletConnectActivity.this);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.MyDialogStyle);
             AlertDialog dialog = builder.setTitle(R.string.title_dialog_error)
                     .setMessage(message)
                     .setPositiveButton(R.string.dialog_ok, (d, w) -> {
@@ -951,7 +963,10 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
                     confirmationDialog.setCurrentGasIndex(gasSelectionIndex, customGasPrice, customGasLimit, expectedTxTime, customNonce);
                 }
             }
-            else if (signCallback != null) signCallback.gotAuthorisation(true);
+            else if (signCallback != null) {
+                signCallback.gotAuthorisation(true);
+                signCallback = null;
+            }
         }
         else
         {
@@ -975,7 +990,7 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
         if (resultCode == RESULT_OK && web3Tx != null)
         {
             String hashData = data.getStringExtra(C.EXTRA_TRANSACTION_DATA);
-            viewModel.recordSignTransaction(getApplicationContext(), web3Tx, client.getChainId(), getSessionId());
+            viewModel.recordSignTransaction(getApplicationContext(), web3Tx, channelId, getSessionId());
             viewModel.approveRequest(getSessionId(), lastId, hashData);
         }
         else if (web3Tx != null)
@@ -997,6 +1012,7 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
     @Override
     public void getAuthorisation(SignAuthenticationCallback callback)
     {
+        signCallback = callback;
         viewModel.getAuthenticationForSignature(viewModel.getWallet(), this, callback);
     }
 
@@ -1008,7 +1024,7 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
             @Override
             public void transactionSuccess(Web3Transaction web3Tx, String hashData)
             {
-                viewModel.recordSignTransaction(getApplicationContext(), web3Tx, client.getChainId(), getSessionId());
+                viewModel.recordSignTransaction(getApplicationContext(), web3Tx, channelId, getSessionId());
                 updateSignCount();
                 viewModel.approveRequest(getSessionId(), web3Tx.leafPosition, hashData);
                 confirmationDialog.transactionWritten(getString(R.string.dialog_title_sign_transaction));
@@ -1024,7 +1040,7 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
             }
         };
 
-        viewModel.sendTransaction(finalTx, client.getChainId(), callback);
+        viewModel.sendTransaction(finalTx, channelId, callback);
     }
 
     @Override
@@ -1061,7 +1077,10 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
             @Override
             public void DAppReturn(byte[] data, Signable message)
             {
-                viewModel.recordSignTransaction(getApplicationContext(), tx, client.getChainId(), getSessionId());
+                viewModel.recordSignTransaction(getApplicationContext(),
+                        tx,
+                        channelId, //client.getChainId()
+                        getSessionId());
                 updateSignCount();
                 viewModel.approveRequest(getSessionId(), message.getCallbackId(), Numeric.toHexString(data));
                 confirmationDialog.transactionWritten(getString(R.string.dialog_title_sign_transaction));
@@ -1069,7 +1088,9 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
             }
         };
 
-        viewModel.signTransaction(getBaseContext(), tx, dappFunction, peerUrl.getText().toString(), client.getChainId());
+        viewModel.signTransaction(getBaseContext(), tx, dappFunction, peerUrl.getText().toString(),
+                channelId//client.getChainId()
+        );
         if (fromDappBrowser) switchToDappBrowser();
     }
 }

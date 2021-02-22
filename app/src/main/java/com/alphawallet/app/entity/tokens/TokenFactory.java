@@ -75,6 +75,13 @@ public class TokenFactory
             case ETHEREUM:
                 tokenInfo.isEnabled = true; //native eth always enabled
             case ERC20:
+                if (realmBalance == null || realmBalance.length() == 0) realmBalance = "0";
+                balance = new BigDecimal(realmBalance);
+                BigDecimal stakingBalance = new BigDecimal(realmItem.getStakingBalance());
+                thisToken = new Token(tokenInfo, balance, updateBlancaTime, networkName, type);
+                thisToken.stakingBalance = stakingBalance;
+                thisToken.pendingBalance = balance;
+                break;
             case DYNAMIC_CONTRACT:
                 if (realmBalance == null || realmBalance.length() == 0) realmBalance = "0";
                 balance = new BigDecimal(realmBalance);

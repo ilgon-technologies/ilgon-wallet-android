@@ -156,7 +156,7 @@ public class ImportSeedFragment extends Fragment implements View.OnClickListener
     {
         importButton.setActivated(enabled);
         importButton.setClickable(enabled);
-        int colorId = enabled ? R.color.nasty_green : R.color.inactive_green;
+        int colorId = enabled ? R.color.ilgoin_button_primary_color : R.color.ilgoin_button_primary_inactive_color;
         if (getContext() != null) importButton.setBackgroundColor(getContext().getColor(colorId));
     }
 
@@ -197,7 +197,7 @@ public class ImportSeedFragment extends Fragment implements View.OnClickListener
         wordCount.setText(wordCountDisplay);
 
         if(words == maxWordCount) {
-            wordCount.setTextColor(ContextCompat.getColor(Objects.requireNonNull(getActivity()), R.color.nasty_green));
+            wordCount.setTextColor(ContextCompat.getColor(Objects.requireNonNull(getActivity()), R.color.ilgoin_button_primary_color));
             wordCount.setTypeface(boldTypeface);
             updateButtonState(true);
         }else if(words == (maxWordCount -1)){

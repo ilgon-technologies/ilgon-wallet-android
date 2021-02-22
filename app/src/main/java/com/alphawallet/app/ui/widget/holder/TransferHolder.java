@@ -74,7 +74,7 @@ public class TransferHolder extends BinderViewHolder<TokenTransferData> implemen
 
         fetchTransactionsInteract = interact;
 
-        findViewById(R.id.layout_background).setBackgroundResource(R.color.white);
+        //findViewById(R.id.layout_background).setBackgroundResource(R.color.white);
     }
 
     @Override

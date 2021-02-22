@@ -20,6 +20,20 @@ public class RealmToken extends RealmObject {
     private long updatedTime;
     private long lastTxTime;
     private String balance;
+
+    public String getStakingBalance() {
+        if(stakingBalance == null){
+            return "0.00";
+        }
+        return stakingBalance;
+    }
+
+    public void setStakingBalance(String stakingBalance) {
+        this.stakingBalance = stakingBalance;
+    }
+
+    private String stakingBalance;
+
     private boolean isEnabled;
     private int tokenId;
     private int interfaceSpec;
@@ -38,6 +52,9 @@ public class RealmToken extends RealmObject {
 }
 
     public String getSymbol() {
+        if(symbol.equals("ETH") | symbol.equals("ETC")){
+            return "ILG T";
+        }
         return symbol;
     }
 
@@ -46,6 +63,9 @@ public class RealmToken extends RealmObject {
     }
 
     public String getName() {
+        if(name.equals("Ethereum")){
+            return "ILGONCoin";
+        }
         return name;
     }
 

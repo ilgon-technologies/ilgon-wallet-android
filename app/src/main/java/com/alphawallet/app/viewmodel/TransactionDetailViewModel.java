@@ -153,6 +153,9 @@ public class TransactionDetailViewModel extends BaseViewModel {
 
     public String getNetworkName(int chainId)
     {
+        if(networkInteract.getNetworkName(chainId).equals("Ethereum")){
+            return "ILGON";
+        }
         return networkInteract.getNetworkName(chainId);
     }
 

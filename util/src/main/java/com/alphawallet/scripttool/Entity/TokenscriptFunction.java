@@ -2,6 +2,8 @@ package com.alphawallet.scripttool.Entity;
 
 
 import io.reactivex.Observable;
+
+import com.alphawallet.ethereum.EthereumNetworkBase;
 import com.alphawallet.token.entity.*;
 import com.alphawallet.token.tools.TokenDefinition;
 import okhttp3.OkHttpClient;
@@ -117,7 +119,6 @@ import org.web3j.protocol.core.methods.response.EthCall;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.utils.Bytes;
 import org.web3j.utils.Numeric;
-import com.alphawallet.ethereum.EthereumNetworkBase;
 
 import java.io.IOException;
 import java.math.BigDecimal;

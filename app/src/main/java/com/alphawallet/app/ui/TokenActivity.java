@@ -629,7 +629,8 @@ public class TokenActivity extends BaseActivity implements PageReadyCallback, St
             if (isFromTokenHistory)
             {
                 //go back to token - we arrived here from the token view
-                finish();
+                viewModel.showTransactionDetail(this, transactionHash, token.tokenInfo.chainId);
+                //finish();
             }
             else
             {

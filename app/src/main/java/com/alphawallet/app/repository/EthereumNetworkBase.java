@@ -53,7 +53,7 @@ public abstract class EthereumNetworkBase implements EthereumNetworkRepositoryTy
     public static native String getInfuraKey();
 
     //Fallback nodes: these nodes are used if there's no Amberdata key, and also as a fallback in case the primary node times out while attempting a call
-    public static final String MAINNET_RPC_URL = "https://mainnet.infura.io/v3/" + getInfuraKey();
+    public static final String MAINNET_RPC_URL = BuildConfig.MAIN_RPC_URL;
     public static final String RINKEBY_RPC_URL = "https://rinkeby.infura.io/v3/" + getInfuraKey();
 
     //Note that AlphaWallet now uses a double node configuration. See class AWHttpService comment 'try primary node'.
@@ -62,7 +62,7 @@ public abstract class EthereumNetworkBase implements EthereumNetworkRepositoryTy
 
     public static final String BACKUP_INFURA_KEY = BuildConfig.XInfuraAPI;
     public static final String MAINNET_FALLBACK_RPC_URL = !getAmberDataKey().startsWith("obtain") ? "https://rpc.web3api.io?x-api-key=" + getAmberDataKey() : MAINNET_RPC_URL;
-    public static final String CLASSIC_RPC_URL = "https://www.ethercluster.com/etc";
+    public static final String CLASSIC_RPC_URL = BuildConfig.SECONDARY_RPC_URL;
     public static final String XDAI_RPC_URL = "https://dai.poa.network";
     public static final String POA_RPC_URL = "https://core.poa.network/";
     public static final String ROPSTEN_RPC_URL = "https://ropsten.infura.io/v3/" + getInfuraKey();
@@ -77,8 +77,8 @@ public abstract class EthereumNetworkBase implements EthereumNetworkRepositoryTy
     public static final String BINANCE_MAIN_RPC_URL = "https://bsc-dataseed1.binance.org:443";
     public static final String BINANCE_MAIN_FALLBACK_RPC_URL = "https://bsc-dataseed2.ninicoin.io:443";
 
-    public static final int MAINNET_ID = 1;
-    public static final int CLASSIC_ID = 61;
+    public static final int MAINNET_ID = BuildConfig.MAIN_CHAIN_ID;
+    public static final int CLASSIC_ID = BuildConfig.SECONDARY_CHAIN_ID;
     public static final int POA_ID = 99;
     public static final int KOVAN_ID = 42;
     public static final int ROPSTEN_ID = 3;
@@ -97,59 +97,15 @@ public abstract class EthereumNetworkBase implements EthereumNetworkRepositoryTy
     static final NetworkInfo[] DEFAULT_NETWORKS = new NetworkInfo[] {
             new NetworkInfo(C.ETHEREUM_NETWORK_NAME, C.ETH_SYMBOL,
                     MAINNET_RPC_URL,
-                    "https://cn.etherscan.com/tx/",MAINNET_ID, true,
+                    BuildConfig.ETHERSCAN_URL_MAIN,MAINNET_ID, true,
                     MAINNET_FALLBACK_RPC_URL,
-                    "https://api-cn.etherscan.com/"),
-            new NetworkInfo(C.CLASSIC_NETWORK_NAME, C.ETC_SYMBOL,
+                    BuildConfig.MAIN_TX_URL,BuildConfig.MAIN_STAKING_CONTRACT_ADDRESS),
+            new NetworkInfo(C.CLASSIC_NETWORK_NAME, C.Secondary_SYMBOL,
                     CLASSIC_RPC_URL,
-                    "https://blockscout.com/etc/mainnet/tx/",CLASSIC_ID, true, CLASSIC_RPC_URL, "https://blockscout.com/etc/mainnet/"),
-            new NetworkInfo(C.XDAI_NETWORK_NAME,
-                    C.xDAI_SYMBOL,
-                    XDAI_RPC_URL,
-                    "https://blockscout.com/poa/dai/tx/",
-                    XDAI_ID,
-                    false,
-                    "https://dai.poa.network",
-                    "https://blockscout.com/poa/dai/"),
-            new NetworkInfo(C.POA_NETWORK_NAME, C.POA_SYMBOL,
-                    POA_RPC_URL,
-                    "https://blockscout.com/poa/core/tx/", POA_ID, false, POA_RPC_URL, "https://blockscout.com/poa/core/"),
-            new NetworkInfo(C.ARTIS_SIGMA1_NETWORK, C.ARTIS_SIGMA1_SYMBOL, ARTIS_SIGMA1_RPC_URL,
-                    "https://explorer.sigma1.artis.network/tx/", ARTIS_SIGMA1_ID, false,
-                    ARTIS_SIGMA1_RPC_URL,
-                    "https://explorer.sigma1.artis.network/"),
-            new NetworkInfo(C.KOVAN_NETWORK_NAME, C.ETH_SYMBOL, KOVAN_RPC_URL,
-                    "https://kovan.etherscan.io/tx/", KOVAN_ID, false,
-                    "https://kovan.infura.io/v3/" + BACKUP_INFURA_KEY,
-                    "https://api-kovan.etherscan.io/"),
-            new NetworkInfo(C.ROPSTEN_NETWORK_NAME, C.ETH_SYMBOL,
-                    ROPSTEN_RPC_URL,
-                    "https://ropsten.etherscan.io/tx/",ROPSTEN_ID, false,
-                    "https://ropsten.infura.io/v3/" + BACKUP_INFURA_KEY,
-                    "https://api-ropsten.etherscan.io/"),
-            new NetworkInfo(C.SOKOL_NETWORK_NAME, C.POA_SYMBOL,
-                    SOKOL_RPC_URL,
-                    "https://blockscout.com/poa/sokol/tx/",SOKOL_ID, false, SOKOL_RPC_URL, "https://blockscout.com/poa/sokol/"),
-            new NetworkInfo(C.RINKEBY_NETWORK_NAME, C.ETH_SYMBOL, RINKEBY_RPC_URL,
-                    "https://rinkeby.etherscan.io/tx/",RINKEBY_ID, false,
-                    RINKEBY_FALLBACK_RPC_URL,
-                    "https://api-rinkeby.etherscan.io/"),
-            new NetworkInfo(C.GOERLI_NETWORK_NAME, C.GOERLI_SYMBOL, GOERLI_RPC_URL,
-                    "https://goerli.etherscan.io/tx/",GOERLI_ID, false,
-                    GOERLI_RPC_URL,
-                    "https://api-goerli.etherscan.io/"),
-            new NetworkInfo(C.ARTIS_TAU1_NETWORK, C.ARTIS_TAU1_SYMBOL, ARTIS_TAU1_RPC_URL,
-                    "https://explorer.tau1.artis.network/tx/", ARTIS_TAU1_ID, false,
-                    ARTIS_TAU1_RPC_URL,
-                    "https://explorer.tau1.artis.network/"),
-            new NetworkInfo(C.BINANCE_TEST_NETWORK, C.BINANCE_SYMBOL, BINANCE_TEST_RPC_URL,
-                    "https://testnet.bscscan.com/tx/", BINANCE_TEST_ID, false,
-                    BINANCE_TEST_FALLBACK_RPC_URL,
-                    "https://api-testnet.bscscan.com/"),
-            new NetworkInfo(C.BINANCE_MAIN_NETWORK, C.BINANCE_SYMBOL, BINANCE_MAIN_RPC_URL,
-                    "https://bscscan.com/tx/", BINANCE_MAIN_ID, false,
-                    BINANCE_MAIN_FALLBACK_RPC_URL,
-                    "https://api.bscscan.com/"),
+                    BuildConfig.ETHERSCAN_URL_SECONDRARY,CLASSIC_ID, true,
+                    CLASSIC_RPC_URL, BuildConfig.SECONDARY_TX_URL,BuildConfig.SECONDARY_STAKING_CONTRACT_ADDRESS)
+
+
     };
 
     final PreferenceRepositoryType preferences;
@@ -342,7 +298,7 @@ public abstract class EthereumNetworkBase implements EthereumNetworkRepositoryTy
         switch (networkId)
         {
             case MAINNET_ID:
-                return R.drawable.ic_token_eth;
+                return R.drawable.ic_dragon;
             case KOVAN_ID:
                 return R.drawable.kovan_logo;
             case ROPSTEN_ID:
@@ -354,7 +310,7 @@ public abstract class EthereumNetworkBase implements EthereumNetworkRepositoryTy
             case SOKOL_ID:
                 return R.drawable.ic_poa_sokol;
             case CLASSIC_ID:
-                return R.drawable.classic_logo;
+                return R.drawable.ic_dragon;
             case XDAI_ID:
                 return R.drawable.xdai_logo;
             case GOERLI_ID:

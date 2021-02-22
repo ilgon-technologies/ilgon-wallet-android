@@ -48,7 +48,6 @@ public class NewSettingsFragment extends BaseFragment {
 
     private LinearLayout walletSettingsLayout;
     private LinearLayout systemSettingsLayout;
-    private LinearLayout supportSettingsLayout;
 
     private SettingsItemView myAddressSetting;
     private SettingsItemView changeWalletSetting;
@@ -57,7 +56,6 @@ public class NewSettingsFragment extends BaseFragment {
     private SettingsItemView biometricsSetting;
     private SettingsItemView selectNetworksSetting;
     private SettingsItemView advancedSetting;
-    private SettingsItemView supportSetting;
     private SettingsItemView walletConnectSetting;
 
     private LinearLayout layoutBackup;
@@ -125,7 +123,6 @@ public class NewSettingsFragment extends BaseFragment {
     private void initializeSettings(View view) {
         walletSettingsLayout = view.findViewById(R.id.layout_settings_wallet);
         systemSettingsLayout = view.findViewById(R.id.layout_settings_system);
-        supportSettingsLayout = view.findViewById(R.id.layout_settings_support);
 
         myAddressSetting =
                 new SettingsItemView.Builder(getContext())
@@ -184,13 +181,6 @@ public class NewSettingsFragment extends BaseFragment {
                         .withTitle(R.string.title_advanced)
                         .withListener(this::onAdvancedSettingClicked)
                         .build();
-
-        supportSetting =
-                new SettingsItemView.Builder(getContext())
-                        .withIcon(R.drawable.ic_settings_support)
-                        .withTitle(R.string.title_support)
-                        .withListener(this::onSupportSettingClicked)
-                        .build();
     }
 
     private void addSettingsToLayout() {
@@ -216,15 +206,9 @@ public class NewSettingsFragment extends BaseFragment {
 
         systemSettingsLayout.addView(advancedSetting, systemIndex++);
 
-        supportSettingsLayout.addView(supportSetting, supportIndex++);
     }
 
     private void setInitialSettingsData(View view) {
-        TextView appVersionText = view.findViewById(R.id.text_version);
-        appVersionText.setText(String.format("%s (%d)", BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE));
-        TextView tokenScriptVersionText = view.findViewById(R.id.text_tokenscript_compatibility);
-        tokenScriptVersionText.setText(TOKENSCRIPT_CURRENT_SCHEMA);
-
         notificationsSetting.setToggleState(viewModel.getNotificationState());
     }
 

@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 
+import static com.alphawallet.app.C.DEFAULT_GAS_PRICE;
+
 /**
  * Created by JB on 22/11/2020.
  */
@@ -18,7 +20,7 @@ public class GasSpeed
     {
         this.speed = speed;
         this.seconds = seconds;
-        this.gasPrice = gasPrice;
+        this.gasPrice = new BigInteger(DEFAULT_GAS_PRICE);//gasPrice;
         this.isCustom = false;
     }
 
@@ -26,7 +28,7 @@ public class GasSpeed
     {
         this.speed = speed;
         this.seconds = seconds;
-        this.gasPrice = gasPrice;
+        this.gasPrice = new BigInteger(DEFAULT_GAS_PRICE);//gasPrice;
         this.isCustom = isCustom;
     }
 }

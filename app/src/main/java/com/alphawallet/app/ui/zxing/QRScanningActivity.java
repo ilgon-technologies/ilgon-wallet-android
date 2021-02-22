@@ -208,10 +208,10 @@ public class QRScanningActivity extends BaseActivity implements OnQRCodeScannedL
 
     private void startWalletConnect(String qrCode)
     {
-        Intent intent = new Intent(this, WalletConnectActivity.class);
-        intent.putExtra("qrCode", qrCode);
-        startActivity(intent);
-        setResult(RESULT_OK);
+        Intent resultIntent = new Intent();
+// TODO Add extras or a data URI to this intent as appropriate.
+        resultIntent.putExtra(C.EXTRA_QR_CODE, qrCode);
+        setResult(RESULT_OK,resultIntent);
         finish();
     }
 

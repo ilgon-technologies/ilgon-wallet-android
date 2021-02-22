@@ -42,8 +42,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.alphawallet.app.repository.EthereumNetworkBase.hasRealValue;
-
 public class Token implements Parcelable, Comparable<Token>
 {
     public final static int TOKEN_BALANCE_PRECISION = 4;
@@ -51,6 +49,7 @@ public class Token implements Parcelable, Comparable<Token>
 
     public final TokenInfo tokenInfo;
     public BigDecimal balance;
+    public BigDecimal stakingBalance;
     public BigDecimal pendingBalance;
     public long updateBlancaTime;
     private String tokenWallet;
@@ -82,6 +81,7 @@ public class Token implements Parcelable, Comparable<Token>
         this.shortNetworkName = networkName;
         this.contractType = type;
         this.pendingBalance = balance;
+        this.stakingBalance = BigDecimal.ZERO;
         this.txSync = 0;
         this.lastTxCheck = 0;
         this.lastBlockCheck = 0;
@@ -120,6 +120,15 @@ public class Token implements Parcelable, Comparable<Token>
         if (tokenInfo != null) decimals = tokenInfo.decimals;
         return BalanceUtils.getScaledValueScientific(balance, decimals);
     }
+
+    public String getStringStakingBalance()
+    {
+        String value;
+
+
+        return stakingBalance.toString();
+    }
+
 
     public boolean hasPositiveBalance() {
         if (balance != null) return !balance.equals(BigDecimal.ZERO);
@@ -204,6 +213,18 @@ public class Token implements Parcelable, Comparable<Token>
         else
         {
             realmToken.setBalance("0");
+        }
+    }
+
+    public void setRealmStakingBalance(RealmToken realmToken)
+    {
+        if (stakingBalance != null)
+        {
+            realmToken.setStakingBalance(stakingBalance.toString());
+        }
+        else
+        {
+            realmToken.setStakingBalance("0");
         }
     }
 

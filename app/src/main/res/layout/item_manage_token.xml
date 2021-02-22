@@ -3,13 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@color/ilgoin_background_color"
+    >
 
     <RelativeLayout
         android:id="@+id/layout_list_item"
         android:layout_width="match_parent"
         android:layout_height="80dp"
-        android:background="@color/white"
+        android:background="@color/ilgoin_background_color"
         android:orientation="horizontal">
 
         <LinearLayout
@@ -21,11 +23,11 @@
             android:layout_marginStart="@dimen/dp20"
             android:orientation="horizontal">
 
-        <com.alphawallet.app.widget.TokenIcon
-            android:id="@+id/token_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:showStatus="false" />
+            <com.alphawallet.app.widget.TokenIcon
+                android:id="@+id/token_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:showStatus="false" />
 
         </LinearLayout>
 

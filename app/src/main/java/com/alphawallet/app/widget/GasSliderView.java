@@ -26,13 +26,11 @@ import java.util.Currency;
 
 public class GasSliderView extends RelativeLayout
 {
-    private float maxDefaultPrice = 8.0f * 10.0f; //8 Gwei
+    private float maxDefaultPrice = 10.0f * 10.0f; //10 Gwei
 
-    private final EditText gasPriceValue;
     private final EditText gasLimitValue;
     private final EditText nonceValue;
 
-    private final AppCompatSeekBar gasPriceSlider;
     private final AppCompatSeekBar gasLimitSlider;
 
     private float scaleFactor; //used to convert slider value (0-100) into gas price
@@ -48,10 +46,8 @@ public class GasSliderView extends RelativeLayout
 
         calculateStaticScaleFactor();
 
-        gasPriceSlider = findViewById(R.id.gas_price_slider);
         gasLimitSlider = findViewById(R.id.gas_limit_slider);
         gasLimitValue = findViewById(R.id.gas_limit_entry);
-        gasPriceValue = findViewById(R.id.gas_price_entry);
         nonceValue = findViewById(R.id.nonce_entry);
 
         bindViews();
@@ -59,11 +55,9 @@ public class GasSliderView extends RelativeLayout
 
     private void bindViews()
     {
-        gasPriceSlider.setProgress(1);
-        gasPriceSlider.setMax(100);
         gasLimitSlider.setMax(100);
 
-        gasPriceSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        /*gasPriceSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @SuppressLint("SetTextI18n")
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
@@ -77,7 +71,7 @@ public class GasSliderView extends RelativeLayout
 
                 For example, progress on seekbar is 150, then expected result is 16.0
                  */
-                BigDecimal scaledGasPrice = BigDecimal.valueOf((progress * scaleFactor) + minimumPrice)
+                /*BigDecimal scaledGasPrice = BigDecimal.valueOf((progress * scaleFactor) + minimumPrice)
                         .divide(BigDecimal.TEN) //divide by ten because price from API is x10
                         .setScale(1, RoundingMode.HALF_DOWN); //to 1 dp
 
@@ -96,6 +90,7 @@ public class GasSliderView extends RelativeLayout
 
             }
         });
+*/
 
         gasLimitSlider.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -133,7 +128,7 @@ public class GasSliderView extends RelativeLayout
             @Override
             public void afterTextChanged(Editable editable)
             {
-                if (gasLimitValue.hasFocus() || gasPriceValue.hasFocus())
+                if (gasLimitValue.hasFocus())// || gasPriceValue.hasFocus())
                 {
                     limitInit = true;
                     updateGasControl();
@@ -142,19 +137,19 @@ public class GasSliderView extends RelativeLayout
         };
 
         gasLimitValue.addTextChangedListener(tw);
-        gasPriceValue.addTextChangedListener(tw);
+        //gasPriceValue.addTextChangedListener(tw);
     }
 
     private void updateGasControl()
     {
         //calculate wei price
-        String gasPriceStr = gasPriceValue.getText().toString();
+        //String gasPriceStr = gasPriceValue.getText().toString();
         String gasLimitStr = gasLimitValue.getText().toString();
-        if (!TextUtils.isEmpty(gasPriceStr) && !TextUtils.isEmpty(gasLimitStr))
+        if (!TextUtils.isEmpty(gasLimitStr))//!TextUtils.isEmpty(gasPriceStr) &&
         {
             try
             {
-                gasCallback.gasSettingsUpdate(BalanceUtils.gweiToWei(new BigDecimal(gasPriceStr)),
+                gasCallback.gasSettingsUpdate(BalanceUtils.gweiToWei(new BigDecimal("10")),//new BigDecimal(gasPriceStr)),
                         new BigInteger(gasLimitStr));
             }
             catch (Exception e)
@@ -163,14 +158,14 @@ public class GasSliderView extends RelativeLayout
             }
         }
     }
-
+/*
     @SuppressLint("SetTextI18n")
     public void initGasPrice(BigInteger price)
     {
         if (!limitInit)
         {
             BigDecimal gweiPrice = BalanceUtils.weiToGweiBI(price);
-            gasPriceValue.setText(gweiPrice.setScale(1, RoundingMode.HALF_DOWN).toString());
+            //gasPriceValue.setText(gweiPrice.setScale(1, RoundingMode.HALF_DOWN).toString());
             setPriceSlider(gweiPrice);
         }
     }
@@ -192,7 +187,7 @@ public class GasSliderView extends RelativeLayout
     {
         int progress = (int) (((gweiPrice.floatValue() * 10.0f) - minimumPrice) / scaleFactor);
         gasPriceSlider.setProgress(progress);
-    }
+    }*/
 
     @SuppressLint("SetTextI18n")
     public void initGasLimit(BigInteger limit)

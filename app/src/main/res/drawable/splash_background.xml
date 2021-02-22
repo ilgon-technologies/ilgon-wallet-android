@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list
     xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:drawable="@color/white" />
+    <item android:drawable="@color/ilgoin_background_color" />
     <item
-        android:drawable="@drawable/ic_logo"
+        android:drawable="@drawable/ilgoin_logo_200px"
         android:gravity="center"/>
 </layer-list>

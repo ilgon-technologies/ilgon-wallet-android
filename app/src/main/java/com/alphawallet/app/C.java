@@ -1,5 +1,7 @@
 package com.alphawallet.app;
 
+import java.math.BigDecimal;
+
 public abstract class C {
 
     public static final int IMPORT_REQUEST_CODE = 1001;
@@ -16,8 +18,8 @@ public abstract class C {
     public static final int SET_GAS_SETTINGS = 2;
     public static final int COMPLETED_TRANSACTION = 3;
 
-    public static final String ETHEREUM_NETWORK_NAME = "Ethereum";
-    public static final String CLASSIC_NETWORK_NAME = "Ethereum Classic";
+    public static final String ETHEREUM_NETWORK_NAME = BuildConfig.MAIN_NETWORK_NAME;
+    public static final String CLASSIC_NETWORK_NAME = BuildConfig.SECONDARY_NETWORK_NAME;
     public static final String POA_NETWORK_NAME = "POA";
     public static final String XDAI_NETWORK_NAME = "xDai";
     public static final String KOVAN_NETWORK_NAME = "Kovan (Test)";
@@ -40,7 +42,8 @@ public abstract class C {
     public static final String POA_TICKER = "poa";
 
     public static final String USD_SYMBOL = "$";
-    public static final String ETH_SYMBOL = "ETH";
+    public static final String ETH_SYMBOL = "ILG";
+    public static final String Secondary_SYMBOL = "ILGT";
     public static final String xDAI_SYMBOL = "xDai";
     public static final String POA_SYMBOL = "POA";
     public static final String ETC_SYMBOL = "ETC";
@@ -78,6 +81,7 @@ public abstract class C {
     public static final String EXTRA_STATE = "TRANSFER_STATE";
     public static final String EXTRA_WEB3TRANSACTION = "WEB3_TRANSACTION";
     public static final String EXTRA_NETWORK_NAME = "NETWORK_NAME";
+    public static final String EXTRA_IS_SEND_MAX = "SEND_MAX";
     public static final String EXTRA_NETWORK_MAINNET = "NETWORK_MAINNET";
     public static final String EXTRA_ENS_DETAILS = "ENS_DETAILS";
     public static final String EXTRA_HAS_DEFINITION = "HAS_TOKEN_DEF";
@@ -94,6 +98,7 @@ public abstract class C {
     public static final String EXTRA_CURRENCY = "CURRENCY_STRING";
     public static final String EXTRA_QR_CODE = "QR_SCAN_CODE";
     public static final String EXTRA_UNIVERSAL_SCAN = "UNIVERSAL_SCAN";
+    public static final String EXTRA_WALLET_CONNECT_CHANNEL_ID = "EXTRA_WALLET_CONNECT_CHANNEL_ID";
     public static final String EXTRA_NONCE = "_NONCE";
     public static final String EXTRA_TXHASH = "_TXHASH";
 
@@ -125,19 +130,20 @@ public abstract class C {
     public static final String WALLET_CONNECT_REQUEST =
             "com.stormbird.wallet.WALLET_CONNECT";
 
-    public static final String DEFAULT_GAS_PRICE =     "10000000000";
+    public static final String DEFAULT_GAS_PRICE = "10000000000000";
     public static final String DEFAULT_XDAI_GAS_PRICE = "1000000000";
-    public static final String DEFAULT_GAS_LIMIT = "90000";
+    public static final String DEFAULT_GAS_LIMIT = "21000";//"90000";
     public static final String DEFAULT_GAS_LIMIT_FOR_TOKENS = "144000";
     public static final String DEFAULT_UNKNOWN_FUNCTION_GAS_LIMIT = "1000000"; //if we don't know the specific function, we default to 1 million gas limit
     public static final String DEFAULT_GAS_LIMIT_FOR_NONFUNGIBLE_TOKENS = "432000"; //NFT's typically require more gas
     public static final String DEFAULT_GAS_LIMIT_FOR_END_CONTRACT = "200000"; //TODO: determine appropriate gas limit for contract destruct
     public static final long GAS_PER_BYTE = 310; //from experimentation
+    public static final long GAS_PRICE_DEFAULT = 10000000000000L;
     public static final long GAS_LIMIT_MIN = 21000L;
-    public static final long GAS_LIMIT_DEFAULT = 90000L;
+    public static final long GAS_LIMIT_DEFAULT = 21000L;//90000L;
     public static final long GAS_LIMIT_CONTRACT = 1000000L;
     public static final long GAS_LIMIT_MAX = 1300000L;
-    public static final long GAS_PRICE_MIN = 400000000L;
+    public static final long GAS_PRICE_MIN = 10000000000000L;
     public static final int ETHER_DECIMALS = 18;
 
     //FOR DEMOS ETC

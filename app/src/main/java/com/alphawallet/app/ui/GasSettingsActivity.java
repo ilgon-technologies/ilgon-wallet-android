@@ -48,6 +48,7 @@ import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.Sort;
 
+import static com.alphawallet.app.C.DEFAULT_GAS_PRICE;
 import static com.alphawallet.app.repository.EthereumNetworkBase.MAINNET_ID;
 
 public class GasSettingsActivity extends BaseActivity implements GasSettingsCallback
@@ -100,7 +101,7 @@ public class GasSettingsActivity extends BaseActivity implements GasSettingsCall
         gasSliderView.setNonce(getIntent().getLongExtra(C.EXTRA_NONCE, -1));
         gasSliderView.initGasLimit(customGasLimit.toBigInteger());
         customGasPriceFromWidget = new BigInteger(getIntent().getStringExtra(C.EXTRA_GAS_PRICE));
-        gasSliderView.initGasPrice(customGasPriceFromWidget);
+       // gasSliderView.initGasPrice(customGasPriceFromWidget);
 
         adapter = new CustomAdapter(this);
         recyclerView.setAdapter(adapter);
@@ -109,7 +110,7 @@ public class GasSettingsActivity extends BaseActivity implements GasSettingsCall
 
         // start listening for gas price updates
         setupGasSpeeds();
-        startGasListener();
+        //startGasListener();
     }
 
     private RealmQuery<RealmGasSpread> getGasQuery()
@@ -118,7 +119,7 @@ public class GasSettingsActivity extends BaseActivity implements GasSettingsCall
                 .equalTo("chainId", chainId)
                 .sort("timeStamp", Sort.DESCENDING);
     }
-
+/*
     private void startGasListener()
     {
         realmGasSpread = getGasQuery().findFirstAsync();
@@ -130,29 +131,30 @@ public class GasSettingsActivity extends BaseActivity implements GasSettingsCall
             }
         });
     }
-
+*/
     private void setupGasSpeeds()
     {
         gasSpeeds.add(new GasSpeed(getString(R.string.speed_custom), GasPriceSpread.FAST_SECONDS, customGasPriceFromWidget, true));
-
-        RealmGasSpread getGas = getGasQuery().findFirst();
+        GasPriceSpread gs = new GasPriceSpread(new BigInteger(DEFAULT_GAS_PRICE));
+        initGasSpeeds(gs);
+        /*RealmGasSpread getGas = getGasQuery().findFirst();
         if (getGas != null)
         {
             initGasSpeeds(getGas.getGasPrice());
-        }
+        }*/
     }
 
     private void initGasSpeeds(GasPriceSpread gs)
     {
         currentGasSpeedIndex = gs.setupGasSpeeds(this, gasSpeeds, currentGasSpeedIndex);
         customIndex = gs.getCustomIndex();
-        gasSliderView.initGasPriceMax(gasSpeeds.get(0).gasPrice);
+        //gasSliderView.initGasPriceMax(gasSpeeds.get(0).gasPrice);
         if (customGasPriceFromWidget.equals(BigInteger.ZERO))
         {
             //use slow or average
-            customGasPriceFromWidget = gs.standard;
+            customGasPriceFromWidget = new BigInteger(DEFAULT_GAS_PRICE);//gs.standard;
             updateCustomElement(customGasPriceFromWidget, customGasLimit.toBigInteger());
-            gasSliderView.initGasPrice(customGasPriceFromWidget);
+           // gasSliderView.initGasPrice(customGasPriceFromWidget);
         }
 
         //if we have mainnet then show timings, otherwise no timing, if the token has fiat value, show fiat value of gas, so we need the ticker
@@ -272,7 +274,7 @@ public class GasSettingsActivity extends BaseActivity implements GasSettingsCall
                 notifyDataSetChanged();
             });
 
-            String speedGwei = BalanceUtils.weiToGweiBI(gs.gasPrice).toBigInteger().toString();
+            String speedGwei = BalanceUtils.weiToGweiBI(gs.gasPrice).toBigInteger().toString()+" Gwei";
 
             if (position == customIndex)
             {
@@ -286,7 +288,7 @@ public class GasSettingsActivity extends BaseActivity implements GasSettingsCall
                 {
                     //recalculate the custom speed every time it's updated
                     gs.seconds = getExpectedTransactionTime(gs.gasPrice);
-                    speedGwei = context.getString(R.string.bracketed, context.getString(R.string.set_your_speed));
+                   // speedGwei = context.getString(R.string.bracketed, context.getString(R.string.set_your_speed));
                     useGasLimit = customGasLimit;
                 }
             }
@@ -331,7 +333,7 @@ public class GasSettingsActivity extends BaseActivity implements GasSettingsCall
 
         private void blankCustomHolder(CustomViewHolder holder)
         {
-            holder.speedGwei.setText(context.getString(R.string.bracketed, context.getString(R.string.set_your_speed)));
+            //holder.speedGwei.setText(context.getString(R.string.bracketed, context.getString(R.string.set_your_speed)));
             holder.speedCostEth.setText("");
             holder.speedCostFiat.setText("");
             holder.speedTime.setText("");
@@ -366,17 +368,14 @@ public class GasSettingsActivity extends BaseActivity implements GasSettingsCall
         {
             if (position == currentGasSpeedIndex)
             {
-                TextView notice = findViewById(R.id.text_notice);
                 if (currentGasSpeedIndex == customIndex)
                 {
-                    notice.setVisibility(View.GONE);
                     gasSliderView.setVisibility(View.VISIBLE);
                 }
                 else
                 {
                     GasSpeed gs = gasSpeeds.get(position);
-                    gasSliderView.initGasPriceMax(gs.gasPrice);
-                    notice.setVisibility(View.VISIBLE);
+                    //gasSliderView.initGasPriceMax(gs.gasPrice);
                     gasSliderView.setVisibility(View.GONE);
                 }
             }

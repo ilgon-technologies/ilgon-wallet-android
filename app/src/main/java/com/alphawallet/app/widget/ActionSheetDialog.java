@@ -3,6 +3,7 @@ package com.alphawallet.app.widget;
 import android.app.Activity;
 import android.content.Intent;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -495,7 +496,7 @@ public class ActionSheetDialog extends BottomSheetDialog implements StandardFunc
     {
         String displayStr = getContext().getString(R.string.total_cost, amountVal, token.getSymbol());
 
-        //fetch ticker if required
+       /* //fetch ticker if required
         if (gasWidget.getValue().compareTo(BigInteger.ZERO) > 0)
         {
             try (Realm realm = tokensService.getTickerRealmInstance())
@@ -518,7 +519,7 @@ public class ActionSheetDialog extends BottomSheetDialog implements StandardFunc
             {
                 //
             }
-        }
+        }*/
 
         amount.setText(displayStr);
         setNewBalanceText();

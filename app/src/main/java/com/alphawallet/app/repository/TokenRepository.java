@@ -7,6 +7,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.alphawallet.app.BuildConfig;
 import com.alphawallet.app.entity.ContractLocator;
 import com.alphawallet.app.entity.ContractType;
 import com.alphawallet.app.entity.NetworkInfo;
@@ -57,6 +58,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -444,11 +446,28 @@ public class TokenRepository implements TokenRepositoryType {
                 {
                     List<BigInteger> balanceArray = null;
                     BigDecimal balance = BigDecimal.valueOf(-1);
+                    BigDecimal stakingBalance = BigDecimal.ZERO;
+                    String currentStakingContractAddress = null;
+                    switch (chainId){
+                        case BuildConfig.MAIN_CHAIN_ID:
+                            currentStakingContractAddress = BuildConfig.MAIN_STAKING_CONTRACT_ADDRESS;
+                            break;
+                        case BuildConfig.SECONDARY_CHAIN_ID:
+                            currentStakingContractAddress = BuildConfig.SECONDARY_STAKING_CONTRACT_ADDRESS;
+                        default:
+                            break;
+                    }
 
                     switch (type)
                     {
                         case ETHEREUM:
                             balance = getEthBalance(wallet, chainId);
+                            Date date = new Date();
+                            //This method returns the time in millis
+                            long timeMilli = date.getTime();
+
+                            // stakingBalance = getStake(wallet,currentStakingContractAddress);
+                            stakingBalance = new BigDecimal(timeMilli);
                             break;
                         case ERC875:
                         case ERC875_LEGACY:
@@ -477,7 +496,7 @@ public class TokenRepository implements TokenRepositoryType {
 
                     if (!balance.equals(BigDecimal.valueOf(-1)) || balanceArray != null)
                     {
-                        hasBalanceChanged = localSource.updateTokenBalance(wallet, chainId, tokenAddress, balance, balanceArray, type);
+                        hasBalanceChanged = localSource.updateTokenBalance(wallet, chainId, tokenAddress, balance, balanceArray, type, stakingBalance);
                     }
 
                     if (type != ContractType.ETHEREUM && wallet.address.equalsIgnoreCase(tokenAddress))
@@ -506,9 +525,11 @@ public class TokenRepository implements TokenRepositoryType {
         NetworkInfo network = ethereumNetworkRepository.getNetworkByChain(chainId);
         TokenInfo tInfo = new TokenInfo("eth", network.name, network.symbol, 18, true, network.chainId);
         BigDecimal balance = getEthBalance(wallet, chainId);
+        BigDecimal stake = BigDecimal.TEN;
         if (!balance.equals(BigDecimal.valueOf(-1)))
         {
             Token nativeEthBackupToken = tFactory.createToken(tInfo, balance, null, System.currentTimeMillis(), ContractType.ETHEREUM, network.getShortName(), System.currentTimeMillis());
+            nativeEthBackupToken.stakingBalance = stake;
             localSource.updateTokenBalance(network, wallet, nativeEthBackupToken);
         }
 
@@ -605,6 +626,32 @@ public class TokenRepository implements TokenRepositoryType {
 
         return balance;
     }
+
+    public BigDecimal getStake(Wallet wallet, String stakingContractAddress)
+    {
+        BigDecimal staking = BigDecimal.valueOf(-1);
+        //Wallet wallet = new Wallet("0x288cb755bD8Ef6aF16602F932Bd020D2C6706608");
+
+        try
+        {
+            Function function = stakeOf(wallet.address);
+            NetworkInfo network = ethereumNetworkRepository.getNetworkByChain(BuildConfig.SECONDARY_CHAIN_ID);
+            String responseValue = callSmartContractFunction(function, stakingContractAddress, network, wallet);
+
+            if (!TextUtils.isEmpty(responseValue))
+            {
+                List<Type> response = FunctionReturnDecoder.decode(responseValue, function.getOutputParameters());
+                if (response.size() > 0) staking = new BigDecimal(((Uint256) response.get(0)).getValue());
+            }
+        }
+        catch (Exception e)
+        {
+            Log.e("Exception",e.getLocalizedMessage());
+        }
+
+        return staking;
+    }
+
 
     /**
      * Checks the balance of a token returning Uint256 value, eg ERC20
@@ -1013,6 +1060,13 @@ public class TokenRepository implements TokenRepositoryType {
         } else {
             return 18;
         }
+    }
+
+    private static Function stakeOf(String address) {
+        return new Function(
+                "getUserDeposits",
+                Collections.singletonList(new Address(address)),
+                Collections.singletonList(new TypeReference<Uint256>() {}));
     }
 
     private static Function balanceOf(String owner) {

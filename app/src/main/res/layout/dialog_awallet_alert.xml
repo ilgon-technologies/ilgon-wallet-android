@@ -80,7 +80,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/dialog_button1"
-            android:background="@color/white"
+            android:background="@color/ilgoin_background_color"
             android:fontFamily="@font/font_regular"
             android:paddingLeft="20dp"
             android:paddingTop="10dp"

@@ -1,15 +1,21 @@
 package com.alphawallet.app.ui.widget.holder;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -27,6 +33,7 @@ import com.alphawallet.app.repository.entity.RealmTokenTicker;
 import com.alphawallet.app.service.AssetDefinitionService;
 import com.alphawallet.app.service.TickerService;
 import com.alphawallet.app.service.TokensService;
+import com.alphawallet.app.ui.HomeActivity;
 import com.alphawallet.app.ui.widget.OnTokenClickListener;
 import com.alphawallet.app.util.Utils;
 import com.alphawallet.app.widget.ChainName;
@@ -40,7 +47,7 @@ import io.realm.RealmResults;
 
 import static com.alphawallet.app.repository.EthereumNetworkBase.MAINNET_ID;
 
-public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View.OnClickListener, View.OnLongClickListener {
+public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View.OnClickListener, View.OnLongClickListener, View.OnLayoutChangeListener {
 
     public static final int VIEW_TYPE = 1005;
     public static final String EMPTY_BALANCE = "\u2014\u2014";
@@ -48,14 +55,13 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
     private final TokenIcon tokenIcon;
     private final TextView balanceEth;
     private final TextView balanceCurrency;
-    private final TextView text24Hours;
-    private final TextView textAppreciation;
+    private final TextView stakingBalance;
     private final TextView issuer;
     private final TextView issuerPlaceholder;
     private final TextView contractType;
     private final View contractSeparator;
-    private final View layoutAppreciation;
     private final LinearLayout extendedInfo;
+    private final LinearLayout stakingLinearLayout;
     private final AssetDefinitionService assetDefinition; //need to cache this locally, unless we cache every string we need in the constructor
     private final TokensService tokensService;
     private final TextView pendingText;
@@ -76,9 +82,10 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
 
         tokenIcon = findViewById(R.id.token_icon);
         balanceEth = findViewById(R.id.eth_data);
+        stakingBalance = findViewById(R.id.staking_balance_text);
+        stakingLinearLayout = findViewById(R.id.staking_linear_layout);
         balanceCurrency = findViewById(R.id.balance_currency);
-        text24Hours = findViewById(R.id.text_24_hrs);
-        textAppreciation = findViewById(R.id.text_appreciation);
+        balanceCurrency.setVisibility(View.GONE);
         issuer = findViewById(R.id.issuer);
         issuerPlaceholder = findViewById(R.id.issuerPlaceholder);
         contractType = findViewById(R.id.contract_type);
@@ -86,13 +93,31 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
         pendingText = findViewById(R.id.balance_eth_pending);
         tokenLayout = findViewById(R.id.token_layout);
         extendedInfo = findViewById(R.id.layout_extended_info);
-        layoutAppreciation = findViewById(R.id.layout_appreciation);
         testnet = findViewById(R.id.chain_name);
         itemView.setOnClickListener(this);
         assetDefinition = assetService;
         tokensService = tSvs;
         realm = r;
     }
+
+    private void showInformPopUp()
+    {
+
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(getContext(),R.style.MyDialogStyle);
+        builder1.setTitle("Title");
+        builder1.setMessage("my message");
+        builder1.setCancelable(true);
+        builder1.setNeutralButton(android.R.string.ok,
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+
+        AlertDialog alert11 = builder1.create();
+        alert11.show();
+    }
+
 
     @Override
     public void bind(@Nullable TokenCardMeta data, @NonNull Bundle addition) {
@@ -122,6 +147,22 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
             if (EthereumNetworkRepository.isPriorityToken(token)) extendedInfo.setVisibility(View.GONE);
             contractSeparator.setVisibility(View.GONE);
 
+            ActivityManager am = (ActivityManager)getContext().getSystemService(Context.ACTIVITY_SERVICE);
+            ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
+            if(token.isEthereum()) {
+                stakingBalance.setText("Staking balance:" + token.getStringStakingBalance());
+                stakingLinearLayout.setVisibility(View.VISIBLE);
+                if(!cn.getClassName().equals(HomeActivity.class.getName())){
+                    stakingBalance.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_baseline_info_24, 0);
+                    stakingBalance.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            showInformPopUp();
+                        }
+                    });
+                }
+            }
+
             //setup name and value (put these together on a single string to make wrap-around text appear better).
             String nameValue = token.getStringBalance() + " " + token.getFullName(assetDefinition, token.getTicketCount());
             balanceEth.setText(nameValue);
@@ -140,6 +181,11 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
         } catch (Exception ex) {
             fillEmpty();
         }
+    }
+
+    @Override
+    public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+        Log.e("alma","alma");
     }
 
     @Override
@@ -176,7 +222,6 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
         else
         {
             balanceCurrency.setVisibility(View.GONE);
-            layoutAppreciation.setVisibility(View.GONE);
             setIssuerDetails();
         }
 
@@ -194,8 +239,7 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
     {
         primaryElement = true;
         hideIssuerViews();
-        layoutAppreciation.setVisibility(View.VISIBLE);
-        balanceCurrency.setVisibility(View.VISIBLE);
+        //balanceCurrency.setVisibility(View.VISIBLE);
         startTickerRealmListener();
     }
 
@@ -299,8 +343,6 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
 
     private void emptyTicker()
     {
-        text24Hours.setText(R.string.unknown_balance_without_symbol);
-        textAppreciation.setText(R.string.unknown_balance_without_symbol);
         balanceCurrency.setText(R.string.unknown_balance_without_symbol);
     }
 
@@ -356,8 +398,6 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
             percentage = Double.parseDouble(ticker.percentChange24h);
             color = ContextCompat.getColor(getContext(), percentage < 0 ? R.color.red : R.color.green);
             formattedPercents = (percentage < 0 ? "(" : "(+") + ticker.percentChange24h + "%)";
-            text24Hours.setText(formattedPercents);
-            text24Hours.setTextColor(color);
         } catch (Exception ex) { /* Quietly */ }
 
         //This sets the crypto price value (middle amount)
@@ -368,7 +408,6 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
         spannable = new SpannableString(lbl);
         spannable.setSpan(new ForegroundColorSpan(color),
                 lbl.length(), lbl.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        this.textAppreciation.setText(lbl);
 
         tokensService.addTokenValue(token.tokenInfo.chainId, token.getAddress(), fiatBalance.floatValue());
     }

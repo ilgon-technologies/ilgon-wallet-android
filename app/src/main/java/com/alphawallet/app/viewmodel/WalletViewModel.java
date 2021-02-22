@@ -20,6 +20,7 @@ import com.alphawallet.app.router.Erc20DetailRouter;
 import com.alphawallet.app.router.MyAddressRouter;
 import com.alphawallet.app.service.AssetDefinitionService;
 import com.alphawallet.app.service.TokensService;
+import com.alphawallet.app.ui.widget.onTokenBalanceChangedListener;
 import com.alphawallet.app.ui.zxing.QRScanningActivity;
 
 import org.jetbrains.annotations.NotNull;
@@ -31,7 +32,7 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
 
-public class WalletViewModel extends BaseViewModel
+public class WalletViewModel extends BaseViewModel implements onTokenBalanceChangedListener
 {
     public static long BALANCE_BACKUP_CHECK_INTERVAL = 5 * DateUtils.MINUTE_IN_MILLIS;
     public static double VALUE_THRESHOLD = 200.0; //$200 USD value is difference between red and grey backup warnings
@@ -39,6 +40,11 @@ public class WalletViewModel extends BaseViewModel
     private final MutableLiveData<TokenCardMeta[]> tokens = new MutableLiveData<>();
     private final MutableLiveData<Wallet> defaultWallet = new MutableLiveData<>();
     private final MutableLiveData<GenericWalletInteract.BackupLevel> backupEvent = new MutableLiveData<>();
+
+    public MutableLiveData<TokenCardMeta> getUpdateToken() {
+        return updateToken;
+    }
+    private final MutableLiveData<TokenCardMeta> updateToken = new MutableLiveData<>();
 
     private final FetchTokensInteract fetchTokensInteract;
     private final Erc20DetailRouter erc20DetailRouter;
@@ -48,6 +54,7 @@ public class WalletViewModel extends BaseViewModel
     private final TokensService tokensService;
     private final ChangeTokenEnableInteract changeTokenEnableInteract;
     private final MyAddressRouter myAddressRouter;
+    private Wallet wallet;
     private long lastBackupCheck = 0;
 
     WalletViewModel(
@@ -68,6 +75,7 @@ public class WalletViewModel extends BaseViewModel
         this.tokensService = tokensService;
         this.changeTokenEnableInteract = changeTokenEnableInteract;
         this.myAddressRouter = myAddressRouter;
+        tokensService.setOnTokenBalanceChangedListener(this);
     }
 
     public LiveData<TokenCardMeta[]> tokens() {
@@ -90,6 +98,7 @@ public class WalletViewModel extends BaseViewModel
 
     private void onDefaultWallet(Wallet wallet)
     {
+        this.wallet = wallet;
         tokensService.setCurrentAddress(wallet.address);
         assetDefinitionService.startEventListener();
         defaultWallet.postValue(wallet);
@@ -105,12 +114,35 @@ public class WalletViewModel extends BaseViewModel
                         .subscribe(this::onTokenMetas, this::onError);
     }
 
+    private void fetchTokensForUpdate(Wallet wallet)
+    {
+        disposable =
+                fetchTokensInteract.fetchTokenMetas(wallet, tokensService.getNetworkFilters(), assetDefinitionService)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(this::onTokenMetasOnUpdate, this::onError);
+    }
+
     private void onTokenMetas(TokenCardMeta[] metaTokens)
     {
         tokens.postValue(metaTokens);
         tokensService.updateTickers();
         tokensService.startBalanceUpdate();
     }
+
+    private void onTokenMetasOnUpdate(TokenCardMeta[] metaTokens)
+    {
+        for (TokenCardMeta meta: metaTokens
+        ) {
+            if(meta.isEthereum())
+                updateToken.postValue(meta);
+        }
+    }
+
+    @Override
+    public void onTokenBalanceChanged() { fetchTokensForUpdate(wallet);
+    }
+
 
     public AssetDefinitionService getAssetDefinitionService()
     {

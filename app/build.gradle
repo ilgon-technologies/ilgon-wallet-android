@@ -35,22 +35,57 @@ android {
         }
     }
     defaultConfig {
-        versionCode 140
-        versionName "3.24.1"
+        versionCode 133
+        versionName "3.20.5"
 
-        applicationId "io.stormbird.wallet"
+        applicationId "com.dlabs.ilgonwallet"
         minSdkVersion 23
         targetSdkVersion 29
+        vectorDrawables {
+            useSupportLibrary = true
+        }
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
         def XInfuraAPI = "XInfuraAPI"
         //Put your Infura key here, NB with over 30 - 40 users this API key will rate limit, it's only here for bootstrapping a free build
         def DEFAULT_INFURA_API_KEY = "\"da3717f25f824cc1baa32d812386d93f\"";
 
-        buildConfigField 'int', 'DB_VERSION', '22'
+        buildConfigField 'int', 'DB_VERSION', '15'
         buildConfigField "String", XInfuraAPI, DEFAULT_INFURA_API_KEY
 
         ndk {
             abiFilters "armeabi-v7a", "x86", "x86_64", "arm64-v8a"
+        }
+
+        applicationVariants.all { variant ->
+            def variantName = variant.flavorName
+            // replace your specific flavor here instead of 'flavor1' & 'flavor2'
+            if (variantName.contains("analytics")) {
+                variant.buildConfigField 'String', "MAIN_RPC_URL", '"https://mainnet-rpc.ilgonwallet.com/"'
+                variant.buildConfigField 'String', "SECONDARY_RPC_URL", '"https://wallet.ilgointest.e-diploma.org/rpc/ilgtest/"'
+                variant.buildConfigField 'String', "MAIN_NETWORK_NAME", '"ILGON"'
+                variant.buildConfigField 'String', "SECONDARY_NETWORK_NAME", '"ILGON test"'
+                variant.buildConfigField 'String', "MAIN_TX_URL", '" https://www.ilgonexplorer.com/"'
+                variant.buildConfigField 'String', "SECONDARY_TX_URL", '"https://explorer.ilgointest.e-diploma.org/"'
+                variant.buildConfigField 'int', "MAIN_CHAIN_ID", '6909031'
+                variant.buildConfigField 'int', "SECONDARY_CHAIN_ID", '1768712052'
+                variant.buildConfigField 'String', "ETHERSCAN_URL_MAIN", '"https://ilgonexplorer.com/tx/"'
+                variant.buildConfigField 'String', "ETHERSCAN_URL_SECONDRARY", '"https://explorer.ilgointest.e-diploma.org/tx/"'
+                variant.buildConfigField 'String', "MAIN_STAKING_CONTRACT_ADDRESS", '"0x0002B1f75186945ed3A03b2E1d7285F54bf817da"'
+                variant.buildConfigField 'String', "SECONDARY_STAKING_CONTRACT_ADDRESS", '"0x04c962FB20BefE81b3a88eDA45B2dB3b92a9Fb34"'
+            } else  {
+                variant.buildConfigField 'String', "SECONDARY_RPC_URL", '"https://wallet.ilgointest.e-diploma.org/rpc/ilgtest/"'
+                variant.buildConfigField 'String', "MAIN_RPC_URL", '"https://wallet.ilgoindev.e-diploma.org/rpc/eth/"'
+                variant.buildConfigField 'String', "SECONDARY_NETWORK_NAME", '"ILGON Test"'
+                variant.buildConfigField 'String', "MAIN_NETWORK_NAME", '"ILGON Dev"'
+                variant.buildConfigField 'String', "SECONDARY_TX_URL", '"https://explorer.ilgointest.e-diploma.org/"'
+                variant.buildConfigField 'String', "MAIN_TX_URL", '"https://wallet.ilgoindev.e-diploma.org/rpc/eth/"'
+                variant.buildConfigField 'int', "SECONDARY_CHAIN_ID", '1768712052'
+                variant.buildConfigField 'int', "MAIN_CHAIN_ID", '1768711028'
+                variant.buildConfigField 'String', "ETHERSCAN_URL_MAIN", '"https://explorer.ilgoindev.e-diploma.org/tx/"'
+                variant.buildConfigField 'String', "ETHERSCAN_URL_SECONDRARY", '"https://explorer.ilgointest.e-diploma.org/tx/"'
+                variant.buildConfigField 'String', "MAIN_STAKING_CONTRACT_ADDRESS", 'null'
+                variant.buildConfigField 'String', "SECONDARY_STAKING_CONTRACT_ADDRESS", '"0x04c962FB20BefE81b3a88eDA45B2dB3b92a9Fb34"'
+            }
         }
     }
     flavorDimensions "targetting"
@@ -58,10 +93,15 @@ android {
     productFlavors {
         analytics {
             dimension "targetting"
+            resValue "string", "app_name", "ILGON Wallet"
+
         }
         noAnalytics {
             dimension "targetting"
+            applicationIdSuffix ".test"
+            resValue "string", "app_name", "IlgonTest wallet"
         }
+
     }
 
     buildTypes {

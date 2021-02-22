@@ -69,6 +69,7 @@ import io.realm.RealmResults;
 import static com.alphawallet.app.C.ErrorCode.EMPTY_COLLECTION;
 import static com.alphawallet.app.C.Key.WALLET;
 import static com.alphawallet.app.repository.TokensRealmSource.ADDRESS_FORMAT;
+import static com.alphawallet.app.repository.TokensRealmSource.databaseKey;
 
 /**
  * Created by justindeguzman on 2/28/18.
@@ -157,6 +158,11 @@ public class WalletFragment extends BaseFragment implements
         viewModel.tokens().observe(getViewLifecycleOwner(), this::onTokens);
         viewModel.backupEvent().observe(getViewLifecycleOwner(), this::backupEvent);
         viewModel.defaultWallet().observe(getViewLifecycleOwner(), this::onDefaultWallet);
+        viewModel.getUpdateToken().observe(getViewLifecycleOwner(), this::onUpdateNativeToken);
+    }
+
+    private void onUpdateNativeToken(TokenCardMeta tokenCardMeta) {
+        adapter.updateToken(tokenCardMeta,true);
     }
 
     private void initViews(View view) {

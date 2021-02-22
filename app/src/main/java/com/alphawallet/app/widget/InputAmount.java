@@ -6,11 +6,13 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.alphawallet.app.C;
 import com.alphawallet.app.R;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.repository.TokenRepository;
@@ -39,6 +41,7 @@ import io.realm.Realm;
 import io.realm.RealmQuery;
 import io.realm.Sort;
 
+import static com.alphawallet.app.C.GAS_LIMIT_DEFAULT;
 import static com.alphawallet.app.C.GAS_LIMIT_MIN;
 import static com.alphawallet.app.repository.TokensRealmSource.databaseKey;
 
@@ -55,23 +58,23 @@ public class InputAmount extends LinearLayout
     private final TextView availableSymbol;
     private final TextView availableAmount;
     private final TextView allFunds;
-    private final ProgressBar gasFetch;
+    //private final ProgressBar gasFetch;
     private Token token;
     private Realm realm;
     private Realm tickerRealm;
     private TokensService tokensService;
     private AssetDefinitionService assetService;
-    private BigInteger gasPriceEstimate = BigInteger.ZERO;
     private BigDecimal exactAmount = BigDecimal.ZERO;
+    private BigDecimal networkFee = BigDecimal.ZERO;
     private final Handler handler = new Handler();
     private AmountReadyCallback amountReadyCallback;
-    private boolean amountReady;
+    //private boolean amountReady;
 
     //These need to be members because the listener is shut down if the object doesn't exist
     private RealmTokenTicker realmTickerUpdate;
     private RealmToken realmTokenUpdate;
 
-    private boolean showingCrypto;
+    private final boolean showingCrypto = true;
 
     public InputAmount(Context context, AttributeSet attrs)
     {
@@ -86,9 +89,10 @@ public class InputAmount extends LinearLayout
         availableSymbol = findViewById(R.id.text_symbol);
         availableAmount = findViewById(R.id.text_available);
         allFunds = findViewById(R.id.text_all_funds);
-        gasFetch = findViewById(R.id.gas_fetch_progress);
-        showingCrypto = true;
-        amountReady = false;
+        networkFee = new BigDecimal(new BigInteger(C.DEFAULT_GAS_PRICE).multiply(BigInteger.valueOf(GAS_LIMIT_DEFAULT)));
+        //gasFetch = findViewById(R.id.gas_fetch_progress);
+        //showingCrypto = true;
+        //amountReady = false;
 
         setupAttrs(context, attrs);
 
@@ -125,22 +129,22 @@ public class InputAmount extends LinearLayout
 
     public void getInputAmount()
     {
-        if (gasFetch.getVisibility() == View.VISIBLE)
+        /*if (gasFetch.getVisibility() == View.VISIBLE)
         {
             amountReady = true;
         }
         else
-        {
+        {*/
             //immediate return
             if (exactAmount.compareTo(BigDecimal.ZERO) > 0)
             {
-                amountReadyCallback.amountReady(exactAmount, new BigDecimal(gasPriceEstimate)); //'All Funds', must include gas Price
+                amountReadyCallback.amountReady(exactAmount, networkFee); //'All Funds', must include gas Price
             }
             else
             {
-                amountReadyCallback.amountReady(getWeiInputAmount(), BigDecimal.ZERO);
+                amountReadyCallback.amountReady(getWeiInputAmount(), networkFee);
             }
-        }
+        //}
     }
 
     public void onDestroy()
@@ -215,7 +219,7 @@ public class InputAmount extends LinearLayout
     {
         LinearLayout clickMore = findViewById(R.id.layout_more_click);
 
-        clickMore.setOnClickListener(v -> {
+        /*clickMore.setOnClickListener(v -> {
             //on down caret clicked - switch to fiat currency equivalent if there's a ticker
             RealmTokenTicker rtt = getTickerQuery().findFirst();
             if (showingCrypto && rtt != null)
@@ -232,7 +236,7 @@ public class InputAmount extends LinearLayout
             }
 
             updateAvailableBalance();
-        });
+        });*/
 
         editText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -346,7 +350,7 @@ public class InputAmount extends LinearLayout
         allFunds.setOnClickListener(v -> {
             if (token.isEthereum() && token.hasPositiveBalance())
             {
-                RealmGasSpread gasSpread = tokensService.getTickerRealmInstance().where(RealmGasSpread.class)
+                /*RealmGasSpread gasSpread = tokensService.getTickerRealmInstance().where(RealmGasSpread.class)
                             .equalTo("chainId", token.tokenInfo.chainId)
                             .sort("timeStamp", Sort.DESCENDING)
                             .findFirst();
@@ -363,20 +367,19 @@ public class InputAmount extends LinearLayout
                     web3j.ethGasPrice().sendAsync()
                             .thenAccept(ethGasPrice -> onLatestGasPrice(ethGasPrice.getGasPrice()))
                             .exceptionally(this::onGasFetchError);
-                }
+                }*/
+                onLatestGasPrice();
             }
             else
             {
-                editText.setText(token.getStringBalance());
+                editText.setText(token.getStringBalance()
+                        .replaceAll("\\s+",""));
             }
         });
     }
 
-    private void onLatestGasPrice(BigInteger price)
+    private void onLatestGasPrice()
     {
-        gasPriceEstimate = price;
-        //calculate max amount possible
-        BigDecimal networkFee = new BigDecimal(gasPriceEstimate.multiply(BigInteger.valueOf(GAS_LIMIT_MIN)));
         exactAmount = token.balance.subtract(networkFee);
         if (exactAmount.compareTo(BigDecimal.ZERO) < 0) exactAmount = BigDecimal.ZERO;
         //display in the view
@@ -388,14 +391,14 @@ public class InputAmount extends LinearLayout
         @Override
         public void run()
         {
-            gasFetch.setVisibility(View.GONE);
+            //gasFetch.setVisibility(View.GONE);
             updateAllFundsAmount();
 
-            if (amountReady)
-            {
-                amountReadyCallback.amountReady(exactAmount, new BigDecimal(gasPriceEstimate));
-                amountReady = false;
-            }
+            //if (amountReady)
+           // {
+                amountReadyCallback.amountReady(exactAmount, networkFee);
+            //    amountReady = false;
+          //  }
         }
     };
 
@@ -425,7 +428,7 @@ public class InputAmount extends LinearLayout
 
     private Void onGasFetchError(Throwable throwable)
     {
-        gasFetch.setVisibility(View.GONE);
+        //gasFetch.setVisibility(View.GONE);
         return null;
     }
 
@@ -440,7 +443,7 @@ public class InputAmount extends LinearLayout
             {
                 double cryptoRate = Double.parseDouble(rtt.getPrice());
                 double availableCryptoBalance = value.divide(BigDecimal.valueOf(Math.pow(10, token.tokenInfo.decimals)), 18, RoundingMode.DOWN).doubleValue();
-                DecimalFormat df = new DecimalFormat("#,##0.00");
+                DecimalFormat df = new DecimalFormat("###0.00");
                 df.setRoundingMode(RoundingMode.DOWN);
                 fiatValue = df.format(availableCryptoBalance * cryptoRate);
             }
@@ -484,13 +487,18 @@ public class InputAmount extends LinearLayout
             String showValue = "";
             if (showingCrypto)
             {
-                showValue = BalanceUtils.getScaledValueScientific(exactAmount, token.tokenInfo.decimals);
+                showValue = BalanceUtils.getScaledValueScientific(exactAmount, token.tokenInfo.decimals)
+                        .replace(",",".")
+                        .replaceAll("\\s+",  "")
+                        .replaceAll("\\u00a0","");
             }
             else
             {
-                showValue = convertWeiAmountToFiat(exactAmount);
+                showValue = convertWeiAmountToFiat(exactAmount)
+                        .replace(",",".")
+                        .replaceAll("\\s+",  "")
+                        .replaceAll("\\u00a0","");
             }
-
             editText.setText(showValue);
         }
     }

@@ -10,7 +10,7 @@
         android:id="@+id/layout_header_amount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/alabaster">
+        android:background="@color/ilgoin_background_color">
 
         <View
             android:layout_width="match_parent"
@@ -89,6 +89,7 @@
                 tools:text="ETH"/>
 
                 <ImageView
+                    android:visibility="gone"
                     android:id="@+id/expand_more"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -179,20 +180,20 @@
                 android:text="@string/error_insufficient_funds"
                 android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/text_all_funds"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="end"
-                android:fontFamily="@font/font_semibold"
-                android:textColor="@color/azure"
-                android:textSize="@dimen/sp17"
-                android:text="@string/all_funds"
-                android:lines="1"
-                android:visibility="visible" />
+
 
         </LinearLayout>
-
+        <TextView
+            android:id="@+id/text_all_funds"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:fontFamily="@font/font_semibold"
+            android:textColor="@color/ilgoin_button_primary_color"
+            android:textSize="@dimen/sp17"
+            android:text="Send All"
+            android:lines="1"
+            android:visibility="visible" />
     </LinearLayout>
 
 </LinearLayout>

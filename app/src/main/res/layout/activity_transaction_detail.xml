@@ -3,7 +3,7 @@
     xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary">
+    android:background="@color/ilgoin_background_color">
 
     <include layout="@layout/layout_simple_toolbar" />
 
@@ -52,6 +52,7 @@
                 <LinearLayout
                     android:layout_below="@id/value_header"
                     android:layout_width="wrap_content"
+                    android:background="@color/ilgoin_background_color"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
@@ -60,6 +61,7 @@
                         style="@style/TransactionDetailsStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@color/ilgoin_background_color"
                         android:layout_marginEnd="@dimen/dp16"
                         tools:text="Sent"  />
 
@@ -68,6 +70,7 @@
                         style="@style/TransactionDetailsStyle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@color/ilgoin_background_color"
                         tools:text="4238793"  />
 
                     <TextView
@@ -137,6 +140,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="2dp"
+                    android:background="@color/ilgoin_background_color"
                     android:text="@string/ethereum" />
 
             </LinearLayout>
@@ -210,6 +214,7 @@
                             style="@style/TransactionDetailsStyle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:background="@color/ilgoin_background_color"
                             tools:text="4238793" />
 
                     </LinearLayout>
@@ -239,14 +244,14 @@
                             style="@style/TransactionDetailsStyle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:background="@color/ilgoin_background_color"
                             tools:text="21,000" />
 
                         <TextView
                             style="@style/TransactionDetailsStyle"
                             android:layout_marginStart="@dimen/dp5"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Gwei" />
+                            android:layout_height="wrap_content" />
 
                     </LinearLayout>
 
@@ -283,6 +288,7 @@
                             style="@style/TransactionDetailsStyle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:background="@color/ilgoin_background_color"
                             tools:text="0.002" />
 
                         <TextView
@@ -291,6 +297,7 @@
                             android:layout_marginStart="@dimen/dp5"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:background="@color/ilgoin_background_color"
                             android:text="@string/eth" />
                     </LinearLayout>
 
@@ -302,6 +309,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:visibility="gone"
+                    android:background="@color/ilgoin_background_color"
                     android:orientation="vertical">
 
                     <TextView
@@ -309,6 +317,7 @@
                         android:id="@+id/title_gas_price"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:background="@color/ilgoin_background_color"
                         android:text="@string/subtitle_gas_price" />
 
                     <LinearLayout
@@ -321,6 +330,7 @@
                             style="@style/TransactionDetailsStyle"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:background="@color/ilgoin_background_color"
                             tools:text="1.2" />
 
                         <TextView
@@ -328,6 +338,7 @@
                             android:layout_marginStart="@dimen/dp5"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:background="@color/ilgoin_background_color"
                             android:text="Gwei" />
                     </LinearLayout>
 
@@ -345,6 +356,7 @@
                 android:id="@+id/txn_time"
                 style="@style/TransactionDetailsStyle"
                 android:layout_width="wrap_content"
+                android:background="@color/ilgoin_background_color"
                 android:layout_height="wrap_content"
                 tools:text="September 4, 2017 at 2:32:12 PM" />
 

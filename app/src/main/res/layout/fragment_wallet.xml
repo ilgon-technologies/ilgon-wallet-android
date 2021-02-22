@@ -16,6 +16,7 @@
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="visible"
             app:layout_scrollFlags="scroll|enterAlways"
             app:titleEnabled="false">
 
@@ -29,6 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="top"
+            app:tabBackground="@color/ilgoin_background_color"
             android:background="@drawable/background_tab_layout"
             android:paddingStart="12dp"
             app:layout_scrollFlags="enterAlways"
@@ -58,7 +60,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="?actionBarSize"
-        android:background="@color/alabaster"
+        android:background="@color/ilgoin_background_color"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <androidx.recyclerview.widget.RecyclerView

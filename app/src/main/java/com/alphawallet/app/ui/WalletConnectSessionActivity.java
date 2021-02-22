@@ -2,6 +2,7 @@ package com.alphawallet.app.ui;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,9 +11,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
@@ -20,6 +23,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.alphawallet.app.BuildConfig;
 import com.alphawallet.app.C;
 import com.alphawallet.app.R;
 import com.alphawallet.app.entity.Wallet;
@@ -43,6 +47,8 @@ import io.reactivex.disposables.Disposable;
 
 import static com.alphawallet.app.C.Key.WALLET;
 
+import static com.alphawallet.app.repository.EthereumNetworkBase.MAINNET_ID;
+
 /**
  * Created by JB on 9/09/2020.
  */
@@ -56,6 +62,8 @@ public class WalletConnectSessionActivity extends BaseActivity
     private CustomAdapter adapter;
     private Wallet wallet;
     private List<WalletConnectSessionItem> wcSessions;
+
+    final int[] channel = {0};
 
     private final Handler handler = new Handler();
 
@@ -232,7 +240,7 @@ public class WalletConnectSessionActivity extends BaseActivity
 
     private void dialogConfirmDelete(WalletConnectSessionItem session)
     {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.MyDialogStyle);
         AlertDialog dialog = builder.setTitle(R.string.title_delete_session)
                 .setMessage(getString(R.string.delete_session, session.name))
                 .setPositiveButton(R.string.delete, (d, w) -> {
@@ -247,6 +255,60 @@ public class WalletConnectSessionActivity extends BaseActivity
         dialog.show();
     }
 
+    private void showChannelSelectorPopUp(String qrCode)
+    {
+
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(WalletConnectSessionActivity.this,R.style.MyDialogStyle);
+        alertDialog.setTitle("Choose Network");
+        String[] items = {BuildConfig.MAIN_NETWORK_NAME,BuildConfig.SECONDARY_NETWORK_NAME};
+        int[] channelId = {BuildConfig.MAIN_CHAIN_ID,BuildConfig.SECONDARY_CHAIN_ID};
+        int checkedItem = 0;
+        channel[0] = BuildConfig.MAIN_CHAIN_ID;
+        alertDialog.setSingleChoiceItems(items, checkedItem, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0:
+                    case 1:
+                        channel[0] = channelId[which];
+                        break;
+
+                }
+            }
+        });
+        alertDialog.setPositiveButton(android.R.string.ok, null);
+        AlertDialog alert = alertDialog.create();
+        alert.setOnShowListener(new DialogInterface.OnShowListener() {
+
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+
+                Button button = ((AlertDialog) alert).getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+                        // TODO Do something
+                        Toast.makeText(WalletConnectSessionActivity.this, String.valueOf(channel[0]), Toast.LENGTH_LONG).show();
+
+                        //Dismiss once everything is OK.
+                        alert.dismiss();
+
+                        Intent intent = new Intent(WalletConnectSessionActivity.this, WalletConnectActivity.class);
+                        intent.putExtra("qrCode", qrCode);
+                        intent.putExtra(C.EXTRA_WALLET_CONNECT_CHANNEL_ID, channel[0]);
+                        startActivity(intent);
+                        setResult(RESULT_OK);
+                        finish();
+                    }
+                });
+            }
+        });
+        alert.setCanceledOnTouchOutside(false);
+        alert.show();
+    }
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
@@ -260,11 +322,7 @@ public class WalletConnectSessionActivity extends BaseActivity
                         String qrCode = data.getStringExtra(C.EXTRA_QR_CODE);
                         if (qrCode.startsWith("wc:"))
                         {
-                            Intent intent = new Intent(this, WalletConnectActivity.class);
-                            intent.putExtra("qrCode", qrCode);
-                            startActivity(intent);
-                            setResult(RESULT_OK);
-                            finish();
+                            showChannelSelectorPopUp(qrCode);
                         }
                     }
                 }
