@@ -1,4 +1,4 @@
-# ILGON Wallet - Advanced, Open Source Mobile Wallet for Android
+# ILGON Wallet - Advanced, Open Source Ethereum Mobile Wallet for Android
 <!--
 [![Build Status](https://api.travis-ci.com/AlphaWallet/alpha-wallet-android.svg?branch=master)](https://api.travis-ci.com/AlphaWallet/alpha-wallet-android.svg?branch=master)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg )](https://github.com/AlphaWallet/alpha-wallet-android/graphs/commit-activity)
