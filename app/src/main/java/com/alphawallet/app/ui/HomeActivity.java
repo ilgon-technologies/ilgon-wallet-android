@@ -1105,9 +1105,9 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
             case SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS:
                 switch (getSelectedItem())
                 {
-                    case DAPP_BROWSER:
-                        ((DappBrowserFragment) dappBrowserFragment).gotAuthorisation(resultCode == RESULT_OK);
-                        break;
+                    //case DAPP_BROWSER:
+                    //    ((DappBrowserFragment) dappBrowserFragment).pinAuthorisation(resultCode == RESULT_OK);
+                    //    break;
                     default:
                         //continue with generating the authenticated key - NB currently no flow reaches this code but in future it could
                         if (resultCode == RESULT_OK) authInterface.completeAuthentication(taskCode);

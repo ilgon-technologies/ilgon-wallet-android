@@ -50,7 +50,7 @@ import static com.alphawallet.app.repository.EthereumNetworkBase.MAINNET_ID;
 public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View.OnClickListener, View.OnLongClickListener, View.OnLayoutChangeListener {
 
     public static final int VIEW_TYPE = 1005;
-    public static final String EMPTY_BALANCE = "\u2014\u2014";
+    public static final String EMPTY_BALANCE = "$0 USD";//"\u2014\u2014";
 
     private final TokenIcon tokenIcon;
     private final TextView balanceEth;
@@ -124,6 +124,7 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
 
         try
         {
+            this.balanceCurrency.setText("");
             token = tokensService.getToken(data.getChain(), data.getAddress());
             if (token == null)
             {
@@ -147,12 +148,12 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
             if (EthereumNetworkRepository.isPriorityToken(token)) extendedInfo.setVisibility(View.GONE);
             contractSeparator.setVisibility(View.GONE);
 
-            ActivityManager am = (ActivityManager)getContext().getSystemService(Context.ACTIVITY_SERVICE);
-            ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
-            if(token.isEthereum()) {
+           // ActivityManager am = (ActivityManager)getContext().getSystemService(Context.ACTIVITY_SERVICE);
+            //ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
+            if(token.isEthereum() && token.showStakingBalance()) {
                 stakingBalance.setText("Staking balance: " + token.getStringStakingBalance()+" "+token.getSymbol());
                 stakingLinearLayout.setVisibility(View.VISIBLE);
-                if(!cn.getClassName().equals(HomeActivity.class.getName())){
+                /*if(!cn.getClassName().equals(HomeActivity.class.getName())){
                     stakingBalance.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_baseline_info_24, 0);
                     stakingBalance.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -160,7 +161,9 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
                             showInformPopUp();
                         }
                     });
-                }
+                }*/
+            } else {
+                stakingLinearLayout.setVisibility(View.GONE);
             }
 
             //setup name and value (put these together on a single string to make wrap-around text appear better).
@@ -368,7 +371,6 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
     private void setTickerInfo(TokenTicker ticker)
     {
         if (((Activity)getContext()).isFinishing()) { return; }
-
         //Set the fiat equivalent (leftmost value)
         BigDecimal correctedBalance = token.getCorrectedBalance(18);
         BigDecimal fiatBalance = correctedBalance.multiply(new BigDecimal(ticker.price)).setScale(18, RoundingMode.DOWN);

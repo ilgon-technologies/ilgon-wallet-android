@@ -53,6 +53,7 @@ public class TransactionDetailActivity extends BaseActivity implements StandardF
     private Token token;
     private String chainName;
     private Wallet wallet;
+    private double currencyRate;
     private FunctionButtonBar functionBar;
 
     @Override
@@ -68,6 +69,7 @@ public class TransactionDetailActivity extends BaseActivity implements StandardF
 
         String txHash = getIntent().getStringExtra(C.EXTRA_TXHASH);
         int chainId = getIntent().getIntExtra(C.EXTRA_CHAIN_ID, MAINNET_ID);
+        currencyRate = getIntent().getDoubleExtra(C.EXTRA_CURRENCY_RATE, 0);
         wallet = getIntent().getParcelableExtra(WALLET);
         viewModel.fetchTransaction(wallet, txHash, chainId);
     }
@@ -192,7 +194,17 @@ public class TransactionDetailActivity extends BaseActivity implements StandardF
             findViewById(R.id.layout_gas_fee).setVisibility(View.VISIBLE);
             findViewById(R.id.layout_network_fee).setVisibility(View.VISIBLE);
             ((TextView) findViewById(R.id.gas_used)).setText(BalanceUtils.getScaledValue(new BigDecimal(transaction.gasUsed), 0, 0));
-            ((TextView) findViewById(R.id.network_fee)).setText(BalanceUtils.getScaledValue(BalanceUtils.weiToEth(gasFee), 0, 6));
+            TextView nwFee = (TextView) findViewById(R.id.network_fee);
+            String nwFeeText = BalanceUtils.getScaledValue(BalanceUtils.weiToEth(gasFee), 0, 6) + " "+ viewModel.getNetworkSymbol(transaction.chainId);
+            if (currencyRate > 0) {
+                BigDecimal usdDecimal = gasFee.multiply(new BigDecimal(currencyRate));
+                String usdStr = BalanceUtils.getScaledValueFixed(usdDecimal, 18, 2);
+                nwFeeText += "\n($"+usdStr+" USD)";
+                nwFee.setText(nwFeeText);
+            } else {
+                nwFee.setText(nwFeeText);
+            }
+
             ((TextView) findViewById(R.id.text_fee_unit)).setText(viewModel.getNetworkSymbol(transaction.chainId));
         }
 
@@ -211,6 +223,11 @@ public class TransactionDetailActivity extends BaseActivity implements StandardF
     {
         String operationName = token.getOperationName(transaction, this);
         String transactionOperation = token.getTransactionResultValue(transaction, TRANSACTION_BALANCE_PRECISION);
+        if (currencyRate > 0 && token.isEthereum() && !transaction.hasInput()) {
+            BigDecimal usdDecimal = new BigDecimal(transaction.value).multiply(new BigDecimal(currencyRate));
+            String usdStr = BalanceUtils.getScaledValueFixed(usdDecimal, 18, 2);
+            transactionOperation += " ($"+usdStr+" USD)";
+        }
         amount.setText(Utils.isContractCall(this, operationName) ? "" : transactionOperation);
     }
 

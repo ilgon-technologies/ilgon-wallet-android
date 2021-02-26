@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -22,6 +23,7 @@ import com.alphawallet.app.entity.StandardFunctionInterface;
 import com.alphawallet.app.entity.Transaction;
 import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.tokens.Token;
+import com.alphawallet.app.entity.tokens.TokenTicker;
 import com.alphawallet.app.entity.tokenscript.TokenScriptRenderCallback;
 import com.alphawallet.app.entity.tokenscript.WebCompletionCallback;
 import com.alphawallet.app.repository.EventResult;
@@ -48,6 +50,10 @@ import com.alphawallet.token.entity.TokenScriptResult;
 import com.alphawallet.token.tools.Numeric;
 import com.alphawallet.token.tools.TokenDefinition;
 
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
@@ -66,11 +72,19 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import static com.alphawallet.app.C.ETH_SYMBOL;
 import static com.alphawallet.app.entity.TransactionDecoder.FUNCTION_LENGTH;
 import static com.alphawallet.app.repository.EthereumNetworkBase.MAINNET_ID;
 import static com.alphawallet.app.service.AssetDefinitionService.ASSET_DETAIL_VIEW_NAME;
+import static com.alphawallet.app.service.TickerService.ILGON_PRICES_URL;
+import static com.alphawallet.app.service.TickerService.ILGON_PRICE_JSON_ROOT;
+import static com.alphawallet.app.service.TickerService.ILGON_PRICE_USD;
 import static com.alphawallet.app.ui.widget.holder.TransactionHolder.TRANSACTION_BALANCE_PRECISION;
 
 
@@ -100,6 +114,8 @@ public class TokenActivity extends BaseActivity implements PageReadyCallback, St
     private final Handler handler = new Handler();
     private boolean isFromTokenHistory = false;
     private long pendingStart = 0;
+    private double currencyRate = 0;
+    private Wallet wallet;
 
     @Nullable
     private Disposable pendingTxUpdate = null;
@@ -124,6 +140,66 @@ public class TokenActivity extends BaseActivity implements PageReadyCallback, St
 
         tokenId = BigInteger.ZERO;
         eventDetail = findViewById(R.id.event_detail);
+    }
+
+    private void loadCurrencyRate() {
+        Transaction transaction = viewModel.fetchTransaction(transactionHash);
+        if (transaction == null || transaction.chainId != BuildConfig.MAIN_CHAIN_ID) {
+            onCurrencyRateLoadReady();
+            return;
+        }
+
+        OkHttpClient httpClient = new OkHttpClient.Builder()
+                .connectTimeout(7, TimeUnit.SECONDS)
+                .readTimeout(7, TimeUnit.SECONDS)
+                .writeTimeout(7, TimeUnit.SECONDS)
+                .retryOnConnectionFailure(false)
+                .build();
+        Request request = new Request.Builder()
+                .url(ILGON_PRICES_URL + "?timestamp=" + transaction.timeStamp)
+                .get()
+                .build();
+        httpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Log.d("DEBUG", "" + e.getMessage());
+                onCurrencyRateLoadReady();
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.code() / 200 == 1) {
+                    try {
+                        String result = response.body()
+                                .string();
+
+                        JSONObject stateData = new JSONObject(result);
+                        JSONObject data = stateData.getJSONObject(ILGON_PRICE_JSON_ROOT);
+                        String usd = data.getString(ILGON_PRICE_USD);
+                        currencyRate = Double.parseDouble(usd);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                onCurrencyRateLoadReady();
+            }
+        });
+    }
+
+    private void onCurrencyRateLoadReady()
+    {
+        runOnUiThread(() -> {
+            if (!TextUtils.isEmpty(eventKey))
+            {
+                handleEvent(wallet);
+            }
+            else
+            {
+                handleTransaction(wallet);
+            }
+
+            setupFunctions();
+        });
     }
 
     private void setupViewModel()
@@ -163,7 +239,7 @@ public class TokenActivity extends BaseActivity implements PageReadyCallback, St
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_view_transaction_details)
         {
-            viewModel.showTransactionDetail(this, transactionHash, token.tokenInfo.chainId);
+            viewModel.showTransactionDetail(this, transactionHash, token.tokenInfo.chainId, currencyRate);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -178,16 +254,8 @@ public class TokenActivity extends BaseActivity implements PageReadyCallback, St
 
     private void onWallet(Wallet wallet)
     {
-        if (!TextUtils.isEmpty(eventKey))
-        {
-            handleEvent(wallet);
-        }
-        else
-        {
-            handleTransaction(wallet);
-        }
-
-        setupFunctions();
+        this.wallet = wallet;
+        loadCurrencyRate();
     }
 
     private void setupFunctions()
@@ -235,10 +303,19 @@ public class TokenActivity extends BaseActivity implements PageReadyCallback, St
         eventActionSymbol.setText(sym);
         //amount
         String transactionValue = token.getTransactionResultValue(transaction, TRANSACTION_BALANCE_PRECISION);
+        if (currencyRate > 0 && token.isEthereum() && !transaction.hasInput()) {
+            BigDecimal usdDecimal = new BigDecimal(transaction.value).multiply(new BigDecimal(currencyRate));
+            String usdStr = BalanceUtils.getScaledValueFixed(usdDecimal, token.tokenInfo.decimals, 2);
+            transactionValue += "($"+usdStr+" USD)";
+        }
 
         if (!token.shouldShowSymbol(transaction) && transaction.input.length() >= FUNCTION_LENGTH)
         {
             eventAmount.setText(transaction.input.substring(0, FUNCTION_LENGTH));
+            if (eventAmount.getText().equals("Constructo")) {
+                eventAmount.setText("Constructor");
+                //quick fix, find a better solution later
+            }
             eventActionSymbol.setText(getString(R.string.sent_to, token.getFullName()));
         }
         else if (TextUtils.isEmpty(transactionValue))
@@ -629,7 +706,7 @@ public class TokenActivity extends BaseActivity implements PageReadyCallback, St
             if (isFromTokenHistory)
             {
                 //go back to token - we arrived here from the token view
-                viewModel.showTransactionDetail(this, transactionHash, token.tokenInfo.chainId);
+                viewModel.showTransactionDetail(this, transactionHash, token.tokenInfo.chainId, currencyRate);
                 //finish();
             }
             else

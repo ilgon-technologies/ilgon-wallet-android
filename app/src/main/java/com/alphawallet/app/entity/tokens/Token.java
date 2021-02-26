@@ -121,6 +121,10 @@ public class Token implements Parcelable, Comparable<Token>
         return BalanceUtils.getScaledValueScientific(balance, decimals);
     }
 
+    public boolean showStakingBalance() {
+        return (stakingBalance != null && !stakingBalance.equals(BigDecimal.ZERO));
+    }
+
     public String getStringStakingBalance()
     {
         //String value;

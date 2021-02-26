@@ -200,6 +200,10 @@ public class TokenFunctionViewModel extends BaseViewModel
                         error -> dAppFunction.DAppError(error, message));
     }
 
+    public Wallet getWallet() {
+        return wallet;
+    }
+
     public String getTransactionBytes(Token token, BigInteger tokenId, FunctionDefinition def)
     {
         return assetDefinitionService.generateTransactionPayload(token, tokenId, def);
@@ -495,12 +499,13 @@ public class TokenFunctionViewModel extends BaseViewModel
         return fetchTransactionsInteract;
     }
 
-    public void showTransactionDetail(Context ctx, String txHash, int chainId)
+    public void showTransactionDetail(Context ctx, String txHash, int chainId, double currencyRate)
     {
         Intent intent = new Intent(ctx, TransactionDetailActivity.class);
         intent.putExtra(C.EXTRA_TXHASH, txHash);
         intent.putExtra(C.EXTRA_CHAIN_ID, chainId);
         intent.putExtra(C.Key.WALLET, wallet);
+        intent.putExtra(C.EXTRA_CURRENCY_RATE, currencyRate);
         intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         ctx.startActivity(intent);
     }

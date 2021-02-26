@@ -74,9 +74,9 @@ import static org.web3j.protocol.core.methods.request.Transaction.createEthCallT
 public class TickerService
 {
     private static final int UPDATE_TICKER_CYCLE = 5; //5 Minutes
-    private static final String ILGON_PRICES_URL = "https://priceapi.ilgonwallet.com/prices";
-    private static final String ILGON_PRICE_JSON_ROOT = "data";
-    private static final String ILGON_PRICE_USD = "ILG_USD";
+    public static final String ILGON_PRICES_URL = "https://priceapi.ilgonwallet.com/prices";
+    public static final String ILGON_PRICE_JSON_ROOT = "data";
+    public static final String ILGON_PRICE_USD = "ILG_USD";
 
     private static final String COINMARKET_API_URL = "https://pro-api.coinmarketcap.com";
     private static final String MEDIANIZER = "0x729D19f657BD0614b4985Cf1D82531c67569197B";
@@ -220,7 +220,7 @@ public class TickerService
             try
             {
                 Request request = new Request.Builder()
-                        .url(ILGON_PRICES_URL+"?"+System.currentTimeMillis())
+                        .url(ILGON_PRICES_URL)
                         .get()
                         .build();
                 okhttp3.Response response = httpClient.newCall(request)

@@ -92,6 +92,7 @@ public abstract class C {
     public static final String EXTRA_FUNCTION_NAME = "TS_FUNC_NAME";
     public static final String EXTRA_SINGLE_ITEM = "SINGLE_ITEM";
     public static final String EXTRA_CHAIN_ID = "CHAIN_ID";
+    public static final String EXTRA_CURRENCY_RATE = "CURRENCY_RATE";
     public static final String EXTRA_CALLBACKID = "CALLBACK_ID";
     public static final String EXTRA_LOCALE = "LOCALE_STRING";
     public static final String EXTRA_PAGE_TITLE = "PTITLE";

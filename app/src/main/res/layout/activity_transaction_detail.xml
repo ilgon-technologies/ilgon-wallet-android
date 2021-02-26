@@ -295,10 +295,11 @@
                             style="@style/TransactionDetailsStyle"
                             android:id="@+id/text_fee_unit"
                             android:layout_marginStart="@dimen/dp5"
+                            android:visibility="gone"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:background="@color/ilgoin_background_color"
-                            android:text="@string/eth" />
+                            android:text="" />
                     </LinearLayout>
 
                 </LinearLayout>
