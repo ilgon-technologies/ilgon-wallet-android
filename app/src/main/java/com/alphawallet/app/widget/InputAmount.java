@@ -8,6 +8,7 @@ import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -35,6 +36,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.util.Locale;
 
 import io.realm.Case;
 import io.realm.Realm;
@@ -74,7 +76,7 @@ public class InputAmount extends LinearLayout
     private RealmTokenTicker realmTickerUpdate;
     private RealmToken realmTokenUpdate;
 
-    private final boolean showingCrypto = true;
+    private boolean showingCrypto;
 
     public InputAmount(Context context, AttributeSet attrs)
     {
@@ -91,7 +93,7 @@ public class InputAmount extends LinearLayout
         allFunds = findViewById(R.id.text_all_funds);
         networkFee = new BigDecimal(new BigInteger(C.DEFAULT_GAS_PRICE).multiply(BigInteger.valueOf(GAS_LIMIT_DEFAULT)));
         //gasFetch = findViewById(R.id.gas_fetch_progress);
-        //showingCrypto = true;
+        showingCrypto = true;
         //amountReady = false;
 
         setupAttrs(context, attrs);
@@ -157,8 +159,8 @@ public class InputAmount extends LinearLayout
 
     public void setAmount(String ethAmount)
     {
-        exactAmount = BigDecimal.ZERO;
         editText.setText(ethAmount);
+        exactAmount = getWeiInputAmount();
     }
 
     public void showError(boolean showError, int customError)
@@ -215,12 +217,19 @@ public class InputAmount extends LinearLayout
         });
     }
 
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+    }
+
     private void setupViewListeners()
     {
         LinearLayout clickMore = findViewById(R.id.layout_more_click);
 
-        /*clickMore.setOnClickListener(v -> {
+        clickMore.setOnClickListener(v -> {
             //on down caret clicked - switch to fiat currency equivalent if there's a ticker
+            editText.clearFocus();
+            hideKeyboard();
             RealmTokenTicker rtt = getTickerQuery().findFirst();
             if (showingCrypto && rtt != null)
             {
@@ -236,7 +245,7 @@ public class InputAmount extends LinearLayout
             }
 
             updateAvailableBalance();
-        });*/
+        });
 
         editText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -248,7 +257,7 @@ public class InputAmount extends LinearLayout
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (editText.hasFocus())
                 {
-                    exactAmount = BigDecimal.ZERO; //invalidate the 'all funds' amount
+                    exactAmount = getWeiInputAmount();
                     showError(false, 0);
                 }
             }
@@ -293,7 +302,7 @@ public class InputAmount extends LinearLayout
         symbolText.setText(token.getSymbol());
         availableSymbol.setText(token.getSymbol());
         availableAmount.setText(token.getStringBalance());
-        updateAllFundsAmount();
+        updateAmount();
     }
 
     private void showFiat()
@@ -308,10 +317,15 @@ public class InputAmount extends LinearLayout
                 symbolText.setText(currencyLabel);
                 //calculate available fiat
                 double cryptoRate = Double.parseDouble(rtt.getPrice());
-                double availableCryptoBalance = Double.parseDouble(token.getStringBalance());
-                availableAmount.setText(TickerService.getCurrencyString(availableCryptoBalance * cryptoRate));
-                availableSymbol.setText(rtt.getCurrencySymbol());
-                updateAllFundsAmount(); //update amount if showing 'All Funds'
+                double availableCryptoBalance = Double.parseDouble(token.getStringBalance()
+                        .replace(",",".")
+                        .replaceAll("\\s+",  "")
+                        .replaceAll("\\u00a0",""));
+                double availableFiatBalance = availableCryptoBalance * cryptoRate;
+                String priceStr = String.format(Locale.getDefault(), "%.2f", availableFiatBalance);
+                availableAmount.setText(priceStr);//TickerService.getCurrencyString(availableCryptoBalance * cryptoRate));
+                availableSymbol.setText("USD");//rtt.getCurrencySymbol());
+                updateAmount();
 
                 amountReadyCallback.updateCryptoAmount(
                         getWeiInputAmount()
@@ -320,6 +334,7 @@ public class InputAmount extends LinearLayout
         }
         catch (Exception e)
         {
+            Log.d("DEBUG", e.getMessage());
             // continue with old value
         }
     }
@@ -392,7 +407,7 @@ public class InputAmount extends LinearLayout
         public void run()
         {
             //gasFetch.setVisibility(View.GONE);
-            updateAllFundsAmount();
+            updateAmount();
 
             //if (amountReady)
            // {
@@ -480,7 +495,7 @@ public class InputAmount extends LinearLayout
     /**
      * After user clicked on 'All Funds' and we calculated the exactAmount which is the largest value (minus gas fee) the account can support
      */
-    private void updateAllFundsAmount()
+    private void updateAmount()
     {
         if (exactAmount.compareTo(BigDecimal.ZERO) > 0)
         {

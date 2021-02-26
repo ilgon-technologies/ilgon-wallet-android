@@ -102,7 +102,7 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
 
     private void showInformPopUp()
     {
-
+        /*
         AlertDialog.Builder builder1 = new AlertDialog.Builder(getContext(),R.style.MyDialogStyle);
         builder1.setTitle("Title");
         builder1.setMessage("my message");
@@ -115,7 +115,7 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
                 });
 
         AlertDialog alert11 = builder1.create();
-        alert11.show();
+        alert11.show();*/
     }
 
 
@@ -150,7 +150,7 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
             ActivityManager am = (ActivityManager)getContext().getSystemService(Context.ACTIVITY_SERVICE);
             ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
             if(token.isEthereum()) {
-                stakingBalance.setText("Staking balance:" + token.getStringStakingBalance());
+                stakingBalance.setText("Staking balance: " + token.getStringStakingBalance()+" "+token.getSymbol());
                 stakingLinearLayout.setVisibility(View.VISIBLE);
                 if(!cn.getClassName().equals(HomeActivity.class.getName())){
                     stakingBalance.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_baseline_info_24, 0);
@@ -239,7 +239,7 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
     {
         primaryElement = true;
         hideIssuerViews();
-        //balanceCurrency.setVisibility(View.VISIBLE);
+        balanceCurrency.setVisibility(View.VISIBLE);
         startTickerRealmListener();
     }
 
@@ -343,7 +343,7 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
 
     private void emptyTicker()
     {
-        balanceCurrency.setText(R.string.unknown_balance_without_symbol);
+        balanceCurrency.setText("");//R.string.unknown_balance_without_symbol);
     }
 
     private void startTickerRealmListener()

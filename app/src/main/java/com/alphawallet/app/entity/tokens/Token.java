@@ -123,10 +123,11 @@ public class Token implements Parcelable, Comparable<Token>
 
     public String getStringStakingBalance()
     {
-        String value;
-
-
-        return stakingBalance.toString();
+        //String value;
+        //return stakingBalance.toString();
+        int decimals = 18;
+        if (tokenInfo != null) decimals = tokenInfo.decimals;
+        return BalanceUtils.getScaledValueScientific(stakingBalance, decimals);
     }
 
 

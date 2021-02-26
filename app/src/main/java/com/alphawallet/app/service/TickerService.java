@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
+import android.util.Log;
 
 import com.alphawallet.app.entity.ContractType;
 import com.alphawallet.app.entity.NetworkInfo;
@@ -73,6 +74,10 @@ import static org.web3j.protocol.core.methods.request.Transaction.createEthCallT
 public class TickerService
 {
     private static final int UPDATE_TICKER_CYCLE = 5; //5 Minutes
+    private static final String ILGON_PRICES_URL = "https://priceapi.ilgonwallet.com/prices";
+    private static final String ILGON_PRICE_JSON_ROOT = "data";
+    private static final String ILGON_PRICE_USD = "ILG_USD";
+
     private static final String COINMARKET_API_URL = "https://pro-api.coinmarketcap.com";
     private static final String MEDIANIZER = "0x729D19f657BD0614b4985Cf1D82531c67569197B";
     private static final String BLOCKSCOUT = "https://blockscout.com/poa/[CORE]/api?module=stats&action=ethprice";
@@ -139,7 +144,7 @@ public class TickerService
     private Single<Integer> fetchTickersSeparatelyIfRequired(int tickerCount)
     {
         if (tickerCount > 0) return Single.fromCallable(() -> tickerCount);
-        else return fetchEtherscanTicker(tickerCount)
+        else return fetchIlgonTicker(tickerCount)//fetchEtherscanTicker(tickerCount)
                 .flatMap(count -> fetchBlockScoutTicker(CLASSIC_ID, "etc", count))
                 .flatMap(count -> fetchBlockScoutTicker(XDAI_ID, "xdai", count))
                 .flatMap(count -> fetchBlockScoutTicker(POA_ID, "core", count))
@@ -208,14 +213,14 @@ public class TickerService
         }
     }
 
-    private Single<Integer> fetchEtherscanTicker(int tickerCount)
+    private Single<Integer> fetchIlgonTicker(int tickerCount)
     {
         return Single.fromCallable(() -> {
             int newTickers = 0;
             try
             {
                 Request request = new Request.Builder()
-                        .url(ETHERSCAN)
+                        .url(ILGON_PRICES_URL+"?"+System.currentTimeMillis())
                         .get()
                         .build();
                 okhttp3.Response response = httpClient.newCall(request)
@@ -225,8 +230,8 @@ public class TickerService
                     String result = response.body()
                             .string();
                     JSONObject stateData = new JSONObject(result);
-                    JSONObject data = stateData.getJSONObject("result");
-                    TokenTicker tt = decodeEtherscanTicker(data);
+                    JSONObject data = stateData.getJSONObject(ILGON_PRICE_JSON_ROOT);
+                    TokenTicker tt = decodeIlgonTicker(data);
                     ethTickers.put(MAINNET_ID, tt);
                     newTickers = 5;
                 }
@@ -238,6 +243,23 @@ public class TickerService
 
             return tickerCount + newTickers;
         });
+    }
+
+    private TokenTicker decodeIlgonTicker(JSONObject obj)
+    {
+        TokenTicker ticker = null;
+        try
+        {
+            String usdPrice = obj.getString(ILGON_PRICE_USD);
+            ticker = new TokenTicker(usdPrice, "0.00", currentCurrencySymbolTxt, "", System.currentTimeMillis());
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            ticker = new TokenTicker();
+        }
+
+        return ticker;
     }
 
     private Single<Integer> fetchBlockScoutTicker(int chainId, String core, int tickers)

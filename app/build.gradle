@@ -35,8 +35,8 @@ android {
         }
     }
     defaultConfig {
-        versionCode 133
-        versionName "3.20.5"
+        versionCode 137
+        versionName "1.0.3"
 
         applicationId "com.dlabs.ilgonwallet"
         minSdkVersion 23
@@ -70,8 +70,8 @@ android {
                 variant.buildConfigField 'int', "SECONDARY_CHAIN_ID", '1768712052'
                 variant.buildConfigField 'String', "ETHERSCAN_URL_MAIN", '"https://ilgonexplorer.com/tx/"'
                 variant.buildConfigField 'String', "ETHERSCAN_URL_SECONDRARY", '"https://explorer.ilgointest.e-diploma.org/tx/"'
-                variant.buildConfigField 'String', "MAIN_STAKING_CONTRACT_ADDRESS", '"0x0002B1f75186945ed3A03b2E1d7285F54bf817da"'
-                variant.buildConfigField 'String', "SECONDARY_STAKING_CONTRACT_ADDRESS", '"0x04c962FB20BefE81b3a88eDA45B2dB3b92a9Fb34"'
+                variant.buildConfigField 'String', "MAIN_STAKING_CONTRACT_ADDRESS", '"0x6473b5733b02A36e9703F658549Ecc7b0E7F6c03"'
+                variant.buildConfigField 'String', "SECONDARY_STAKING_CONTRACT_ADDRESS", '"0x933cdac7b0bD9519C84e8F1F74Be51b07921e596"'
             } else  {
                 variant.buildConfigField 'String', "SECONDARY_RPC_URL", '"https://wallet.ilgointest.e-diploma.org/rpc/ilgtest/"'
                 variant.buildConfigField 'String', "MAIN_RPC_URL", '"https://wallet.ilgoindev.e-diploma.org/rpc/eth/"'
@@ -84,7 +84,7 @@ android {
                 variant.buildConfigField 'String', "ETHERSCAN_URL_MAIN", '"https://explorer.ilgoindev.e-diploma.org/tx/"'
                 variant.buildConfigField 'String', "ETHERSCAN_URL_SECONDRARY", '"https://explorer.ilgointest.e-diploma.org/tx/"'
                 variant.buildConfigField 'String', "MAIN_STAKING_CONTRACT_ADDRESS", 'null'
-                variant.buildConfigField 'String', "SECONDARY_STAKING_CONTRACT_ADDRESS", '"0x04c962FB20BefE81b3a88eDA45B2dB3b92a9Fb34"'
+                variant.buildConfigField 'String', "SECONDARY_STAKING_CONTRACT_ADDRESS", '"0x933cdac7b0bD9519C84e8F1F74Be51b07921e596"'
             }
         }
     }

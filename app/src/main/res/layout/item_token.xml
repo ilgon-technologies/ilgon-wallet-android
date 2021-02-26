@@ -88,20 +88,14 @@
                 <LinearLayout
                     android:id="@+id/staking_linear_layout"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal"
+                    android:layout_marginTop="4dp"
                     android:visibility="gone">
-
                     <TextView
                         android:id="@+id/staking_balance_text"
-                        android:layout_width="93dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-
-
-                        android:padding="5dip"
-                        android:text="TextView" />
-
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -144,9 +138,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
                             android:fontFamily="@font/font_regular"
-                            android:text="@string/unknown_balance_without_symbol"
-                            android:textSize="12sp"
-                            android:visibility="gone"/>
+                            android:textSize="12sp"/>
 
                         <View
                             android:id="@+id/contract_seperator"
@@ -156,8 +148,7 @@
                             android:layout_marginLeft="5dp"
                             android:layout_marginRight="5dp"
                             android:layout_marginTop="2dp"
-                            android:background="@color/colorPrimaryDark"
-                            android:visibility="gone" />
+                            android:background="@color/colorPrimaryDark" />
 
                         <TextView
                             android:id="@+id/contract_type"

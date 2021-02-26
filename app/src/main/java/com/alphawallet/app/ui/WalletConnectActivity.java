@@ -871,7 +871,8 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
         else
         {
             //hand back to phone browser
-            finish();
+            //finish();
+            endSessionDialog();
         }
     }
 

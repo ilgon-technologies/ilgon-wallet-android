@@ -462,12 +462,12 @@ public class TokenRepository implements TokenRepositoryType {
                     {
                         case ETHEREUM:
                             balance = getEthBalance(wallet, chainId);
-                            Date date = new Date();
+                            //Date date = new Date();
                             //This method returns the time in millis
-                            long timeMilli = date.getTime();
+                            //long timeMilli = date.getTime();
 
-                            // stakingBalance = getStake(wallet,currentStakingContractAddress);
-                            stakingBalance = new BigDecimal(timeMilli);
+                            stakingBalance = getStake(wallet, currentStakingContractAddress, chainId);
+                            //stakingBalance = new BigDecimal(timeMilli);
                             break;
                         case ERC875:
                         case ERC875_LEGACY:
@@ -627,7 +627,7 @@ public class TokenRepository implements TokenRepositoryType {
         return balance;
     }
 
-    public BigDecimal getStake(Wallet wallet, String stakingContractAddress)
+    public BigDecimal getStake(Wallet wallet, String stakingContractAddress, int chainId)
     {
         BigDecimal staking = BigDecimal.valueOf(-1);
         //Wallet wallet = new Wallet("0x288cb755bD8Ef6aF16602F932Bd020D2C6706608");
@@ -635,9 +635,8 @@ public class TokenRepository implements TokenRepositoryType {
         try
         {
             Function function = stakeOf(wallet.address);
-            NetworkInfo network = ethereumNetworkRepository.getNetworkByChain(BuildConfig.SECONDARY_CHAIN_ID);
+            NetworkInfo network = ethereumNetworkRepository.getNetworkByChain(chainId);
             String responseValue = callSmartContractFunction(function, stakingContractAddress, network, wallet);
-
             if (!TextUtils.isEmpty(responseValue))
             {
                 List<Type> response = FunctionReturnDecoder.decode(responseValue, function.getOutputParameters());
@@ -646,7 +645,7 @@ public class TokenRepository implements TokenRepositoryType {
         }
         catch (Exception e)
         {
-            Log.e("Exception",e.getLocalizedMessage());
+            Log.e("Exception",""+e.getLocalizedMessage());
         }
 
         return staking;

@@ -82,7 +82,7 @@ public abstract class EthereumNetworkBase { // implements EthereumNetworkReposit
         }
         else
         {
-            return networkMap.get(1).name;
+            return networkMap.get(MAINNET_ID).name;
         }
     }
 
@@ -95,7 +95,7 @@ public abstract class EthereumNetworkBase { // implements EthereumNetworkReposit
         }
         else
         {
-            return networkMap.get(1).symbol;
+            return networkMap.get(MAINNET_ID).symbol;
         }
     }
 }
