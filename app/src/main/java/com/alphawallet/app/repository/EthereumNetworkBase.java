@@ -249,12 +249,11 @@ public abstract class EthereumNetworkBase implements EthereumNetworkRepositoryTy
         {
             case EthereumNetworkRepository.MAINNET_ID:
             case EthereumNetworkRepository.POA_ID:
-            case EthereumNetworkRepository.CLASSIC_ID:
             case EthereumNetworkRepository.XDAI_ID:
             case EthereumNetworkRepository.ARTIS_SIGMA1_ID:
             case EthereumNetworkRepository.BINANCE_MAIN_ID:
                 return true;
-
+            case EthereumNetworkRepository.CLASSIC_ID:
             default:
                 return false;
         }

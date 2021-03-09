@@ -73,30 +73,31 @@ import static org.web3j.protocol.core.methods.request.Transaction.createEthCallT
 
 public class TickerService
 {
-    private static final int UPDATE_TICKER_CYCLE = 5; //5 Minutes
+    private static final int UPDATE_TICKER_CYCLE = 1; //1 Minute
     public static final String ILGON_PRICES_URL = "https://priceapi.ilgonwallet.com/prices";
     public static final String ILGON_PRICE_JSON_ROOT = "data";
     public static final String ILGON_PRICE_USD = "ILG_USD";
-
+/*
     private static final String COINMARKET_API_URL = "https://pro-api.coinmarketcap.com";
     private static final String MEDIANIZER = "0x729D19f657BD0614b4985Cf1D82531c67569197B";
     private static final String BLOCKSCOUT = "https://blockscout.com/poa/[CORE]/api?module=stats&action=ethprice";
     private static final String ETHERSCAN = "https://api.etherscan.io/api?module=stats&action=ethprice";
-    private static final String MARKET_ORACLE_CONTRACT = "0xf155a7eb4a2993c8cf08a76bca137ee9ac0a01d8";
+    private static final String MARKET_ORACLE_CONTRACT = "0xf155a7eb4a2993c8cf08a76bca137ee9ac0a01d8";*/
 
     public static final long TICKER_TIMEOUT = DateUtils.HOUR_IN_MILLIS; //remove ticker if not seen in one hour
     public static final long TICKER_STALE_TIMEOUT = 15 * DateUtils.MINUTE_IN_MILLIS; //try to use market API if AlphaWallet market oracle not updating
 
     private final OkHttpClient httpClient;
-    private final Gson gson;
     private final Context context;
     private final TokenLocalSource localSource;
+    /*private final Gson gson;
     private final Map<String, TokenTicker> erc20Tickers = new HashMap<>();
-    private final Map<Integer, TokenTicker> ethTickers = new ConcurrentHashMap<>();
+    private final Map<Integer, TokenTicker> ethTickers = new ConcurrentHashMap<>();*/
     private Disposable tickerUpdateTimer;
-    private double currentConversionRate = 0.0;
-    private static String currentCurrencySymbolTxt;
-    private static String currentCurrencySymbol;
+    //private double currentConversionRate = 0.0;
+    private static final String currentCurrencySymbolTxt = "USD";
+    private static final String currentCurrencySymbol = "$";
+    private TokenTicker ilgonTicker;
 
     public static native String getCMCKey();
     public static native String getAmberDataKey();
@@ -108,11 +109,10 @@ public class TickerService
     public TickerService(OkHttpClient httpClient, Gson gson, Context ctx, TokenLocalSource localSource)
     {
         this.httpClient = httpClient;
-        this.gson = gson;
+        //this.gson = gson;
         this.context = ctx;
         this.localSource = localSource;
-
-        initCurrency();
+        //initCurrency();
     }
 
     public void updateTickers()
@@ -126,15 +126,65 @@ public class TickerService
 
     private void tickerUpdate()
     {
-        updateCurrencyConversion()
+        fetchIlgonTicker();
+        /*updateCurrencyConversion()
                 .flatMap(this::updateTickersFromOracle)
                 .flatMap(this::fetchTickersSeparatelyIfRequired)
                 .flatMap(this::addERC20Tickers)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::checkTickers, this::onTickersError).isDisposed();
+                .subscribe(this::checkTickers, this::onTickersError).isDisposed();*/
     }
 
+    public TokenTicker getIlgonTicker() {
+        return ilgonTicker;
+    }
+
+    private void fetchIlgonTicker()
+    {
+        try
+        {
+            Request request = new Request.Builder()
+                    .url(ILGON_PRICES_URL)
+                    .get()
+                    .build();
+            okhttp3.Response response = httpClient.newCall(request)
+                    .execute();
+            if (response.code() / 200 == 1)
+            {
+                String result = response.body()
+                        .string();
+                JSONObject stateData = new JSONObject(result);
+                JSONObject data = stateData.getJSONObject(ILGON_PRICE_JSON_ROOT);
+                ilgonTicker = decodeIlgonTicker(data);
+            }
+            Map<Integer, TokenTicker> map = new HashMap<>();
+            map.put(MAINNET_ID, ilgonTicker);
+            localSource.updateEthTickers(map);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private TokenTicker decodeIlgonTicker(JSONObject obj)
+    {
+        TokenTicker ticker;
+        try
+        {
+            String usdPrice = obj.getString(ILGON_PRICE_USD);
+            ticker = new TokenTicker(usdPrice, "0.00", currentCurrencySymbolTxt, "", System.currentTimeMillis());
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+            ticker = new TokenTicker();
+        }
+
+        return ticker;
+    }
+/*
     private Single<Double> updateCurrencyConversion()
     {
         initCurrency();
@@ -213,54 +263,7 @@ public class TickerService
         }
     }
 
-    private Single<Integer> fetchIlgonTicker(int tickerCount)
-    {
-        return Single.fromCallable(() -> {
-            int newTickers = 0;
-            try
-            {
-                Request request = new Request.Builder()
-                        .url(ILGON_PRICES_URL)
-                        .get()
-                        .build();
-                okhttp3.Response response = httpClient.newCall(request)
-                        .execute();
-                if (response.code() / 200 == 1)
-                {
-                    String result = response.body()
-                            .string();
-                    JSONObject stateData = new JSONObject(result);
-                    JSONObject data = stateData.getJSONObject(ILGON_PRICE_JSON_ROOT);
-                    TokenTicker tt = decodeIlgonTicker(data);
-                    ethTickers.put(MAINNET_ID, tt);
-                    newTickers = 5;
-                }
-            }
-            catch (Exception e)
-            {
-                e.printStackTrace();
-            }
 
-            return tickerCount + newTickers;
-        });
-    }
-
-    private TokenTicker decodeIlgonTicker(JSONObject obj)
-    {
-        TokenTicker ticker = null;
-        try
-        {
-            String usdPrice = obj.getString(ILGON_PRICE_USD);
-            ticker = new TokenTicker(usdPrice, "0.00", currentCurrencySymbolTxt, "", System.currentTimeMillis());
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-            ticker = new TokenTicker();
-        }
-
-        return ticker;
-    }
 
     private Single<Integer> fetchBlockScoutTicker(int chainId, String core, int tickers)
     {
@@ -302,12 +305,16 @@ public class TickerService
         localSource.updateERC20Tickers(erc20Tickers);
         localSource.removeOutdatedTickers();
     }
-
+*/
     public TokenTicker getEthTicker(int chainId)
     {
-        return ethTickers.get(chainId);
+        if (chainId == MAINNET_ID) {
+            return ilgonTicker;
+        } else {
+            return null;
+        }
     }
-
+/*
     private Single<Integer> addArtisTicker(int tickerCount)
     {
         return convertPair("EUR", currentCurrencySymbolTxt)
@@ -321,7 +328,7 @@ public class TickerService
         ethTickers.put(ARTIS_SIGMA1_ID, tokenTicker);
         return tokenTicker;
     }
-
+*/
     public Single<Token[]> getTokensOnNetwork(NetworkInfo info, String address, TokensService tokensService)
     {
         //TODO: find tokens on other networks
@@ -417,7 +424,7 @@ public class TickerService
 
         return false;
     }
-
+/*
     private Single<Integer> addERC20Tickers(int currentSize)
     {
         return Single.fromCallable(() -> {
@@ -649,6 +656,17 @@ public class TickerService
         throwable.printStackTrace();
     }
 
+    private void initCurrency()
+    {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        currentCurrencySymbolTxt = pref.getString("currency_locale", "USD");
+        currentCurrencySymbol = pref.getString("currency_symbol", "$");
+    }
+*/
+    /**
+     * Returns the current ISO currency string eg EUR, AUD etc.
+     * @return 3 character currency ISO text
+     */
     //TODO: Refactor this as required
     public static String getCurrencyString(double price)
     {
@@ -664,17 +682,6 @@ public class TickerService
         return df.format(price);
     }
 
-    private void initCurrency()
-    {
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        currentCurrencySymbolTxt = pref.getString("currency_locale", "USD");
-        currentCurrencySymbol = pref.getString("currency_symbol", "$");
-    }
-
-    /**
-     * Returns the current ISO currency string eg EUR, AUD etc.
-     * @return 3 character currency ISO text
-     */
     public static String getCurrencySymbolTxt()
     {
         return currentCurrencySymbolTxt;
@@ -687,7 +694,11 @@ public class TickerService
 
     public double getCurrentConversionRate()
     {
-        return currentConversionRate;
+        if (ilgonTicker == null) {
+            return 0;
+        } else {
+            return Double.parseDouble(ilgonTicker.price);
+        }
     }
 
     // These ERC20 can't have balance updated from the market service

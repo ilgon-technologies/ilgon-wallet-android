@@ -525,7 +525,7 @@ public class TokenRepository implements TokenRepositoryType {
         NetworkInfo network = ethereumNetworkRepository.getNetworkByChain(chainId);
         TokenInfo tInfo = new TokenInfo("eth", network.name, network.symbol, 18, true, network.chainId);
         BigDecimal balance = getEthBalance(wallet, chainId);
-        BigDecimal stake = BigDecimal.TEN;
+        BigDecimal stake = BigDecimal.ZERO;
         if (!balance.equals(BigDecimal.valueOf(-1)))
         {
             Token nativeEthBackupToken = tFactory.createToken(tInfo, balance, null, System.currentTimeMillis(), ContractType.ETHEREUM, network.getShortName(), System.currentTimeMillis());

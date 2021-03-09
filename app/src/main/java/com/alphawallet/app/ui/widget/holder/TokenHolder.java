@@ -220,6 +220,7 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
         TokenTicker ticker = tokensService.getTokenTicker(token);
         if (ticker != null || (token.isEthereum() && EthereumNetworkRepository.hasRealValue(token.tokenInfo.chainId)))
         {
+            balanceCurrency.setVisibility(View.VISIBLE);
             handleTicker();
         }
         else

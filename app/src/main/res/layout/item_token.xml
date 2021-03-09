@@ -85,25 +85,12 @@
                         custom:font_size="10"/>
 
                 </RelativeLayout>
-                <LinearLayout
-                    android:id="@+id/staking_linear_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="4dp"
-                    android:visibility="gone">
-                    <TextView
-                        android:id="@+id/staking_balance_text"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"/>
-                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/layout_info"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginTop="2dp"
                     android:orientation="horizontal">
 
                     <LinearLayout
@@ -137,8 +124,8 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center_horizontal"
-                            android:fontFamily="@font/font_regular"
-                            android:textSize="12sp"/>
+                            android:fontFamily="@font/font_semibold"
+                            android:textSize="14sp"/>
 
                         <View
                             android:id="@+id/contract_seperator"
@@ -162,6 +149,22 @@
 
                     </LinearLayout>
 
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/staking_linear_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="4dp"
+                    android:layout_marginTop="2dp"
+                    android:visibility="gone">
+                    <TextView
+                        android:textColor="@color/colorPrimaryDark"
+                        android:id="@+id/staking_balance_text"
+                        android:layout_width="match_parent"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/font_regular"
+                        android:layout_height="wrap_content"/>
                 </LinearLayout>
 
             </LinearLayout>

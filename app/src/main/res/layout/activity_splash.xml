@@ -16,7 +16,7 @@
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/splash_image"
-            android:layout_width="248dp"
+            android:layout_width="282dp"
             android:layout_height="282dp"
             android:adjustViewBounds="true"
             android:gravity="center_horizontal"
