@@ -66,6 +66,7 @@ import com.alphawallet.app.entity.WalletPage;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.repository.EthereumNetworkBase;
 import com.alphawallet.app.repository.EthereumNetworkRepository;
+import com.alphawallet.app.repository.TokenRepository;
 import com.alphawallet.app.repository.TokensRealmSource;
 import com.alphawallet.app.repository.entity.RealmToken;
 import com.alphawallet.app.ui.widget.OnDappClickListener;
@@ -87,16 +88,17 @@ import com.alphawallet.app.util.QRParser;
 import com.alphawallet.app.util.Utils;
 import com.alphawallet.app.viewmodel.DappBrowserViewModel;
 import com.alphawallet.app.viewmodel.DappBrowserViewModelFactory;
+import com.alphawallet.app.web3.OnEthCallListener;
 import com.alphawallet.app.web3.OnSignMessageListener;
 import com.alphawallet.app.web3.OnSignPersonalMessageListener;
 import com.alphawallet.app.web3.OnSignTransactionListener;
 import com.alphawallet.app.web3.OnSignTypedMessageListener;
 import com.alphawallet.app.web3.Web3View;
 import com.alphawallet.app.web3.entity.Address;
+import com.alphawallet.app.web3.entity.Web3Call;
 import com.alphawallet.app.web3.entity.Web3Transaction;
 import com.alphawallet.app.widget.AWalletAlertDialog;
 import com.alphawallet.app.widget.ActionSheetDialog;
-import com.alphawallet.app.widget.SignTransactionDialog;
 import com.alphawallet.token.entity.EthereumMessage;
 import com.alphawallet.token.entity.EthereumTypedMessage;
 import com.alphawallet.token.entity.SalesOrderMalformed;
@@ -107,6 +109,8 @@ import com.alphawallet.token.tools.ParseMagicLink;
 
 import org.web3j.crypto.Keys;
 import org.web3j.crypto.Sign;
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.methods.response.EthCall;
 import org.web3j.protocol.core.methods.response.EthEstimateGas;
 
 import java.math.BigDecimal;
@@ -120,6 +124,7 @@ import javax.inject.Inject;
 
 import dagger.android.support.AndroidSupportInjection;
 import io.reactivex.Observable;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
@@ -135,9 +140,10 @@ import static com.alphawallet.app.entity.tokens.Token.TOKEN_BALANCE_PRECISION;
 import static com.alphawallet.app.ui.MyAddressActivity.KEY_ADDRESS;
 import static com.alphawallet.app.util.KeyboardUtils.showKeyboard;
 import static com.alphawallet.app.widget.AWalletAlertDialog.ERROR;
+import static org.web3j.protocol.core.methods.request.Transaction.createEthCallTransaction;
 
 public class DappBrowserFragment extends Fragment implements OnSignTransactionListener, OnSignPersonalMessageListener, OnSignTypedMessageListener, OnSignMessageListener,
-        URLLoadInterface, ItemClickListener, OnDappClickListener, OnDappHomeNavClickListener, OnHistoryItemRemovedListener, DappBrowserSwipeInterface, SignAuthenticationCallback,
+        OnEthCallListener, URLLoadInterface, ItemClickListener, OnDappClickListener, OnDappHomeNavClickListener, OnHistoryItemRemovedListener, DappBrowserSwipeInterface, SignAuthenticationCallback,
         ActionSheetCallback
 {
     private static final String TAG = DappBrowserFragment.class.getSimpleName();
@@ -198,7 +204,7 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
     private View layoutNavigation;
     private GeolocationPermissions.Callback geoCallback = null;
     private String geoOrigin;
-    private final Handler handler;
+    private final Handler handler = new Handler();
 
     private String currentWebpageTitle;
     private String currentFragment;
@@ -214,7 +220,6 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
         myDappsFragment = new MyDappsFragment();
         discoverDappsFragment = new DiscoverDappsFragment();
         browserHistoryFragment = new BrowserHistoryFragment();
-        handler = new Handler();
     }
 
     @Override
@@ -496,7 +501,7 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
         refresh.setOnClickListener(v -> reloadPage());
 
         back = view.findViewById(R.id.back);
-        back.setOnClickListener(v -> goToPreviousPage());
+        back.setOnClickListener(v -> backPressed());
 
         next = view.findViewById(R.id.next);
         next.setOnClickListener(v -> goToNextPage());
@@ -514,7 +519,7 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
         symbol = view.findViewById(R.id.symbol);
         web3.setWebLoadCallback(this);
 
-        if (viewModel.getActiveFilterCount() == 1 && EthereumNetworkRepository.defaultDapp() != null) currentNetworkClicker.setVisibility(View.GONE);
+        //if (viewModel.getActiveFilterCount() == 1 && EthereumNetworkRepository.defaultDapp() != null) currentNetworkClicker.setVisibility(View.GONE);
     }
 
     private void displayNothingToShare()
@@ -782,7 +787,7 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
     private void setupWeb3() {
         web3.setActivity(getActivity());
         web3.setChainId(networkInfo.chainId);
-        web3.setRpcUrl(EthereumNetworkBase.getDefaultNodeURL(networkInfo.chainId));
+        web3.setRpcUrl(viewModel.getNetworkNodeRPC(networkInfo.chainId));
         web3.setWalletAddress(new Address(wallet.address));
 
         web3.setWebChromeClient(new WebChromeClient() {
@@ -861,7 +866,7 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
                     }
                 }
 
-                urlTv.setText(url);
+                setUrlText(url);
                 return false;
             }
         });
@@ -870,14 +875,21 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
         web3.setOnSignPersonalMessageListener(this);
         web3.setOnSignTransactionListener(this);
         web3.setOnSignTypedMessageListener(this);
+        web3.setOnEthCallListener(this);
 
         if (loadOnInit != null)
         {
             addToBackStack(DAPP_BROWSER);
             web3.loadUrl(Utils.formatUrl(loadOnInit), getWeb3Headers());
-            urlTv.setText(Utils.formatUrl(loadOnInit));
+            setUrlText(Utils.formatUrl(loadOnInit));
             loadOnInit = null;
         }
+    }
+
+    private void setUrlText(String newUrl)
+    {
+        urlTv.setText(newUrl);
+        setBackForwardButtons();
     }
 
     protected boolean requestUpload()
@@ -927,6 +939,24 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
         }
     }
 
+    @Override
+    public void onEthCall(Web3Call call)
+    {
+        Single.fromCallable(() -> {
+            //let's make the call
+            Web3j web3j = TokenRepository.getWeb3jService(networkInfo.chainId);
+            //construct call
+            org.web3j.protocol.core.methods.request.Transaction transaction
+                    = createEthCallTransaction(wallet.address, call.to.toString(), call.payload);
+            return web3j.ethCall(transaction, call.blockParam).send();
+        }).map(EthCall::getValue)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(result -> web3.onCallFunctionSuccessful(call.leafPosition, result),
+                        error -> web3.onCallFunctionError(call.leafPosition, error.getMessage()))
+                .isDisposed();
+    }
+
     private void handleSignMessage(Signable message)
     {
         messageTBS = message;
@@ -973,8 +1003,8 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
                     || (!transaction.recipient.equals(Address.EMPTY) && (transaction.payload != null || transaction.value != null))) // Raw or Function TX
             {
                 Token token = viewModel.getTokenService().getTokenOrBase(networkInfo.chainId, transaction.recipient.toString());
-                confirmationDialog = new ActionSheetDialog(getActivity(), transaction, token, "",
-                        viewModel.getTokenService(), this);
+                confirmationDialog = new ActionSheetDialog(getActivity(), transaction, token,
+                        "", transaction.recipient.toString(), viewModel.getTokenService(), this);
                 confirmationDialog.setURL(url);
                 confirmationDialog.setCanceledOnTouchOutside(false);
                 confirmationDialog.show();
@@ -1127,41 +1157,38 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
         resultDialog.show();
     }
 
-    private void goToPreviousPage()
+    public void backPressed()
     {
         if (back.getAlpha() == 0.3f) return;
-        if (!currentFragment.equals(DAPP_BROWSER))
-        {
-            //switch to dapp browser
-            detachFragments();
-            addToBackStack(DAPP_BROWSER);
-            setBackForwardButtons();
-        }
-        else if (web3.canGoBack())
+        if (web3.canGoBack())
         {
             checkBackClickArrowVisibility(); //to make arrows function correctly - don't want to wait for web page to load to check back/forwards - this looks clunky
+            loadSessionUrl(-1);
             web3.goBack();
             detachFragments();
-            loadSessionUrl(-1);
         }
-        else
+        else if (!web3.getUrl().equalsIgnoreCase(EthereumNetworkRepository.defaultDapp()))
         {
             //load homepage
             homePressed = true;
             web3.loadUrl(EthereumNetworkBase.defaultDapp(), getWeb3Headers());
             urlTv.setText(EthereumNetworkBase.defaultDapp());
-            web3.clearHistory();
+            checkBackClickArrowVisibility();
+        }
+        else
+        {
+            checkBackClickArrowVisibility();
         }
     }
 
     private void goToNextPage()
     {
         if (next.getAlpha() == 0.3f) return;
-        if (currentFragment.equals(DAPP_BROWSER) && web3.canGoForward())
+        if (web3.canGoForward())
         {
             checkForwardClickArrowVisibility();
-            web3.goForward();
             loadSessionUrl(1);
+            web3.goForward();
         }
     }
 
@@ -1173,8 +1200,27 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
         //will this be last item?
         WebBackForwardList sessionHistory = web3.copyBackForwardList();
         int nextIndex = sessionHistory.getCurrentIndex() - 1;
-        if (nextIndex <= 0) back.setAlpha(0.3f);
-        else back.setAlpha(1.0f);
+
+        String nextUrl;
+
+        if (nextIndex >= 0)
+        {
+            WebHistoryItem newItem = sessionHistory.getItemAtIndex(nextIndex);
+            nextUrl = newItem.getUrl();
+        }
+        else
+        {
+            nextUrl = EthereumNetworkRepository.defaultDapp();
+        }
+
+        if (nextUrl.equalsIgnoreCase(EthereumNetworkRepository.defaultDapp()))
+        {
+            back.setAlpha(0.3f);
+        }
+        else
+        {
+            back.setAlpha(1.0f);
+        }
     }
 
     /**
@@ -1241,8 +1287,8 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
         {
             sessionHistory = web3.copyBackForwardList();
             String url = web3.getUrl();
-            canBrowseBack = !currentFragment.equals(DAPP_BROWSER) || web3.canGoBack() || (!TextUtils.isEmpty(url) && !url.equals(EthereumNetworkBase.defaultDapp()));
-            canBrowseForward = (currentFragment.equals(DAPP_BROWSER) && sessionHistory != null && sessionHistory.getCurrentIndex() < sessionHistory.getSize() - 1);
+            canBrowseBack = web3.canGoBack() || (!TextUtils.isEmpty(url) && !url.equals(EthereumNetworkBase.defaultDapp()));
+            canBrowseForward = (sessionHistory != null && sessionHistory.getCurrentIndex() < sessionHistory.getSize() - 1);
         }
 
         if (back != null)
@@ -1286,6 +1332,17 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
             current.sendBroadcast(new Intent(RESET_TOOLBAR));
         }
         return true;
+    }
+
+    public void loadDirect(String urlText)
+    {
+        cancelSearchSession();
+        addToBackStack(DAPP_BROWSER);
+        urlTv.setText(Utils.formatUrl(urlText));
+        web3.loadUrl(Utils.formatUrl(urlText), getWeb3Headers());
+        //ensure focus isn't on the keyboard
+        KeyboardUtils.hideKeyboard(urlTv);
+        web3.requestFocus();
     }
 
     /* Required for CORS requests */
@@ -1398,6 +1455,8 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
                 case QRScanningActivity.DENY_PERMISSION:
                     showCameraDenied();
                     break;
+                case QRScanningActivity.WALLET_CONNECT:
+                    return;
                 default:
                     break;
             }
@@ -1562,9 +1621,9 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent)
     {
-        if (requestCode >= SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS && requestCode <= SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS + 10)
+        if (confirmationDialog != null && confirmationDialog.isShowing())
         {
-            gotAuthorisation(resultCode == RESULT_OK);
+            confirmationDialog.completeSignRequest(resultCode == RESULT_OK);
         }
         else if (requestCode == UPLOAD_FILE && uploadMessage != null)
         {
@@ -1587,15 +1646,27 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
     @Override
     public void gotAuthorisation(boolean gotAuth)
     {
-        if (gotAuth)
+        if (gotAuth && dAppFunction != null) //sign message
         {
             viewModel.completeAuthentication(SIGN_DATA);
             viewModel.signMessage(messageTBS, dAppFunction);
         }
         else if (confirmationDialog != null && confirmationDialog.isShowing())
         {
-            web3.onSignCancel(messageTBS.getCallbackId());
+            if (messageTBS != null) web3.onSignCancel(messageTBS.getCallbackId());
             confirmationDialog.dismiss();
+        }
+    }
+
+    /**
+     * Endpoint from PIN/Swipe authorisation
+     * @param gotAuth
+     */
+    public void pinAuthorisation(boolean gotAuth)
+    {
+        if (confirmationDialog != null && confirmationDialog.isShowing())
+        {
+            confirmationDialog.completeSignRequest(gotAuth);
         }
     }
 

@@ -161,6 +161,23 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     }
 
     @Override
+    public void onWindowFocusChanged(boolean hasFocus)
+    {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus)
+        {
+            if (viewModel.fullScreenSelected())
+            {
+                hideSystemUI();
+            }
+            else
+            {
+                showSystemUI();
+            }
+        }
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
         AndroidInjection.inject(this);
@@ -259,9 +276,12 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
             dappBrowserFragment.setArguments(bundle);
             showPage(DAPP_BROWSER);
             //remove navbar if running as pure browser. clicking back will send you back to the Action/click that took you there
-            hideNavBar();
-            //now remove the bottom margin
-            ((DappBrowserFragment)dappBrowserFragment).softKeyboardVisible();
+            boolean isNavBarShown = intent.getBooleanExtra("showNavBar", false);
+            if (!isNavBarShown) {
+                setNavBarVisibility(View.GONE);
+                //now remove the bottom margin
+                ((DappBrowserFragment)dappBrowserFragment).softKeyboardVisible();
+            }
         }
 
         if (bundle != null)
@@ -435,10 +455,6 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         {
             //What is try again?
         }
-        else if (view.getId() == R.id.action_buy)
-        {
-            openExchangeDialog();
-        }
     }
 
     @Override
@@ -492,33 +508,6 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
             dialog.setButtonListener(v -> dialog.dismiss());
             dialog.show();
         }
-    }
-
-    public void openExchangeDialog()
-    {
-        Wallet wallet = ((WalletFragment) walletFragment).getCurrentWallet();
-        if (wallet == null)
-        {
-            Toast.makeText(this, getString(R.string.error_wallet_not_selected), Toast.LENGTH_SHORT)
-                    .show();
-        }
-        else
-        {
-            BottomSheetDialog dialog = new BottomSheetDialog(this);
-            DepositView view = new DepositView(this, wallet);
-            view.setOnDepositClickListener(this::onDepositClick);
-            dialog.setContentView(view);
-            dialog.show();
-            this.dialog = dialog;
-        }
-    }
-
-    private void onDepositClick(View view, String url)
-    {
-        showPage(DAPP_BROWSER);
-        ((DappBrowserFragment) dappBrowserFragment).onItemClick(url);
-        dialog.dismiss();
-        dialog = null;
     }
 
     public void onBrowserWithURL(String url)
@@ -858,6 +847,12 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     }
 
     @Override
+    public void changedNetwork(Intent data)
+    {
+        ((DappBrowserFragment)dappBrowserFragment).handleSelectNetwork(RESULT_OK, data);
+    }
+
+    @Override
     public void resetTransactions()
     {
         ((ActivityFragment) activityFragment).resetTransactions();
@@ -1141,6 +1136,14 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                         }
                     }
                 }
+            case C.TOKEN_SEND_ACTIVITY:
+                if (data != null && resultCode == Activity.RESULT_OK && data.hasExtra(C.DAPP_URL_LOAD))
+                {
+                    String url = data.getStringExtra(C.DAPP_URL_LOAD);
+                    ((DappBrowserFragment)dappBrowserFragment).loadDirect(url);
+                    showPage(DAPP_BROWSER);
+                }
+                break;
             default:
                 super.onActivityResult(requestCode, resultCode, data);
                 break;
@@ -1229,7 +1232,11 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     public void onBackPressed()
     {
         //Check if current page is WALLET or not
-        if (viewPager.getCurrentItem() != WALLET.ordinal() && isNavBarVisible())
+        if (viewPager.getCurrentItem() == DAPP_BROWSER.ordinal())
+        {
+            ((DappBrowserFragment)dappBrowserFragment).backPressed();
+        }
+        else if (viewPager.getCurrentItem() != WALLET.ordinal() && isNavBarVisible())
         {
             showPage(WALLET);
         }
@@ -1242,5 +1249,27 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     public void useActionSheet(String mode)
     {
         viewModel.actionSheetConfirm(mode);
+    }
+
+    private void hideSystemUI() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_IMMERSIVE
+                        // Set the content to appear under the system bars so that the
+                        // content doesn't resize when the system bars hide and show.
+                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        // Hide the nav bar and status bar
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+    }
+
+    private void showSystemUI() {
+        View decorView = getWindow().getDecorView();
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                        | View.SYSTEM_UI_FLAG_VISIBLE);
     }
 }

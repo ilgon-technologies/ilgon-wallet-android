@@ -90,7 +90,7 @@
     <string name="transaction_succeeded">Transaction successful</string>
     <string name="NA">N/A</string>
     <string name="error_wallet_not_selected">Wallet is not selected</string>
-    <string name="no_transactions_yet">No transactions yet!</string>
+    <string name="no_transactions_yet">Activities will appear here</string>
     <string name="unknown_balance_without_symbol">--</string>
     <string name="dummy_transaction_value">&#45;&#45;</string>
     <string name="title_dialog_sending">Sending...</string>
@@ -457,7 +457,7 @@
     <string name="authentication_cancelled">Authentication Cancelled</string>
     <string name="authentication_failed">Authentication Failed</string>
     <string name="backup_seed_phrase">Back up your wallet with seed phrase</string>
-    <string name="backup_seed_phrase_detail">Making a backup is very simple and safe: just write down 12 words and keep them in a safe place, offline.</string>
+    <string name="backup_seed_phrase_detail">Making a backup is very simple and safe: just write down 12 words and keep them in a secret place, offline.</string>
     <string name="action_back_up_my_wallet">Back up my wallet</string>
     <string name="write_down_seed_phrase">Write down seed phrase\non paper</string>
     <string name="wrote_down_seed_phrase">OK, I wrote this down</string>
@@ -634,7 +634,7 @@
     <string name="confirm_delete_file_message">Delete file %1$s</string>
     <string name="delete">Delete</string>
     <string name="refreshing_tokenscripts">Refresh TokenScripts</string>
-    <string name="speedup_transaction">Speedup TX</string>
+    <string name="speedup_transaction">Speedup Transaction</string>
     <string name="cancel_transaction">Cancel</string>
     <string name="day_single">1 day</string>
     <string name="day_plural">%s days</string>
@@ -716,6 +716,8 @@
     <string name="speed_fast">Fast</string>
     <string name="speed_slow">Slow</string>
     <string name="speed_custom">Custom</string>
+    <string name="speed_too_low">Too Low</string>
+    <string name="speed_high_gas">High Fee</string>
     <string name="speed_dapp">Dapp Settings</string>
     <string name="new_balance">(New: %1$s %2$s)</string>
     <string name="set_speed_title">Set Speed</string>
@@ -739,4 +741,21 @@
     <string name="action_token_swap">Token Swap</string>
     <string name="action_withdraw">Withdraw</string>
     <string name="deposit">Deposit</string>
+    <string name="body_low_gas">Gas price is set below the \'slow\' speed.\nYour transaction may take a long time to be written or may never be written.</string>
+    <string name="low_gas_setting">Gas Fee Might Be Too Low</string>
+    <string name="body_high_gas">You have set a really high gas fee. Please make sure this is not a mistake. AlphaWallet uses gasnow.org live oracle and updates the gas price every 15 sec.</string>
+    <string name="high_gas_setting">High Fee Warning!</string>
+    <string name="body_insufficient_warning">Your balance has insufficient funds for the transaction value plus transaction fee.</string>
+    <string name="convert_to_xdai">Convert to xDAI</string>
+    <string name="crypto">Crypto</string>
+    <string name="action_buy_crypto">Buy %1$s</string>
+    <string name="fullscreen">Full Screen</string>
+    <string name="disconnect_title">Do you want to disconnect from %1$s Network?</string>
+    <string name="disconnect_body">You are connected to %1$s Network in the Browser but you have just disabled %1$s Network in Active Networks. Do you want to connect to %1$s Network?</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="keep_connect">Keep Connected</string>
+    <string name="beware_of_scammers">Beware of scammers!\nDon\'t share seed phrase.</string>
+    <string name="alphawallet_never_ask">AlphaWallet will NEVER ask about your seed phrase (especially on Telegram).</string>
+    <string name="your_seed_phrase">Your seed phrase (do not share with anyone)</string>
+    <string name="hide_seed_text">OK, Hide Seed Phrase</string>
 </resources>

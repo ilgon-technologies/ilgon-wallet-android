@@ -22,11 +22,14 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+
 import com.alphawallet.app.R;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.entity.tokens.TokenCardMeta;
 import com.alphawallet.app.entity.tokens.TokenTicker;
-
 import com.alphawallet.app.repository.EthereumNetworkRepository;
 import com.alphawallet.app.repository.TokensRealmSource;
 import com.alphawallet.app.repository.entity.RealmTokenTicker;
@@ -35,7 +38,6 @@ import com.alphawallet.app.service.TickerService;
 import com.alphawallet.app.service.TokensService;
 import com.alphawallet.app.ui.HomeActivity;
 import com.alphawallet.app.ui.widget.OnTokenClickListener;
-import com.alphawallet.app.util.Utils;
 import com.alphawallet.app.widget.ChainName;
 import com.alphawallet.app.widget.TokenIcon;
 
@@ -47,11 +49,10 @@ import io.realm.RealmResults;
 
 import static com.alphawallet.app.repository.EthereumNetworkBase.MAINNET_ID;
 
-public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View.OnClickListener, View.OnLongClickListener, View.OnLayoutChangeListener {
+public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View.OnClickListener, View.OnLongClickListener {
 
     public static final int VIEW_TYPE = 1005;
-    public static final String EMPTY_BALANCE = "$0 USD";//"\u2014\u2014";
-
+    public static final String EMPTY_BALANCE = "\u2014\u2014";//"$0 USD";
     private final TokenIcon tokenIcon;
     private final TextView balanceEth;
     private final TextView balanceCurrency;
@@ -186,10 +187,9 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
         }
     }
 
-    @Override
-    public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-        Log.e("alma","alma");
-    }
+   // @Override
+    //public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+    //}
 
     @Override
     public void onDestroyView()
@@ -371,7 +371,8 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
 
     private void setTickerInfo(TokenTicker ticker)
     {
-        if (((Activity)getContext()).isFinishing()) { return; }
+        if (((Activity)getContext()).isFinishing() || ((Activity) getContext()).isDestroyed()) { return; }
+
         //Set the fiat equivalent (leftmost value)
         BigDecimal correctedBalance = token.getCorrectedBalance(18);
         BigDecimal fiatBalance = correctedBalance.multiply(new BigDecimal(ticker.price)).setScale(18, RoundingMode.DOWN);

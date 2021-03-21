@@ -7,12 +7,15 @@ import android.text.format.DateUtils;
 import android.util.Log;
 
 import com.alphawallet.app.entity.ContractType;
+import com.alphawallet.app.entity.EtherscanTransaction;
 import com.alphawallet.app.entity.NetworkInfo;
+import com.alphawallet.app.entity.Transaction;
 import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.entity.tokens.TokenFactory;
 import com.alphawallet.app.entity.tokens.TokenInfo;
 import com.alphawallet.app.entity.tokens.TokenTicker;
+import com.alphawallet.app.repository.EthereumNetworkRepository;
 import com.alphawallet.app.repository.TokenLocalSource;
 import com.alphawallet.app.repository.TokenRepository;
 import com.alphawallet.token.entity.EthereumReadBuffer;
@@ -82,7 +85,9 @@ public class TickerService
     private static final String MEDIANIZER = "0x729D19f657BD0614b4985Cf1D82531c67569197B";
     private static final String BLOCKSCOUT = "https://blockscout.com/poa/[CORE]/api?module=stats&action=ethprice";
     private static final String ETHERSCAN = "https://api.etherscan.io/api?module=stats&action=ethprice";
-    private static final String MARKET_ORACLE_CONTRACT = "0xf155a7eb4a2993c8cf08a76bca137ee9ac0a01d8";*/
+    private static final String MARKET_ORACLE_CONTRACT = "0xf155a7eb4a2993c8cf08a76bca137ee9ac0a01d8";
+    private static final String ORACLE_ETHERSCAN_API = "https://api-rinkeby.etherscan.io/api?module=account&action=txlist&address=[ORACLE]&sort=desc&page=1&offset=1".replace("[ORACLE]", MARKET_ORACLE_CONTRACT);
+*/
 
     public static final long TICKER_TIMEOUT = DateUtils.HOUR_IN_MILLIS; //remove ticker if not seen in one hour
     public static final long TICKER_STALE_TIMEOUT = 15 * DateUtils.MINUTE_IN_MILLIS; //try to use market API if AlphaWallet market oracle not updating
@@ -94,7 +99,7 @@ public class TickerService
     private final Map<String, TokenTicker> erc20Tickers = new HashMap<>();
     private final Map<Integer, TokenTicker> ethTickers = new ConcurrentHashMap<>();*/
     private Disposable tickerUpdateTimer;
-    //private double currentConversionRate = 0.0;
+    private double currentConversionRate = 0.0;
     private static final String currentCurrencySymbolTxt = "USD";
     private static final String currentCurrencySymbol = "$";
     private TokenTicker ilgonTicker;
@@ -112,7 +117,8 @@ public class TickerService
         //this.gson = gson;
         this.context = ctx;
         this.localSource = localSource;
-        //initCurrency();
+
+        initCurrency();
     }
 
     public void updateTickers()
@@ -127,7 +133,9 @@ public class TickerService
     private void tickerUpdate()
     {
         fetchIlgonTicker();
-        /*updateCurrencyConversion()
+        /*
+        updateCurrencyConversion()
+                .flatMap(this::fetchLastMarketContractWrite)
                 .flatMap(this::updateTickersFromOracle)
                 .flatMap(this::fetchTickersSeparatelyIfRequired)
                 .flatMap(this::addERC20Tickers)
@@ -201,9 +209,8 @@ public class TickerService
                 .flatMap(this::addArtisTicker);
     }
 
-    private Single<Integer> updateTickersFromOracle(double conversionRate)
+    private Single<Integer> updateTickersFromOracle(long lastTxTime)
     {
-        currentConversionRate = conversionRate;
         return Single.fromCallable(() -> {
             int tickerSize = 0;
             Web3j web3j = TokenRepository.getWeb3jService(RINKEBY_ID);
@@ -216,9 +223,9 @@ public class TickerService
             {
                 Type T = responseValues.get(0);
                 List<Uint256> values = (List) T.getValue();
+                long tickerUpdateTime = (lastTxTime > 0 ? lastTxTime : values.get(0).getValue().longValue()) * 1000L;
 
-                long tickerUpdateTime = values.get(0).getValue().longValue() * 1000L;
-                if (tickerUpdateTime > (System.currentTimeMillis() - TICKER_STALE_TIMEOUT))
+                if ((System.currentTimeMillis() - tickerUpdateTime) < TICKER_STALE_TIMEOUT)
                 {
                     for (int i = 1; i < values.size(); i++)
                     {
@@ -232,6 +239,49 @@ public class TickerService
 
             return tickerSize;
         });
+    }
+
+    private Single<Long> fetchLastMarketContractWrite(double conversionRate)
+    {
+        currentConversionRate = conversionRate;
+        return Single.fromCallable(() -> {
+            Long lastTxTime = 0L;
+            try
+            {
+                Request request = new Request.Builder()
+                        .url(ORACLE_ETHERSCAN_API)
+                        .get()
+                        .build();
+                okhttp3.Response response = httpClient.newCall(request)
+                        .execute();
+                if (response.code() / 200 == 1)
+                {
+                    String result = response.body()
+                            .string();
+
+                    EtherscanTransaction[] txs = getEtherscanTransactions(result);
+
+                    if (txs.length > 0)
+                    {
+                        Transaction tx = txs[0].createTransaction(null, RINKEBY_ID);
+                        lastTxTime = tx.timeStamp;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+
+            return lastTxTime;
+        });
+    }
+
+    private EtherscanTransaction[] getEtherscanTransactions(String response) throws JSONException
+    {
+        JSONObject stateData = new JSONObject(response);
+        JSONArray orders = stateData.getJSONArray("result");
+        return gson.fromJson(orders.toString(), EtherscanTransaction[].class);
     }
 
     private void addToTokenTickers(BigInteger tickerInfo, long tickerTime)
@@ -699,6 +749,7 @@ public class TickerService
         } else {
             return Double.parseDouble(ilgonTicker.price);
         }
+        //return currentConversionRate;
     }
 
     // These ERC20 can't have balance updated from the market service

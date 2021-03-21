@@ -19,6 +19,7 @@ import com.alphawallet.app.R;
 import com.alphawallet.app.entity.CryptoFunctions;
 import com.alphawallet.app.entity.EIP681Type;
 import com.alphawallet.app.entity.NetworkInfo;
+import com.alphawallet.app.entity.Operation;
 import com.alphawallet.app.entity.QRResult;
 import com.alphawallet.app.entity.SignAuthenticationCallback;
 import com.alphawallet.app.entity.StandardFunctionInterface;
@@ -44,6 +45,7 @@ import com.alphawallet.app.widget.ActionSheetDialog;
 import com.alphawallet.app.widget.FunctionButtonBar;
 import com.alphawallet.app.widget.InputAddress;
 import com.alphawallet.app.widget.InputAmount;
+import com.alphawallet.app.widget.SignTransactionDialog;
 import com.alphawallet.token.entity.SalesOrderMalformed;
 import com.alphawallet.token.tools.Convert;
 import com.alphawallet.token.tools.Numeric;
@@ -97,6 +99,7 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
     private BigDecimal sendAmount;
     private BigDecimal sendGasPrice;
     private ActionSheetDialog confirmationDialog;
+    private SignAuthenticationCallback signingCallback;
     //private Button sendAllBtn;
     private BigDecimal ethBalance;
     //private boolean isSendMax;
@@ -193,6 +196,12 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Operation taskCode = null;
+        if (requestCode >= SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS && requestCode <= SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS + 10) {
+            taskCode = Operation.values()[requestCode - SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS];
+            requestCode = SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS;
+        }
+
         if (requestCode == C.SET_GAS_SETTINGS)
         {
             //will either be an index, or if using custom then it will contain a price and limit
@@ -205,6 +214,10 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
                 long expectedTxTime = data.getLongExtra(C.EXTRA_AMOUNT, 0);
                 confirmationDialog.setCurrentGasIndex(gasSelectionIndex, customGasPrice, customGasLimit, expectedTxTime, customNonce);
             }
+        }
+        else if (requestCode >= SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS && requestCode <= SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS + 10)
+        {
+            if (confirmationDialog != null && confirmationDialog.isShowing()) confirmationDialog.completeSignRequest(resultCode == RESULT_OK);
         }
         else if (requestCode == C.BARCODE_READER_REQUEST_CODE) {
             switch (resultCode)
@@ -281,9 +294,6 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
                     ));
                     break;
             }
-        } else if (signCallback != null){
-            signCallback.gotAuthorisation(resultCode == RESULT_OK);
-            signCallback = null;
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
@@ -592,7 +602,6 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
     private void checkConfirm(final BigInteger sendGasLimit, final byte[] transactionBytes, final String txSendAddress)
     {
         BigInteger ethValue = token.isEthereum() ? sendAmount.toBigInteger() : BigInteger.ZERO;
-        Log.d("DEBUG", "Check confirm "+sendGasLimit+" "+sendGasPrice);
         Web3Transaction w3tx = new Web3Transaction(
                 new Address(txSendAddress),
                 new Address(token.getAddress()),
@@ -611,7 +620,7 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
         {
             if (dialog != null && dialog.isShowing()) dialog.dismiss();
             confirmationDialog = new ActionSheetDialog(this, w3tx, token, ensAddress,
-                    viewModel.getTokenService(), this);
+                    addressInput.getInputText(), viewModel.getTokenService(), this);
             confirmationDialog.setCanceledOnTouchOutside(false);
             confirmationDialog.show();
             sendAmount = NEGATIVE;
@@ -626,7 +635,7 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
     @Override
     public void getAuthorisation(SignAuthenticationCallback callback)
     {
-        signCallback = callback;
+        signingCallback = callback;
         viewModel.getAuthentication(this, wallet, callback);
     }
 

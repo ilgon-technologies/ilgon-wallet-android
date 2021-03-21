@@ -2,7 +2,7 @@ package com.alphawallet.app.ui;
 
 
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
+
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,11 +27,12 @@ import com.alphawallet.app.entity.WalletType;
 import com.alphawallet.app.interact.GenericWalletInteract;
 import com.alphawallet.app.repository.EthereumNetworkRepository;
 import com.alphawallet.app.util.LocaleUtils;
-import com.alphawallet.app.viewmodel.MyAddressViewModel;
 import com.alphawallet.app.viewmodel.NewSettingsViewModel;
 import com.alphawallet.app.viewmodel.NewSettingsViewModelFactory;
 import com.alphawallet.app.widget.NotificationView;
 import com.alphawallet.app.widget.SettingsItemView;
+
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -57,6 +58,7 @@ public class NewSettingsFragment extends BaseFragment {
     private SettingsItemView selectNetworksSetting;
     private SettingsItemView advancedSetting;
     private SettingsItemView walletConnectSetting;
+    private SettingsItemView showSeedPhrase;
 
     private LinearLayout layoutBackup;
     private View warningSeparator;
@@ -145,6 +147,12 @@ public class NewSettingsFragment extends BaseFragment {
                         .withListener(this::onBackUpWalletSettingClicked)
                         .build();
 
+        showSeedPhrase = new SettingsItemView.Builder(getContext())
+                .withIcon(R.drawable.ic_settings_show_seed)
+                .withTitle(R.string.show_seed_phrase)
+                .withListener(this::onShowSeedPhrase) //onShow
+                .build();
+
         walletConnectSetting =
                 new SettingsItemView.Builder(getContext())
                         .withIcon(R.drawable.ic_wallet_connect)
@@ -195,6 +203,9 @@ public class NewSettingsFragment extends BaseFragment {
 
         walletSettingsLayout.addView(backUpWalletSetting, walletIndex++);
 
+        walletSettingsLayout.addView(showSeedPhrase, walletIndex++);
+        showSeedPhrase.setVisibility(View.GONE);
+
         walletSettingsLayout.addView(walletConnectSetting, walletIndex++);
 
         systemSettingsLayout.addView(notificationsSetting, systemIndex++);
@@ -210,6 +221,17 @@ public class NewSettingsFragment extends BaseFragment {
 
     private void setInitialSettingsData(View view) {
         notificationsSetting.setToggleState(viewModel.getNotificationState());
+    }
+
+    private void openShowSeedPhrase(Wallet wallet)
+    {
+        if (wallet.type != WalletType.HDKEY) return;
+
+        Intent intent = new Intent(getContext(), BackupKeyActivity.class);
+        intent.putExtra(WALLET, wallet);
+        intent.putExtra("TYPE", BackupKeyActivity.BackupOperationType.SHOW_SEED_PHRASE_SETTINGS);
+        intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+        startActivity(intent);
     }
 
     private void openBackupActivity(Wallet wallet) {
@@ -274,8 +296,22 @@ public class NewSettingsFragment extends BaseFragment {
                 break;
         }
 
-        if (wallet.type == WalletType.WATCH) {
-            backUpWalletSetting.setVisibility(View.GONE);
+        switch (wallet.type)
+        {
+            case NOT_DEFINED:
+                break;
+            case KEYSTORE:
+                break;
+            case HDKEY:
+                showSeedPhrase.setVisibility(View.VISIBLE);
+                break;
+            case WATCH:
+                backUpWalletSetting.setVisibility(View.GONE);
+                break;
+            case TEXT_MARKER:
+                break;
+            case KEYSTORE_LEGACY:
+                break;
         }
     }
 
@@ -366,6 +402,14 @@ public class NewSettingsFragment extends BaseFragment {
         Wallet wallet = viewModel.defaultWallet().getValue();
         if (wallet != null) {
             openBackupActivity(wallet);
+        }
+    }
+
+    private void onShowSeedPhrase()
+    {
+        Wallet wallet = viewModel.defaultWallet().getValue();
+        if (wallet != null) {
+            openShowSeedPhrase(wallet);
         }
     }
 

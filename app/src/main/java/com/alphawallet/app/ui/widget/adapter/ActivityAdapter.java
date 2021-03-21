@@ -154,6 +154,11 @@ public class ActivityAdapter extends RecyclerView.Adapter<BinderViewHolder> impl
         lastItemPos = position;
     }
 
+    public void onRViewRecycled(RecyclerView.ViewHolder holder)
+    {
+        onViewRecycled((BinderViewHolder<?>)(holder));
+    }
+
     @Override
     public void onViewRecycled(@NonNull BinderViewHolder holder)
     {
@@ -346,6 +351,20 @@ public class ActivityAdapter extends RecyclerView.Adapter<BinderViewHolder> impl
         notifyDataSetChanged();
     };
 
+    public boolean isEmpty()
+    {
+        for (int i = 0; i < items.size(); i++)
+        {
+            Object item = items.get(i).value;
+            if (item instanceof ActivityMeta)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private static class LabelHolder extends BinderViewHolder<Date> {
 
         public LabelHolder(int resId, ViewGroup parent) {
@@ -385,6 +404,15 @@ public class ActivityAdapter extends RecyclerView.Adapter<BinderViewHolder> impl
             {
                 if (BuildConfig.DEBUG) Log.e("ActivityAdapter", "Wrong item type in addTransaction (" + item.getClass().getName() + ")");
             }
+        }
+    }
+
+    public void onDestroy(RecyclerView recyclerView)
+    {
+        //ensure all holders have their realm listeners cleaned up
+        for (int childCount = recyclerView.getChildCount(), i = 0; i < childCount; ++i)
+        {
+            ((BinderViewHolder<?>)recyclerView.getChildViewHolder(recyclerView.getChildAt(i))).onDestroyView();
         }
     }
 }

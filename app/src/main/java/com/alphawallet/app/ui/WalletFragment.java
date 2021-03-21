@@ -148,6 +148,7 @@ public class WalletFragment extends BaseFragment implements
         itemTouchHelper.attachToRecyclerView(recyclerView);
 
         refreshLayout.setOnRefreshListener(this::refreshList);
+        recyclerView.setRecyclerListener(holder -> adapter.onRViewRecycled(holder));
     }
 
     private void initViewModel() {
@@ -472,6 +473,7 @@ public class WalletFragment extends BaseFragment implements
         //viewModel.clearProcess();
         if (realmUpdates != null) realmUpdates.removeAllChangeListeners();
         if (realm != null && !realm.isClosed()) realm.close();
+        if (adapter != null && recyclerView != null) adapter.onDestroy(recyclerView);
     }
 
     public void resetTokens()

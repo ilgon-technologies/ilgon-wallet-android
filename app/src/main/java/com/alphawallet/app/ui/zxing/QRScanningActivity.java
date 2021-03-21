@@ -45,6 +45,7 @@ public class QRScanningActivity extends BaseActivity implements OnQRCodeScannedL
     public static final int RC_HANDLE_IMAGE_PICKUP = 3;
 
     public static final int DENY_PERMISSION = 1;
+    public static final int WALLET_CONNECT = 2;
 
     private FullScannerFragment fullScannerFragment;
 
@@ -208,10 +209,10 @@ public class QRScanningActivity extends BaseActivity implements OnQRCodeScannedL
 
     private void startWalletConnect(String qrCode)
     {
-        Intent resultIntent = new Intent();
-// TODO Add extras or a data URI to this intent as appropriate.
-        resultIntent.putExtra(C.EXTRA_QR_CODE, qrCode);
-        setResult(RESULT_OK,resultIntent);
+        Intent intent = new Intent(this, WalletConnectActivity.class);
+        intent.putExtra("qrCode", qrCode);
+        startActivity(intent);
+        setResult(WALLET_CONNECT);
         finish();
     }
 

@@ -219,6 +219,7 @@ public class ActivityFragment extends BaseFragment implements View.OnClickListen
         listView.setLayoutManager(new LinearLayoutManager(getContext()));
         listView.setAdapter(adapter);
         listView.addItemDecoration(new RecycleViewDivider(getContext()));
+        listView.setRecyclerListener(holder -> adapter.onRViewRecycled(holder));
 
         systemView.attachRecyclerView(listView);
         systemView.attachSwipeRefreshLayout(refreshLayout);
@@ -234,7 +235,7 @@ public class ActivityFragment extends BaseFragment implements View.OnClickListen
 
     private void showEmptyTx()
     {
-        if (adapter.getItemCount() == 0)
+        if (adapter.isEmpty())
         {
             EmptyTransactionsView emptyView = new EmptyTransactionsView(getContext(), this);
             systemView.showEmpty(emptyView);
@@ -275,6 +276,7 @@ public class ActivityFragment extends BaseFragment implements View.OnClickListen
         if (auxRealmUpdates != null) auxRealmUpdates.removeAllChangeListeners();
         if (realm != null && !realm.isClosed()) realm.close();
         if (viewModel != null) viewModel.onDestroy();
+        if (adapter != null && listView != null) adapter.onDestroy(listView);
     }
 
     @Override
@@ -309,8 +311,7 @@ public class ActivityFragment extends BaseFragment implements View.OnClickListen
     @Override
     public void onClick(View v)
     {
-        //open exchange dialog
-        ((HomeActivity)getActivity()).openExchangeDialog();
+
     }
 
     public void resetTransactions()

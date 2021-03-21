@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.text.format.DateUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -27,6 +29,7 @@ import com.alphawallet.app.ui.widget.entity.GasSpeed;
 import com.alphawallet.app.util.BalanceUtils;
 import com.alphawallet.app.util.Utils;
 import com.alphawallet.app.web3.entity.Web3Transaction;
+import com.google.api.Distribution;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -198,6 +201,7 @@ public class GasWidget extends LinearLayout implements Runnable
         currentGasSpeedIndex = gasSelectionIndex;
         customNonce = nonce;
         handleCustomGas(customGasPrice, customGasLimit, expectedTxTime);
+
         handler.post(this);
     }
 
@@ -215,6 +219,7 @@ public class GasWidget extends LinearLayout implements Runnable
             gasSpeeds.remove(currentGasSpeedIndex);
             gasSpeeds.add(gs);
             customGasLimit = custGasLimit.toBigInteger();
+
         }
 
         adjustedValue = calculateSendAllValue();
@@ -245,12 +250,10 @@ public class GasWidget extends LinearLayout implements Runnable
         if (!sufficientGas)
         {
             gasWarning.setVisibility(View.VISIBLE);
-            speedText.setVisibility(View.GONE);
         }
         else
         {
             gasWarning.setVisibility(View.GONE);
-            speedText.setVisibility(View.VISIBLE);
         }
 
         return sufficientGas;
@@ -309,7 +312,6 @@ public class GasWidget extends LinearLayout implements Runnable
 */
     private void initGasSpeeds(GasPriceSpread gs)
     {
-        Log.d("DEBUG", "Init gas speeds");
         try
         {
             currentGasSpeedIndex = gs.setupGasSpeeds(context, gasSpeeds, currentGasSpeedIndex);
@@ -319,7 +321,6 @@ public class GasWidget extends LinearLayout implements Runnable
                 currentGasSpeedIndex = customGasSpeedIndex;
                 forceCustomGas = false;
             }
-            Log.d("DEBUG", "Gas speeds ready");
             //if we have mainnet then show timings, otherwise no timing, if the token has fiat value, show fiat value of gas, so we need the ticker
             handler.post(this);
         }
