@@ -5,6 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/white">
+    <LinearLayout
+        android:id="@+id/layout_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/layout_details"
+        android:layout_alignBottom="@id/layout_details"
+        android:background="@color/translucentWhite"
+        android:translationZ="1000dp"
+        android:visibility="gone"
+        android:orientation="vertical"/>
 
     <LinearLayout
         android:id="@+id/layout_details"

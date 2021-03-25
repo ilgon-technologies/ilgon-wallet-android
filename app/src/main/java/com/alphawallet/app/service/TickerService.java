@@ -100,8 +100,8 @@ public class TickerService
     private final Map<Integer, TokenTicker> ethTickers = new ConcurrentHashMap<>();*/
     private Disposable tickerUpdateTimer;
     private double currentConversionRate = 0.0;
-    private static final String currentCurrencySymbolTxt = "USD";
-    private static final String currentCurrencySymbol = "$";
+    private static String currentCurrencySymbolTxt = "USD";
+    private static String currentCurrencySymbol = "$";
     private TokenTicker ilgonTicker;
 
     public static native String getCMCKey();
@@ -118,7 +118,7 @@ public class TickerService
         this.context = ctx;
         this.localSource = localSource;
 
-        initCurrency();
+        //TODO initCurrency();
     }
 
     public void updateTickers()
@@ -706,13 +706,15 @@ public class TickerService
         throwable.printStackTrace();
     }
 
+
+*/
+
     private void initCurrency()
     {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         currentCurrencySymbolTxt = pref.getString("currency_locale", "USD");
         currentCurrencySymbol = pref.getString("currency_symbol", "$");
     }
-*/
     /**
      * Returns the current ISO currency string eg EUR, AUD etc.
      * @return 3 character currency ISO text

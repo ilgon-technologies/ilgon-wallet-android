@@ -10,7 +10,6 @@ import com.alphawallet.app.interact.CreateTransactionInteract;
 import com.alphawallet.app.interact.FindDefaultNetworkInteract;
 import com.alphawallet.app.interact.GenericWalletInteract;
 import com.alphawallet.app.service.AnalyticsServiceType;
-import com.alphawallet.app.service.GasService;
 import com.alphawallet.app.service.GasService2;
 import com.alphawallet.app.service.KeyService;
 import com.alphawallet.app.service.RealmManager;
@@ -25,7 +24,7 @@ public class WalletConnectViewModelFactory implements ViewModelProvider.Factory 
     private final CreateTransactionInteract createTransactionInteract;
     private final GenericWalletInteract genericWalletInteract;
     private final RealmManager realmManager;
-    private final GasService gasService;
+    private final GasService2 gasService;
     private final Context context;
     private final TokensService tokensService;
     private final AnalyticsServiceType analyticsService;
@@ -37,7 +36,7 @@ public class WalletConnectViewModelFactory implements ViewModelProvider.Factory 
             CreateTransactionInteract createTransactionInteract,
             GenericWalletInteract genericWalletInteract,
             RealmManager realmManager,
-            GasService gasService,
+            GasService2 gasService,
             TokensService tokensService,
             AnalyticsServiceType analyticsService,
             Context context) {

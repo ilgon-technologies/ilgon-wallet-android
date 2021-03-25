@@ -2,6 +2,8 @@ package com.alphawallet.app.ui.zxing;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -15,12 +17,17 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.OnLifecycleEvent;
 
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.alphawallet.app.BuildConfig;
 import com.alphawallet.app.C;
 import com.alphawallet.app.R;
 import com.alphawallet.app.ui.BaseActivity;
 import com.alphawallet.app.ui.WalletConnectActivity;
+import com.alphawallet.app.ui.WalletConnectSessionActivity;
 import com.alphawallet.app.ui.widget.OnQRCodeScannedListener;
 import com.alphawallet.app.widget.AWalletAlertDialog;
 import com.google.zxing.BinaryBitmap;
@@ -198,13 +205,66 @@ public class QRScanningActivity extends BaseActivity implements OnQRCodeScannedL
     public void handleQRCode(String qrCode)
     {
         if (qrCode.startsWith("wc:")) {
-            startWalletConnect(qrCode);
+            showChannelSelectorPopUp(qrCode);
+            //startWalletConnect(qrCode);
         } else {
             Intent intent = new Intent();
             intent.putExtra(C.EXTRA_QR_CODE, qrCode);
             setResult(Activity.RESULT_OK, intent);
             finish();
         }
+    }
+
+    private void showChannelSelectorPopUp(String qrCode)
+    {
+
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(QRScanningActivity.this,R.style.MyDialogStyle);
+        alertDialog.setTitle("Choose Network");
+        String[] items = {BuildConfig.MAIN_NETWORK_NAME,BuildConfig.SECONDARY_NETWORK_NAME};
+        int[] channelId = {BuildConfig.MAIN_CHAIN_ID,BuildConfig.SECONDARY_CHAIN_ID};
+        int checkedItem = 0;
+        chainIdOverride = BuildConfig.MAIN_CHAIN_ID;
+        alertDialog.setSingleChoiceItems(items, checkedItem, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                switch (which) {
+                    case 0:
+                    case 1:
+                        chainIdOverride = channelId[which];
+                        break;
+
+                }
+            }
+        });
+        alertDialog.setPositiveButton(android.R.string.ok, null);
+        AlertDialog alert = alertDialog.create();
+        alert.setOnShowListener(new DialogInterface.OnShowListener() {
+
+            @Override
+            public void onShow(DialogInterface dialogInterface) {
+
+                Button button = ((AlertDialog) alert).getButton(AlertDialog.BUTTON_POSITIVE);
+                button.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+                        //Toast.makeText(QRScanningActivity.this, String.valueOf(chainIdOverride), Toast.LENGTH_LONG).show();
+
+                        //Dismiss once everything is OK.
+                        alert.dismiss();
+
+                        Intent intent = new Intent(QRScanningActivity.this, WalletConnectActivity.class);
+                        intent.putExtra("qrCode", qrCode);
+                        intent.putExtra(C.EXTRA_CHAIN_ID, chainIdOverride);
+                        startActivity(intent);
+                        setResult(WALLET_CONNECT);
+                        finish();
+                    }
+                });
+            }
+        });
+        alert.setCanceledOnTouchOutside(false);
+        alert.show();
     }
 
     private void startWalletConnect(String qrCode)

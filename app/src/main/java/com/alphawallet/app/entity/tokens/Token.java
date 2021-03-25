@@ -6,6 +6,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 

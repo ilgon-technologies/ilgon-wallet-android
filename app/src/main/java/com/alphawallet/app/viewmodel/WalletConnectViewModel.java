@@ -28,7 +28,6 @@ import com.alphawallet.app.repository.SignRecord;
 import com.alphawallet.app.repository.entity.RealmWCSession;
 import com.alphawallet.app.repository.entity.RealmWCSignElement;
 import com.alphawallet.app.service.AnalyticsServiceType;
-import com.alphawallet.app.service.GasService;
 import com.alphawallet.app.service.GasService2;
 import com.alphawallet.app.service.KeyService;
 import com.alphawallet.app.service.RealmManager;
@@ -74,7 +73,7 @@ public class WalletConnectViewModel extends BaseViewModel {
     private final GenericWalletInteract genericWalletInteract;
     private final CreateTransactionInteract createTransactionInteract;
     private final RealmManager realmManager;
-    private final GasService gasService;
+    private final GasService2 gasService;
     private final TokensService tokensService;
     private final AnalyticsServiceType analyticsService;
     private final Context context;
@@ -93,7 +92,7 @@ public class WalletConnectViewModel extends BaseViewModel {
                            CreateTransactionInteract createTransactionInteract,
                            GenericWalletInteract genericWalletInteract,
                            RealmManager realmManager,
-                           GasService gasService,
+                           GasService2 gasService,
                            TokensService tokensService,
                            AnalyticsServiceType analyticsService,
                            Context ctx) {
@@ -382,7 +381,7 @@ public class WalletConnectViewModel extends BaseViewModel {
 
     public int getChainId(String sessionId)
     {
-        /*
+
         int chainId = MAINNET_ID;
         try (Realm realm = realmManager.getRealmInstance(WC_SESSION_DB))
         {
@@ -394,7 +393,7 @@ public class WalletConnectViewModel extends BaseViewModel {
             {
                 chainId = sessionData.getChainId();
             }
-        }*/
+        }
         return chainId;
     }
 
@@ -421,7 +420,7 @@ public class WalletConnectViewModel extends BaseViewModel {
             });
         }
 
-        //gasService.startGasPriceCycle(sessionChainId);
+        gasService.startGasPriceCycle(sessionChainId);
     }
 
     public void deleteSession(String sessionId)

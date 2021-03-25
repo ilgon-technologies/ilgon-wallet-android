@@ -81,7 +81,7 @@ public class FunctionButtonBar extends LinearLayout implements AdapterView.OnIte
     private FunctionItemAdapter moreActionsAdapter;
     private final Semaphore functionMapComplete = new Semaphore(1);
 
-    private boolean hasBuyFunction;
+    private final boolean hasBuyFunction = false;
     private OnRampRepositoryType onRampRepository;
 
     public FunctionButtonBar(Context ctx, @Nullable AttributeSet attrs) {
@@ -690,9 +690,9 @@ public class FunctionButtonBar extends LinearLayout implements AdapterView.OnIte
 
     public void setupBuyFunction(BuyCryptoInterface buyCryptoInterface, OnRampRepositoryType onRampRepository)
     {
-        this.hasBuyFunction = true;
-        this.buyFunctionInterface = buyCryptoInterface;
-        this.onRampRepository = onRampRepository;
+        //this.hasBuyFunction = true;
+        //this.buyFunctionInterface = buyCryptoInterface;
+        //this.onRampRepository = onRampRepository;
     }
 
     private void addBuyFunction()
