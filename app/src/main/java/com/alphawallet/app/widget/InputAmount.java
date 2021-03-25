@@ -36,6 +36,8 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.util.Locale;
 
 import io.realm.Case;
@@ -317,14 +319,12 @@ public class InputAmount extends LinearLayout
                 symbolText.setText(currencyLabel);
                 //calculate available fiat
                 double cryptoRate = Double.parseDouble(rtt.getPrice());
-                double availableCryptoBalance = Double.parseDouble(token.getStringBalance()
-                        .replace(",",".")
-                        .replaceAll("\\s+",  "")
-                        .replaceAll("\\u00a0",""));
+                double availableCryptoBalance = parseCryptoBalance(token.getStringBalance());
+
                 double availableFiatBalance = availableCryptoBalance * cryptoRate;
-                String priceStr = String.format(Locale.getDefault(), "%.2f", availableFiatBalance);
-                availableAmount.setText(priceStr);//TickerService.getCurrencyString(availableCryptoBalance * cryptoRate));
-                availableSymbol.setText("USD");//rtt.getCurrencySymbol());
+                //String priceStr = String.format(Locale.getDefault(), "%.2f", availableFiatBalance);
+                availableAmount.setText(TickerService.getCurrencyString(availableFiatBalance));
+                availableSymbol.setText(rtt.getCurrencySymbol());
                 updateAmount();
 
                 amountReadyCallback.updateCryptoAmount(
@@ -337,6 +337,11 @@ public class InputAmount extends LinearLayout
             Log.d("DEBUG", e.getMessage());
             // continue with old value
         }
+    }
+
+    private Double parseCryptoBalance(String balanceStr) {
+        //comma is thousands separator
+        return Double.parseDouble(balanceStr.replaceAll(",",""));
     }
 
     private BigDecimal getWeiInputAmount()
@@ -459,6 +464,10 @@ public class InputAmount extends LinearLayout
                 double cryptoRate = Double.parseDouble(rtt.getPrice());
                 double availableCryptoBalance = value.divide(BigDecimal.valueOf(Math.pow(10, token.tokenInfo.decimals)), 18, RoundingMode.DOWN).doubleValue();
                 DecimalFormat df = new DecimalFormat("###0.00");
+                DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+                symbols.setDecimalSeparator('.');
+                df.setGroupingUsed(false);
+                df.setDecimalFormatSymbols(symbols);
                 df.setRoundingMode(RoundingMode.DOWN);
                 fiatValue = df.format(availableCryptoBalance * cryptoRate);
             }
@@ -503,16 +512,12 @@ public class InputAmount extends LinearLayout
             if (showingCrypto)
             {
                 showValue = BalanceUtils.getScaledValueScientific(exactAmount, token.tokenInfo.decimals)
-                        .replace(",",".")
-                        .replaceAll("\\s+",  "")
-                        .replaceAll("\\u00a0","");
+                        .replace(",","");
             }
             else
             {
                 showValue = convertWeiAmountToFiat(exactAmount)
-                        .replace(",",".")
-                        .replaceAll("\\s+",  "")
-                        .replaceAll("\\u00a0","");
+                        .replace(",","");
             }
             editText.setText(showValue);
         }

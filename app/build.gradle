@@ -35,8 +35,8 @@ android {
         }
     }
     defaultConfig {
-        versionCode 139
-        versionName "1.0.5"
+        versionCode 140
+        versionName "1.1.0"
 
         applicationId "com.dlabs.ilgonwallet"
         minSdkVersion 23

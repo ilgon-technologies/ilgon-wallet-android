@@ -2,7 +2,11 @@ package com.alphawallet.app.di;
 
 import com.alphawallet.app.interact.GenericWalletInteract;
 import com.alphawallet.app.interact.GetDefaultWalletBalance;
+import com.alphawallet.app.repository.CurrencyRepository;
+import com.alphawallet.app.repository.CurrencyRepositoryType;
 import com.alphawallet.app.repository.EthereumNetworkRepositoryType;
+import com.alphawallet.app.repository.LocaleRepository;
+import com.alphawallet.app.repository.LocaleRepositoryType;
 import com.alphawallet.app.repository.PreferenceRepositoryType;
 import com.alphawallet.app.repository.WalletRepositoryType;
 import com.alphawallet.app.router.ManageWalletsRouter;
@@ -16,6 +20,8 @@ import dagger.Provides;
 class NewSettingsModule {
     @Provides
     NewSettingsViewModelFactory provideNewSettingsViewModelFactory(
+            LocaleRepositoryType localeRepository,
+            CurrencyRepositoryType currencyRepository,
             GenericWalletInteract genericWalletInteract,
             MyAddressRouter myAddressRouter,
             EthereumNetworkRepositoryType ethereumNetworkRepository,
@@ -23,11 +29,23 @@ class NewSettingsModule {
             PreferenceRepositoryType preferenceRepository
     ) {
         return new NewSettingsViewModelFactory(
+                localeRepository,
+                currencyRepository,
                 genericWalletInteract,
                 myAddressRouter,
                 ethereumNetworkRepository,
                 manageWalletsRouter,
                 preferenceRepository);
+    }
+
+    @Provides
+    LocaleRepositoryType provideLocaleRepository(PreferenceRepositoryType preferenceRepository) {
+        return new LocaleRepository(preferenceRepository);
+    }
+
+    @Provides
+    CurrencyRepositoryType provideCurrencyRepository(PreferenceRepositoryType preferenceRepository) {
+        return new CurrencyRepository(preferenceRepository);
     }
 
     @Provides

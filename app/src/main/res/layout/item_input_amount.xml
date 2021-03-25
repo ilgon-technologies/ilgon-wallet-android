@@ -119,7 +119,7 @@
                 android:fontFamily="@font/font_semibold"
                 android:hint="0"
                 android:imeOptions="actionDone"
-                android:inputType="numberDecimal"
+                android:inputType="number|numberDecimal"
                 android:lines="1"
                 android:maxLines="1"
                 android:paddingEnd="@dimen/dp5"

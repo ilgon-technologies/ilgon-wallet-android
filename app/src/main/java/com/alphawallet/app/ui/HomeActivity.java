@@ -1114,17 +1114,25 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                         break;
                 }
                 break;
-            case C.UPDATE_LOCALE:
+            case C.UPDATE_LOCALE: {
                 updateLocale(data);
                 break;
+            }
+            case C.UPDATE_LOCALE_FROM_FRAGMENT: {
+                ((NewSettingsFragment) settingsFragment).updateLocale(data);
+                break;
+            }
+            case C.UPDATE_CURRENCY: {
+                ((NewSettingsFragment) settingsFragment).updateCurrency(data);
+                break;
+            }
             case C.REQUEST_UNIVERSAL_SCAN:
                 if (data != null && resultCode == Activity.RESULT_OK)
                 {
                     if (data.hasExtra(C.EXTRA_QR_CODE))
                     {
                         String qrCode = data.getStringExtra(C.EXTRA_QR_CODE);
-                        showChannelSelectorPopUp(qrCode);
-                        //viewModel.handleQRCode(this, qrCode);
+                        viewModel.handleQRCode(this, qrCode);
                     }
                     else if (data.hasExtra(C.EXTRA_ACTION_NAME))
                     {
@@ -1244,6 +1252,10 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         {
             super.onBackPressed();
         }
+    }
+
+    public boolean onlyMainnetActive() {
+        return viewModel.onlyMainnetActive();
     }
 
     public void useActionSheet(String mode)

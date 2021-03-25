@@ -430,4 +430,8 @@ public class HomeViewModel extends BaseViewModel {
     {
         return preferenceRepository.getFullScreenState();
     }
+
+    public boolean onlyMainnetActive() {
+        return ethereumNetworkRepository.getFilterNetworkList().size() == 1;
+    }
 }

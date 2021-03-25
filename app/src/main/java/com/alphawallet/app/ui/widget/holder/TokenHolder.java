@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.NonNull;
@@ -26,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 
+import com.alphawallet.app.BuildConfig;
 import com.alphawallet.app.R;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.entity.tokens.TokenCardMeta;
@@ -38,6 +40,8 @@ import com.alphawallet.app.service.TickerService;
 import com.alphawallet.app.service.TokensService;
 import com.alphawallet.app.ui.HomeActivity;
 import com.alphawallet.app.ui.widget.OnTokenClickListener;
+import com.alphawallet.app.ui.widget.entity.ENSHandler;
+import com.alphawallet.app.util.Utils;
 import com.alphawallet.app.widget.ChainName;
 import com.alphawallet.app.widget.TokenIcon;
 
@@ -308,13 +312,19 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
         }
         else
         {
-            String issuerName = assetDefinition.getIssuerName(token);
-            if (issuerName != null && !issuerName.equalsIgnoreCase(getString(R.string.app_name))) //don't display issuer if it's alphawallet
+            String chainName = "Chain: " + (token.tokenInfo.chainId == BuildConfig.MAIN_CHAIN_ID ? "ILGON" : "ILGON Test"); //assetDefinition.getIssuerName(token);
+            String issuerAddress = Utils.formatAddress(token.getAddress());
+            boolean onlyMainnetActive = (getContext() instanceof HomeActivity) &&
+                    ((HomeActivity) getContext()).onlyMainnetActive();
+            if (chainName != null && issuerAddress != null)
             {
                 issuer.setVisibility(View.VISIBLE);
                 issuerPlaceholder.setVisibility(View.VISIBLE);
                 primaryElement = true;
-                issuer.setText(issuerName);
+                String issuerText = onlyMainnetActive ?
+                        " " + issuerAddress :
+                        " " + issuerAddress + " | "+chainName;
+                issuer.setText(issuerText);
             }
             else
             {

@@ -1,5 +1,7 @@
 package com.alphawallet.app.util;
 
+import android.util.Log;
+
 import com.alphawallet.app.entity.tokens.Token;
 
 import org.web3j.utils.Convert;
@@ -8,6 +10,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 
 public class BalanceUtils
@@ -175,6 +178,10 @@ public class BalanceUtils
         else //otherwise display in standard pattern to dPlaces dp
         {
             DecimalFormat df = new DecimalFormat(getDigitalPattern(dPlaces));
+            DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+            symbols.setDecimalSeparator('.');
+            symbols.setGroupingSeparator(',');
+            df.setDecimalFormatSymbols(symbols);
             df.setRoundingMode(RoundingMode.DOWN);
             returnValue = convertToLocale(df.format(correctedValue));
         }

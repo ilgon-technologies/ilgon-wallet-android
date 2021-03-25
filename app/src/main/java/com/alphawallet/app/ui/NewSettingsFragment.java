@@ -8,6 +8,8 @@ import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +40,11 @@ import javax.inject.Inject;
 
 import dagger.android.support.AndroidSupportInjection;
 
+import static com.alphawallet.app.C.CHANGED_LOCALE;
+import static com.alphawallet.app.C.CHANGE_CURRENCY;
+import static com.alphawallet.app.C.EXTRA_CURRENCY;
+import static com.alphawallet.app.C.EXTRA_LOCALE;
+import static com.alphawallet.app.C.EXTRA_STATE;
 import static com.alphawallet.app.C.Key.WALLET;
 import static com.alphawallet.token.tools.TokenDefinition.TOKENSCRIPT_CURRENT_SCHEMA;
 
@@ -56,9 +63,12 @@ public class NewSettingsFragment extends BaseFragment {
     private SettingsItemView notificationsSetting;
     private SettingsItemView biometricsSetting;
     private SettingsItemView selectNetworksSetting;
-    private SettingsItemView advancedSetting;
+    //private SettingsItemView advancedSetting;
     private SettingsItemView walletConnectSetting;
     private SettingsItemView showSeedPhrase;
+
+    private SettingsItemView changeCurrency;
+    private SettingsItemView changeLanguage;
 
     private LinearLayout layoutBackup;
     private View warningSeparator;
@@ -183,12 +193,25 @@ public class NewSettingsFragment extends BaseFragment {
                         .withListener(this::onSelectNetworksSettingClicked)
                         .build();
 
-        advancedSetting =
+        /*advancedSetting =
                 new SettingsItemView.Builder(getContext())
                         .withIcon(R.drawable.ic_settings_advanced)
                         .withTitle(R.string.title_advanced)
                         .withListener(this::onAdvancedSettingClicked)
-                        .build();
+                        .build();*/
+        changeLanguage = new SettingsItemView.Builder(getContext())
+                .withIcon(R.drawable.ic_settings_language)
+                .withTitle(R.string.title_change_language)
+                .withListener(this::onChangeLanguageClicked)
+                .build();
+
+        changeCurrency = new SettingsItemView.Builder(getContext())
+                .withIcon(R.drawable.ic_currency)
+                .withTitle(R.string.settings_locale_currency)
+                .withListener(this::onChangeCurrencyClicked)
+                .build();
+
+        changeLanguage.setSubtitle(LocaleUtils.getDisplayLanguage(viewModel.getActiveLocale(), viewModel.getActiveLocale()));
     }
 
     private void addSettingsToLayout() {
@@ -215,8 +238,52 @@ public class NewSettingsFragment extends BaseFragment {
         if (EthereumNetworkRepository.showNetworkFilters())
             systemSettingsLayout.addView(selectNetworksSetting, systemIndex++);
 
-        systemSettingsLayout.addView(advancedSetting, systemIndex++);
+        //systemSettingsLayout.addView(advancedSetting, systemIndex++);
+        systemSettingsLayout.addView(changeCurrency, systemIndex++);
+        systemSettingsLayout.addView(changeLanguage, systemIndex++);
+    }
 
+    private void onChangeLanguageClicked() {
+        Intent intent = new Intent(getContext(), SelectLocaleActivity.class);
+        String selectedLocale = viewModel.getActiveLocale();
+        intent.putExtra(EXTRA_LOCALE, selectedLocale);
+        intent.putParcelableArrayListExtra(EXTRA_STATE, viewModel.getLocaleList(getContext()));
+        getActivity().startActivityForResult(intent, C.UPDATE_LOCALE_FROM_FRAGMENT);
+    }
+
+    private void onChangeCurrencyClicked() {
+        Intent intent = new Intent(getContext(), SelectCurrencyActivity.class);
+        String currentLocale = viewModel.getDefaultCurrency();
+        intent.putExtra(EXTRA_CURRENCY, currentLocale);
+        intent.putParcelableArrayListExtra(EXTRA_STATE, viewModel.getCurrencyList());
+        getActivity().startActivityForResult(intent, C.UPDATE_CURRENCY);
+    }
+
+    public void updateLocale(Intent data) {
+        if (data != null)
+        {
+            String newLocale = data.getStringExtra(C.EXTRA_LOCALE);
+            String oldLocale = viewModel.getActiveLocale();
+            if (!TextUtils.isEmpty(newLocale) && !newLocale.equals(oldLocale))
+            {
+                getContext().sendBroadcast(new Intent(CHANGED_LOCALE));
+                viewModel.updateLocale(newLocale, getContext());
+            }
+        }
+    }
+
+    public void updateCurrency(Intent data)
+    {
+        if (data == null) return;
+        String currencyCode = data.getStringExtra(C.EXTRA_CURRENCY);
+
+        //Check if selected currency code is previous selected one then don't update
+        if(viewModel.getDefaultCurrency().equals(currencyCode)) return;
+
+        viewModel.updateCurrency(currencyCode);
+
+        //send broadcast to HomeActivity about change
+        getContext().sendBroadcast(new Intent(CHANGE_CURRENCY));
     }
 
     private void setInitialSettingsData(View view) {

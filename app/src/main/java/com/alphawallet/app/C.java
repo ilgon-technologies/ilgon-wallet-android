@@ -11,6 +11,7 @@ public abstract class C {
     public static final int REQUEST_BACKUP_WALLET = 1011;
     public static final int REQUEST_TRANSACTION_CALLBACK = 1012;
     public static final int UPDATE_LOCALE = 1013;
+    public static final int UPDATE_LOCALE_FROM_FRAGMENT = 1017;
     public static final int UPDATE_CURRENCY = 1014;
     public static final int REQUEST_UNIVERSAL_SCAN = 1015;
     public static final int TOKEN_SEND_ACTIVITY = 1016;

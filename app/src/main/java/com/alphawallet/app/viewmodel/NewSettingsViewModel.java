@@ -4,15 +4,24 @@ package com.alphawallet.app.viewmodel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import android.content.Context;
+import android.content.Intent;
 
+import com.alphawallet.app.entity.CurrencyItem;
+import com.alphawallet.app.entity.LocaleItem;
 import com.alphawallet.app.entity.NetworkInfo;
 import com.alphawallet.app.entity.Transaction;
 import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.interact.GenericWalletInteract;
+import com.alphawallet.app.repository.CurrencyRepositoryType;
 import com.alphawallet.app.repository.EthereumNetworkRepositoryType;
+import com.alphawallet.app.repository.LocaleRepositoryType;
 import com.alphawallet.app.repository.PreferenceRepositoryType;
 import com.alphawallet.app.router.ManageWalletsRouter;
 import com.alphawallet.app.router.MyAddressRouter;
+import com.alphawallet.app.ui.HomeActivity;
+import com.alphawallet.app.util.LocaleUtils;
+
+import java.util.ArrayList;
 
 import io.reactivex.Single;
 
@@ -26,13 +35,19 @@ public class NewSettingsViewModel extends BaseViewModel {
     private final EthereumNetworkRepositoryType ethereumNetworkRepository;
     private final ManageWalletsRouter manageWalletsRouter;
     private final PreferenceRepositoryType preferenceRepository;
+    private final LocaleRepositoryType localeRepository;
+    private final CurrencyRepositoryType currencyRepository;
 
     NewSettingsViewModel(
+            LocaleRepositoryType localeRepository,
+            CurrencyRepositoryType currencyRepository,
             GenericWalletInteract genericWalletInteract,
             MyAddressRouter myAddressRouter,
             EthereumNetworkRepositoryType ethereumNetworkRepository,
             ManageWalletsRouter manageWalletsRouter,
             PreferenceRepositoryType preferenceRepository) {
+        this.localeRepository = localeRepository;
+        this.currencyRepository = currencyRepository;
         this.genericWalletInteract = genericWalletInteract;
         this.myAddressRouter = myAddressRouter;
         this.ethereumNetworkRepository = ethereumNetworkRepository;
@@ -105,5 +120,44 @@ public class NewSettingsViewModel extends BaseViewModel {
     public Single<String> setIsDismissed(String walletAddr, boolean isDismissed)
     {
         return genericWalletInteract.setIsDismissed(walletAddr, isDismissed);
+    }
+
+    public String getUserPreferenceLocale()
+    {
+        return localeRepository.getUserPreferenceLocale();
+    }
+
+    public ArrayList<LocaleItem> getLocaleList(Context context) {
+        return localeRepository.getLocaleList(context);
+    }
+
+    public void setLocale(Context activity) {
+        String currentLocale = localeRepository.getActiveLocale();
+        LocaleUtils.setLocale(activity, currentLocale);
+    }
+
+    public void updateLocale(String newLocale, Context context) {
+        localeRepository.setUserPreferenceLocale(newLocale);
+        localeRepository.setLocale(context, newLocale);
+        Intent intent = new Intent(context, HomeActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        context.startActivity(intent);
+    }
+
+    public String getDefaultCurrency(){
+        return currencyRepository.getDefaultCurrency();
+    }
+
+    public ArrayList<CurrencyItem> getCurrencyList() {
+        return currencyRepository.getCurrencyList();
+    }
+
+    public void updateCurrency(String currencyCode){
+        currencyRepository.setDefaultCurrency(currencyCode);
+    }
+
+    public String getActiveLocale()
+    {
+        return localeRepository.getActiveLocale();
     }
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.text.Editable;
 import android.text.method.DigitsKeyListener;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,7 +36,7 @@ public class NumericInput extends AppCompatAutoCompleteTextView
         super(context, attrs);
         //ensure we use the decimal separator appropriate for the phone settings
         char separator = DecimalFormatSymbols.getInstance(deviceSettingsLocale).getDecimalSeparator();
-        setKeyListener(DigitsKeyListener.getInstance("0123456789" + separator));
+        setKeyListener(DigitsKeyListener.getInstance("0123456789." + separator));
     }
 
     /**
@@ -45,14 +46,15 @@ public class NumericInput extends AppCompatAutoCompleteTextView
      */
     public BigDecimal getBigDecimalValue()
     {
-        CharSequence text = super.getText();
+        String text = super.getText().toString();
         BigDecimal value = BigDecimal.ZERO;
 
         try
         {
-            DecimalFormat df = (DecimalFormat) NumberFormat.getInstance(deviceSettingsLocale);
-            df.setParseBigDecimal(true);
-            value = (BigDecimal) df.parseObject(text.toString());
+            //DecimalFormat df = (DecimalFormat) NumberFormat.getInstance(deviceSettingsLocale);
+            //df.setParseBigDecimal(true);
+            double valueDouble = Double.parseDouble(text.replaceAll(",","."));
+            value = BigDecimal.valueOf(valueDouble);//(BigDecimal) df.parseObject(text.toString());
         }
         catch (Exception e)
         {
