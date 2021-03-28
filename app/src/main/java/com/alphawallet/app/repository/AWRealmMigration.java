@@ -160,13 +160,16 @@ public class AWRealmMigration implements RealmMigration
 
         if (oldVersion == 15)
         {
-            schema.create("RealmGasSpread")
-                    .addField("timeStamp", long.class, FieldAttribute.PRIMARY_KEY)
-                    .addField("chainId", int.class)
-                    .addField("rapid", String.class)
-                    .addField("fast", String.class)
-                    .addField("standard", String.class)
-                    .addField("slow", String.class);
+            RealmObjectSchema realmGasSpread = schema.get("RealmGasSpread");
+            if (realmGasSpread == null) {
+                schema.create("RealmGasSpread")
+                        .addField("timeStamp", long.class, FieldAttribute.PRIMARY_KEY)
+                        .addField("chainId", int.class)
+                        .addField("rapid", String.class)
+                        .addField("fast", String.class)
+                        .addField("standard", String.class)
+                        .addField("slow", String.class);
+            }
             oldVersion++;
         }
 
@@ -231,8 +234,12 @@ public class AWRealmMigration implements RealmMigration
 
         if (oldVersion == 20)
         {
-            schema.remove("RealmTransactionOperation");
-            schema.remove("RealmTransactionContract");
+            if (schema.get("RealmTransactionOperation") != null) {
+                schema.remove("RealmTransactionOperation");
+            }
+            if (schema.get("RealmTransactionContract") != null) {
+                schema.remove("RealmTransactionContract");
+            }
             oldVersion++;
         }
 
