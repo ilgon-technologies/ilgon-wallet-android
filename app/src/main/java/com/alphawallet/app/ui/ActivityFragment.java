@@ -63,6 +63,7 @@ public class ActivityFragment extends BaseFragment implements View.OnClickListen
     private RealmResults<RealmTransaction> realmUpdates;
     private RealmResults<RealmAuxData> auxRealmUpdates;
     private String realmId;
+    private String lastWalletAddress = "";
     private long eventTimeFilter;
     private final Handler handler = new Handler();
     private boolean checkTimer;
@@ -230,6 +231,10 @@ public class ActivityFragment extends BaseFragment implements View.OnClickListen
 
     private void onDefaultWallet(Wallet wallet)
     {
+        if (lastWalletAddress != null && !lastWalletAddress.equals(wallet.address)) {
+            lastWalletAddress = wallet.address;
+            adapter.clear();
+        }
         adapter.setDefaultWallet(wallet);
     }
 

@@ -336,13 +336,12 @@ public class TransactionsNetworkClient implements TransactionsNetworkClientType
                 sb.append(pageSize);
             }
 
-            if (networkInfo.etherscanTxUrl.contains("etherscan"))
+            /*if (networkInfo.etherscanTxUrl.contains("etherscan"))
             {
                 sb.append(ETHERSCAN_API_KEY);
-            }
+            }*/
 
             fullUrl = sb.toString();
-
             try
             {
                 Request request = new Request.Builder()
@@ -637,14 +636,14 @@ public class TransactionsNetworkClient implements TransactionsNetworkClientType
         final String APIKEY_TOKEN = "[APIKEY]";
         String fullUrl = ETHERSCAN + "api?module=account&action=" + QUERY_TYPE + "&startBlock=" + START_BLOCK + "&address=" + WALLET_ADDR + "&page=1&offset=100&sort=asc" + APIKEY_TOKEN;
         fullUrl = fullUrl.replace(QUERY_TYPE, queryType).replace(ETHERSCAN, networkInfo.etherscanTxUrl).replace(START_BLOCK, String.valueOf(lastBlockChecked + 1)).replace(WALLET_ADDR, walletAddress);
-        if (networkInfo.etherscanTxUrl.contains("etherscan"))
+        /*if (networkInfo.etherscanTxUrl.contains("etherscan"))
         {
             fullUrl = fullUrl.replace(APIKEY_TOKEN, ETHERSCAN_API_KEY);
         }
         else
-        {
+        {*/
             fullUrl = fullUrl.replace(APIKEY_TOKEN, "");
-        }
+        //}
 
         try
         {

@@ -320,6 +320,12 @@
             android:name=".ui.TransactionSuccessActivity"
             android:label="Transaction Success" />
 
+        <service
+            android:name=".service.TransactionsBgService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:enabled="true">
+        </service>
+
     </application>
 
 </manifest>

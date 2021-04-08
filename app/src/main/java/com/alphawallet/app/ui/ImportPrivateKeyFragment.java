@@ -81,6 +81,9 @@ public class ImportPrivateKeyFragment extends Fragment implements View.OnClickLi
     {
         privateKey.setError(null);
         String value = privateKey.getText().toString();
+        if (value.startsWith("0x")) {
+            value = value.substring(2);
+        }
 
         if (!TextUtils.isEmpty(value))
         {
@@ -131,8 +134,10 @@ public class ImportPrivateKeyFragment extends Fragment implements View.OnClickLi
     {
         if (privateKey.isErrorState()) privateKey.setError(null);
         String value = privateKey.getText().toString();
+        String valueMod = value.startsWith("0x") ? value.substring(2) : null;
         final Matcher matcher = pattern.matcher(value);
-        if (matcher.find())
+        final Matcher matcher1 = valueMod == null ? null : pattern.matcher(valueMod);
+        if (matcher.find() && (matcher1 != null && matcher1.find()))
         {
             updateButtonState(false);
             privateKey.setError(R.string.private_key_check);
@@ -150,6 +155,9 @@ public class ImportPrivateKeyFragment extends Fragment implements View.OnClickLi
     public String getPrivateKey()
     {
         String value = privateKey.getText().toString();
+        if (value.startsWith("0x")) {
+            value = value.substring(2);
+        }
         return Numeric.cleanHexPrefix(value.replaceAll("\\s+", "")); //remove whitespace and leading 0x
     }
 

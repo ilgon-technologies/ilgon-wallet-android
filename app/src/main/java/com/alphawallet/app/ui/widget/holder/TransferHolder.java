@@ -3,6 +3,7 @@ package com.alphawallet.app.ui.widget.holder;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -167,7 +168,7 @@ public class TransferHolder extends BinderViewHolder<TokenTransferData> implemen
                 if (resultMap.get("amount") != null)
                 {
                     value = eventData.eventName.equals("sent") ? "- " : "+ ";
-                    value += token.convertValue(resultMap.get("amount").value, TRANSACTION_BALANCE_PRECISION);
+                    value += token.convertValue(resultMap.get("amount").value, token.isEthereum() ? TRANSACTION_BALANCE_PRECISION : 0);
                 }
                 break;
             case "approvalObtained":

@@ -49,7 +49,7 @@
     </style>
 
     <style name="WalletTabLayoutStyle" parent="Widget.Design.TabLayout">
-        <item name="tabIndicatorColor">@color/colorHighlight</item>
+        <item name="tabIndicatorColor">@color/ilgoin_button_primary_color_pressed</item>
         <item name="tabIndicatorHeight">3dp</item>
         <item name="tabPaddingStart">25dp</item>
         <item name="tabPaddingEnd">25dp</item>
@@ -60,13 +60,13 @@
 
     <style name="WalletTabTextAppearance" parent="TextAppearance.Design.Tab">
         <item name="android:textSize">15sp</item>
-        <item name="android:textColor">@color/colorHighlight</item>
+        <item name="android:textColor">@color/ilgoin_button_primary_color_pressed</item>
         <item name="android:fontFamily">@font/font_regular</item>
         <item name="textAllCaps">false</item>
     </style>
 
     <style name="SettingsItemSwitchAppearance" parent="Theme.AppCompat.Light">
-        <item name="colorControlActivated">@color/azure</item>
+        <item name="colorControlActivated">@color/ilgoin_button_primary_color_pressed</item>
         <item name="colorSwitchThumbNormal">@color/dove</item>
     </style>
 

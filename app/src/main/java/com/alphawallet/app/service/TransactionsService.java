@@ -1,12 +1,18 @@
 package com.alphawallet.app.service;
 
 import android.content.Context;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import com.alphawallet.app.BuildConfig;
 import com.alphawallet.app.C;
+import com.alphawallet.app.R;
 import com.alphawallet.app.entity.AnalyticsProperties;
 import com.alphawallet.app.entity.NetworkInfo;
 import com.alphawallet.app.entity.Transaction;
@@ -18,6 +24,8 @@ import com.alphawallet.app.repository.EthereumNetworkRepositoryType;
 import com.alphawallet.app.repository.PreferenceRepositoryType;
 import com.alphawallet.app.repository.TokenRepository;
 import com.alphawallet.app.repository.TransactionLocalSource;
+import com.alphawallet.app.util.BalanceUtils;
+import com.alphawallet.app.util.Utils;
 import com.alphawallet.token.entity.ContractAddress;
 
 import org.web3j.exceptions.MessageDecodingException;
@@ -25,6 +33,7 @@ import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.methods.response.EthTransaction;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +44,8 @@ import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
+
+import static com.alphawallet.app.service.TransactionsBgService.TWO_MIN;
 
 /**
  * Created by JB on 8/07/2020.
@@ -101,7 +112,7 @@ public class TransactionsService
         //reset transaction timers
         if (eventTimer == null || eventTimer.isDisposed())
         {
-            eventTimer = Observable.interval(0, 1, TimeUnit.SECONDS)
+            eventTimer = Observable.interval(0, 5, TimeUnit.SECONDS)
                     .doOnNext(l -> checkTransactionQueue()).subscribe();
         }
 
@@ -213,9 +224,41 @@ public class TransactionsService
         if (transactions.length == 0) return;
 
         Log.d("TRANSACTION", "Queried for " + token.tokenInfo.name + " : " + transactions.length + " Network transactions");
+        try {
+            if (token.isEthereum() && preferenceRepository.getNotificationsState()) {
+                long ts = (System.currentTimeMillis() - TWO_MIN) / 1000;
+                for(Transaction transaction : transactions) {
+                    if (transaction.to.equals(token.tokenInfo.address) && !transaction.getRawValue(token.tokenInfo.address).equals(BigDecimal.ZERO)
+                            && transaction.timeStamp >= ts ) {
+                        //user received ILGONCoin
+                        String coin = token.tokenInfo.chainId == BuildConfig.MAIN_CHAIN_ID ? "ILG" : "ILGT";
+                        String valueStr = BalanceUtils.getScaledValueFixed(transaction.getRawValue(token.tokenInfo.address), 18, 2) + " " + coin;
+                        String message = String.format(context.getResources().getString(R.string.received_noti_title), valueStr);
+                        notifyIlgonCoinReceived(message);
+                        break;
+                    }
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         //now check for unknown tokens
         checkTokens(transactions);
+    }
+
+    private void notifyIlgonCoinReceived(String message) {
+        try
+        {
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            Ringtone r = RingtoneManager.getRingtone(context, notification);
+            r.play();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**

@@ -3,6 +3,7 @@ package com.alphawallet.app.ui;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -60,6 +61,7 @@ import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.WalletPage;
 import com.alphawallet.app.repository.EthereumNetworkRepository;
 import com.alphawallet.app.service.NotificationService;
+import com.alphawallet.app.service.TransactionsBgService;
 import com.alphawallet.app.ui.widget.entity.ScrollControlViewPager;
 import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.util.RootUtil;
@@ -81,7 +83,9 @@ import org.web3j.crypto.WalletUtils;
 import java.io.File;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -429,6 +433,10 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         {
             e.printStackTrace();
         }
+        if (!TransactionsBgService.hasSavedWalletsData(getApplicationContext())) {
+            viewModel.saveInitialWalletAddresses();
+        }
+        TransactionsBgService.saveNetworkDataForBgTxLoad(getApplicationContext(), !viewModel.onlyMainnetActive());
     }
 
     @Override
@@ -958,58 +966,6 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                 //Can't get here
                 break;
         }
-    }
-
-    private void showChannelSelectorPopUp(String qrCode)
-    {
-
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(HomeActivity.this,R.style.MyDialogStyle);
-        alertDialog.setTitle("Choose Network");
-        String[] items = {BuildConfig.MAIN_NETWORK_NAME,BuildConfig.SECONDARY_NETWORK_NAME};
-        int[] channelId = {BuildConfig.MAIN_CHAIN_ID,BuildConfig.SECONDARY_CHAIN_ID};
-        channel[0] = BuildConfig.MAIN_CHAIN_ID;
-        int checkedItem = 0;
-        alertDialog.setSingleChoiceItems(items, checkedItem, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case 0:
-                    case 1:
-                        channel[0] = channelId[which];
-                        break;
-
-                }
-            }
-        });
-        alertDialog.setPositiveButton(android.R.string.ok, null);
-        AlertDialog alert = alertDialog.create();
-        alert.setOnShowListener(new DialogInterface.OnShowListener() {
-
-            @Override
-            public void onShow(DialogInterface dialogInterface) {
-
-                Button button = ((AlertDialog) alert).getButton(AlertDialog.BUTTON_POSITIVE);
-                button.setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View view) {
-                        // TODO Do something
-                        Toast.makeText(HomeActivity.this, String.valueOf(channel[0]), Toast.LENGTH_LONG).show();
-
-                        //Dismiss once everything is OK.
-                        alert.dismiss();
-
-                        Intent intent = new Intent(HomeActivity.this, WalletConnectActivity.class);
-                        intent.putExtra("qrCode", qrCode);
-                        intent.putExtra(C.EXTRA_WALLET_CONNECT_CHANNEL_ID, channel[0]);
-                        startActivity(intent);
-
-                    }
-                });
-            }
-        });
-        alert.setCanceledOnTouchOutside(false);
-        alert.show();
     }
 
 

@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.Nullable;
 
+import com.alphawallet.app.service.TransactionsBgService;
 import com.alphawallet.app.viewmodel.ActivityViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -306,6 +307,7 @@ public class WalletsActivity extends BaseActivity implements
         enableDisplayHomeAsUp();
         adapter.setWallets(wallets);
         invalidateOptionsMenu();
+        TransactionsBgService.saveWalletsDataForBgTxLoad(getApplicationContext(), wallets);
     }
 
     private void onCreatedWallet(Wallet wallet) {

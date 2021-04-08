@@ -9,9 +9,12 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.alphawallet.app.C;
 import com.alphawallet.app.R;
@@ -27,6 +30,7 @@ import com.alphawallet.app.service.TokensService;
 import com.alphawallet.app.ui.widget.entity.AmountReadyCallback;
 import com.alphawallet.app.ui.widget.entity.NumericInput;
 import com.alphawallet.app.util.BalanceUtils;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -62,6 +66,7 @@ public class InputAmount extends LinearLayout
     private final TextView availableSymbol;
     private final TextView availableAmount;
     private final TextView allFunds;
+    private final SwitchMaterial deductTxFee;
     //private final ProgressBar gasFetch;
     private Token token;
     private Realm realm;
@@ -93,6 +98,7 @@ public class InputAmount extends LinearLayout
         availableSymbol = findViewById(R.id.text_symbol);
         availableAmount = findViewById(R.id.text_available);
         allFunds = findViewById(R.id.text_all_funds);
+        deductTxFee = findViewById(R.id.deduct_tx_fee);
         networkFee = new BigDecimal(new BigInteger(C.DEFAULT_GAS_PRICE).multiply(BigInteger.valueOf(GAS_LIMIT_DEFAULT)));
         //gasFetch = findViewById(R.id.gas_fetch_progress);
         showingCrypto = true;
@@ -122,6 +128,10 @@ public class InputAmount extends LinearLayout
         chainName.setChainID(token.tokenInfo.chainId);
         updateAvailableBalance();
 
+        if (!token.isEthereum()) {
+            deductTxFee.setVisibility(GONE);
+        }
+
         if (tokensService != null)
         {
             this.realm = tokensService.getWalletRealmInstance();
@@ -133,22 +143,19 @@ public class InputAmount extends LinearLayout
 
     public void getInputAmount()
     {
-        /*if (gasFetch.getVisibility() == View.VISIBLE)
-        {
-            amountReady = true;
+        amountReadyCallback.amountReady(getSendAmount(), networkFee);
+    }
+
+    public BigDecimal getSendAmount() {
+        boolean deductWithTxFee = token.isEthereum() && deductTxFee.isChecked();
+        BigDecimal amount =  (exactAmount.compareTo(BigDecimal.ZERO) > 0) ? exactAmount : getWeiInputAmount();
+        if (deductWithTxFee) {
+            amount = amount.subtract(networkFee);
+            if (amount.compareTo(BigDecimal.ZERO) < 0) {
+                amount = BigDecimal.ZERO;
+            }
         }
-        else
-        {*/
-            //immediate return
-            if (exactAmount.compareTo(BigDecimal.ZERO) > 0)
-            {
-                amountReadyCallback.amountReady(exactAmount, networkFee); //'All Funds', must include gas Price
-            }
-            else
-            {
-                amountReadyCallback.amountReady(getWeiInputAmount(), networkFee);
-            }
-        //}
+        return amount;
     }
 
     public void onDestroy()
@@ -190,6 +197,26 @@ public class InputAmount extends LinearLayout
 
     }
 
+    private void onTokenUpdate() {
+        if (showingCrypto) {
+            showCrypto();
+        } else {
+            RealmTokenTicker rtt = getTickerQuery().findFirst();
+            if (rtt != null) {
+                showFiatAvailableBalance(rtt);
+            }
+        }
+    }
+
+    private void onCurrencyRateChange() {
+        if (!showingCrypto) {
+            RealmTokenTicker rtt = getTickerQuery().findFirst();
+            if (rtt != null) {
+                showFiatAvailableBalance(rtt);
+            }
+        }
+    }
+
     private void updateAvailableBalance()
     {
         if (showingCrypto)
@@ -215,7 +242,8 @@ public class InputAmount extends LinearLayout
             //load token & update balance
             RealmToken rt = (RealmToken)realmToken;
             token = tokensService.getToken(rt.getChainId(), rt.getTokenAddress());
-            updateAvailableBalance();
+            onTokenUpdate();
+            //updateAvailableBalance();
         });
     }
 
@@ -283,6 +311,8 @@ public class InputAmount extends LinearLayout
         editText.setOnClickListener(v -> {
             showError(false, 0);
         });
+
+        deductTxFee.setOnCheckedChangeListener((compoundButton, b) -> showError(false, 0));
     }
 
     private RealmQuery<RealmTokenTicker> getTickerQuery()
@@ -295,7 +325,8 @@ public class InputAmount extends LinearLayout
     {
         realmTickerUpdate = getTickerQuery().findFirstAsync();
         realmTickerUpdate.addChangeListener(realmTicker -> {
-            updateAvailableBalance();
+            onCurrencyRateChange();
+            //updateAvailableBalance();
         });
     }
 
@@ -305,6 +336,20 @@ public class InputAmount extends LinearLayout
         availableSymbol.setText(token.getSymbol());
         availableAmount.setText(token.getStringBalance());
         updateAmount();
+    }
+
+    private void showFiatAvailableBalance(RealmTokenTicker rtt) {
+        //calculate available fiat
+        double availableCryptoBalance = parseCryptoBalance(token.getStringBalance());
+        double cryptoRate = Double.parseDouble(rtt.getPrice());
+        double availableFiatBalance = availableCryptoBalance * cryptoRate;
+        //String priceStr = String.format(Locale.getDefault(), "%.2f", availableFiatBalance);
+        availableAmount.setText(TickerService.getCurrencyString(availableFiatBalance));
+        availableSymbol.setText(rtt.getCurrencySymbol());
+
+        amountReadyCallback.updateCryptoAmount(
+                getWeiInputAmount()
+        );
     }
 
     private void showFiat()
@@ -317,14 +362,8 @@ public class InputAmount extends LinearLayout
             {
                 String currencyLabel = rtt.getCurrencySymbol() + TickerService.getCurrencySymbol();
                 symbolText.setText(currencyLabel);
-                //calculate available fiat
-                double cryptoRate = Double.parseDouble(rtt.getPrice());
-                double availableCryptoBalance = parseCryptoBalance(token.getStringBalance());
 
-                double availableFiatBalance = availableCryptoBalance * cryptoRate;
-                //String priceStr = String.format(Locale.getDefault(), "%.2f", availableFiatBalance);
-                availableAmount.setText(TickerService.getCurrencyString(availableFiatBalance));
-                availableSymbol.setText(rtt.getCurrencySymbol());
+                showFiatAvailableBalance(rtt);
                 updateAmount();
 
                 amountReadyCallback.updateCryptoAmount(
@@ -368,27 +407,14 @@ public class InputAmount extends LinearLayout
     private void setupAllFunds()
     {
         allFunds.setOnClickListener(v -> {
+            showError(false, 0);
             if (token.isEthereum() && token.hasPositiveBalance())
             {
-                /*RealmGasSpread gasSpread = tokensService.getTickerRealmInstance().where(RealmGasSpread.class)
-                            .equalTo("chainId", token.tokenInfo.chainId)
-                            .sort("timeStamp", Sort.DESCENDING)
-                            .findFirst();
-
-                if (gasSpread != null && gasSpread.getGasPrice().standard.compareTo(BigInteger.ZERO) > 0)
-                {
-                    //assume 'average' gas cost here
-                    onLatestGasPrice(gasSpread.getGasPrice().standard);
-                }
-                else //fallback to node price
-                {
-                    gasFetch.setVisibility(View.VISIBLE);
-                    Web3j web3j = TokenRepository.getWeb3jService(token.tokenInfo.chainId);
-                    web3j.ethGasPrice().sendAsync()
-                            .thenAccept(ethGasPrice -> onLatestGasPrice(ethGasPrice.getGasPrice()))
-                            .exceptionally(this::onGasFetchError);
-                }*/
-                onLatestGasPrice();
+                exactAmount = token.balance;//.subtract(networkFee);
+                deductTxFee.setChecked(true);
+                if (exactAmount.compareTo(BigDecimal.ZERO) < 0) exactAmount = BigDecimal.ZERO;
+                //display in the view
+                handler.post(updateValue);
             }
             else
             {
@@ -398,27 +424,13 @@ public class InputAmount extends LinearLayout
         });
     }
 
-    private void onLatestGasPrice()
-    {
-        exactAmount = token.balance.subtract(networkFee);
-        if (exactAmount.compareTo(BigDecimal.ZERO) < 0) exactAmount = BigDecimal.ZERO;
-        //display in the view
-        handler.post(updateValue);
-    }
-
     private final Runnable updateValue = new Runnable()
     {
         @Override
         public void run()
         {
-            //gasFetch.setVisibility(View.GONE);
             updateAmount();
-
-            //if (amountReady)
-           // {
-                amountReadyCallback.amountReady(exactAmount, networkFee);
-            //    amountReady = false;
-          //  }
+            amountReadyCallback.amountReady(getSendAmount(), networkFee);
         }
     };
 

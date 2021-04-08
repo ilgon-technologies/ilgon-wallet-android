@@ -193,6 +193,19 @@
             android:text="Send All"
             android:lines="1"
             android:visibility="visible" />
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            style="@style/SettingsItemSwitchAppearance"
+            android:id="@+id/deduct_tx_fee"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:paddingTop="8dp"
+            android:fontFamily="@font/font_semibold"
+            android:textColor="@color/ilgoin_button_primary_color"
+            android:textSize="@dimen/sp17"
+            android:text="Deduct with TX fee"
+            android:lines="1"
+            android:visibility="visible" />
     </LinearLayout>
 
 </LinearLayout>

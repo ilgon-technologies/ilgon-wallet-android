@@ -22,6 +22,7 @@ import com.alphawallet.app.R;
 import com.alphawallet.app.entity.NetworkInfo;
 import com.alphawallet.app.entity.CustomViewSettings;
 import com.alphawallet.app.repository.EthereumNetworkRepository;
+import com.alphawallet.app.service.TransactionsBgService;
 import com.alphawallet.app.ui.widget.divider.ListDivider;
 import com.alphawallet.app.ui.widget.entity.NetworkItem;
 import com.alphawallet.app.util.Utils;
@@ -133,7 +134,7 @@ public class SelectNetworkActivity extends BaseActivity {
         {
             filterList = EthereumNetworkRepository.addDefaultNetworks().toArray(new Integer[0]);
         }
-
+        TransactionsBgService.saveNetworkDataForBgTxLoad(getApplicationContext(), filterList.length > 1);
         if (singleItem) {
             Intent intent = new Intent();
             intent.putExtra(C.EXTRA_CHAIN_ID, filterList[0]);

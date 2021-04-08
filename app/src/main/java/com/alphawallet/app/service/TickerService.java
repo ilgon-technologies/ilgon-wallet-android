@@ -78,6 +78,7 @@ public class TickerService
 {
     private static final int UPDATE_TICKER_CYCLE = 1; //1 Minute
     public static final String ILGON_PRICES_URL = "https://priceapi.ilgonwallet.com/prices";
+    public static final String ILGON_CURRENCY_RATES_URL = "https://priceapi.ilgonwallet.com/prices?module=fxrates";
     public static final String ILGON_PRICE_JSON_ROOT = "data";
     public static final String ILGON_PRICE_USD = "ILG_USD";
 
@@ -604,13 +605,12 @@ public class TickerService
     {
         return Single.fromCallable(() -> {
             if (currency1 == null || currency2 == null || currency1.equals(currency2)) return (Double)1.0;
-            String conversionURL = "http://currencies.apps.grandtrunk.net/getlatest/" + currency1 + "/" + currency2;
             okhttp3.Response response = null;
 
             try
             {
                 Request request = new Request.Builder()
-                        .url(conversionURL)
+                        .url(ILGON_CURRENCY_RATES_URL)
                         .addHeader("Connection","close")
                         .get()
                         .build();
@@ -621,7 +621,8 @@ public class TickerService
                 if ((resultCode / 100) == 2 && response.body() != null)
                 {
                     String responseBody = response.body().string();
-                    return Double.parseDouble(responseBody);
+                    JSONObject rates = new JSONObject(responseBody).getJSONObject("data").getJSONObject("rates");
+                    return Double.parseDouble(rates.getString(currency2));
                 }
             }
             catch (Exception e)

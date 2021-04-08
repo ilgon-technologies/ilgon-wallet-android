@@ -1,5 +1,6 @@
 package com.alphawallet.app.ui;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
@@ -57,8 +58,10 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,9 +85,12 @@ import static com.alphawallet.app.C.ETH_SYMBOL;
 import static com.alphawallet.app.entity.TransactionDecoder.FUNCTION_LENGTH;
 import static com.alphawallet.app.repository.EthereumNetworkBase.MAINNET_ID;
 import static com.alphawallet.app.service.AssetDefinitionService.ASSET_DETAIL_VIEW_NAME;
+import static com.alphawallet.app.service.TickerService.ILGON_CURRENCY_RATES_URL;
 import static com.alphawallet.app.service.TickerService.ILGON_PRICES_URL;
 import static com.alphawallet.app.service.TickerService.ILGON_PRICE_JSON_ROOT;
 import static com.alphawallet.app.service.TickerService.ILGON_PRICE_USD;
+import static com.alphawallet.app.service.TickerService.getCurrencySymbol;
+import static com.alphawallet.app.service.TickerService.getCurrencySymbolTxt;
 import static com.alphawallet.app.ui.widget.holder.TransactionHolder.TRANSACTION_BALANCE_PRECISION;
 
 
@@ -142,7 +148,7 @@ public class TokenActivity extends BaseActivity implements PageReadyCallback, St
         eventDetail = findViewById(R.id.event_detail);
     }
 
-    private void loadCurrencyRate() {
+    private void loadCurrencyRateIlgUsd() {
         Transaction transaction = viewModel.fetchTransaction(transactionHash);
         if (transaction == null || transaction.chainId != BuildConfig.MAIN_CHAIN_ID) {
             onCurrencyRateLoadReady();
@@ -168,6 +174,7 @@ public class TokenActivity extends BaseActivity implements PageReadyCallback, St
 
             @Override
             public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                double rate = 0;
                 if (response.code() / 200 == 1) {
                     try {
                         String result = response.body()
@@ -176,11 +183,58 @@ public class TokenActivity extends BaseActivity implements PageReadyCallback, St
                         JSONObject stateData = new JSONObject(result);
                         JSONObject data = stateData.getJSONObject(ILGON_PRICE_JSON_ROOT);
                         String usd = data.getString(ILGON_PRICE_USD);
-                        currencyRate = Double.parseDouble(usd);
+                        rate = Double.parseDouble(usd);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
+                response.close();
+                if (getCurrencySymbolTxt().equals("USD") || rate == 0) {
+                    currencyRate = rate;
+                    onCurrencyRateLoadReady();
+                } else {
+                    loadCurrencyRateCustomCurrency(transaction, rate);
+                }
+            }
+        });
+    }
+
+    private void loadCurrencyRateCustomCurrency(Transaction transaction, double usdRate) {
+        OkHttpClient httpClient = new OkHttpClient.Builder()
+                .connectTimeout(7, TimeUnit.SECONDS)
+                .readTimeout(7, TimeUnit.SECONDS)
+                .writeTimeout(7, TimeUnit.SECONDS)
+                .retryOnConnectionFailure(false)
+                .build();
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        String dateString = formatter.format(new Date(transaction.timeStamp*1000));
+        Request request = new Request.Builder()
+                .url(ILGON_CURRENCY_RATES_URL + "&date=" + dateString)
+                .get()
+                .build();
+        httpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Log.d("DEBUG", "" + e.getMessage());
+                onCurrencyRateLoadReady();
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                if (response.code() / 200 == 1) {
+                    try {
+                        String result = response.body()
+                                .string();
+
+                        JSONObject stateData = new JSONObject(result);
+                        JSONObject data = stateData.getJSONObject("data").getJSONObject("rates");
+                        String rate = data.getString(getCurrencySymbolTxt());
+                        currencyRate = Double.parseDouble(rate) * usdRate;
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                response.close();
                 onCurrencyRateLoadReady();
             }
         });
@@ -255,7 +309,7 @@ public class TokenActivity extends BaseActivity implements PageReadyCallback, St
     private void onWallet(Wallet wallet)
     {
         this.wallet = wallet;
-        loadCurrencyRate();
+        loadCurrencyRateIlgUsd();
     }
 
     private void setupFunctions()
@@ -304,9 +358,9 @@ public class TokenActivity extends BaseActivity implements PageReadyCallback, St
         //amount
         String transactionValue = token.getTransactionResultValue(transaction, TRANSACTION_BALANCE_PRECISION);
         if (currencyRate > 0 && token.isEthereum() && !transaction.hasInput()) {
-            BigDecimal usdDecimal = new BigDecimal(transaction.value).multiply(new BigDecimal(currencyRate));
-            String usdStr = BalanceUtils.getScaledValueFixed(usdDecimal, token.tokenInfo.decimals, 2);
-            transactionValue += "($"+usdStr+" USD)";
+            BigDecimal currencyDecimal = new BigDecimal(transaction.value).multiply(new BigDecimal(currencyRate));
+            String currencyStr = BalanceUtils.getScaledValueFixed(currencyDecimal, token.tokenInfo.decimals, 2);
+            transactionValue += "("+getCurrencySymbol()+currencyStr+" "+getCurrencySymbolTxt()+")";
         }
 
         if (!token.shouldShowSymbol(transaction) && transaction.input.length() >= FUNCTION_LENGTH)

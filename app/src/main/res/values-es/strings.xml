@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="received_noti_title">Received %s</string>
+    <string name="received_noti_content">You have received %s!\nWallet: %s</string>
+
     <!-- String related to sending -->
     <string name="action_send">Enviar</string>
     <string name="action_send_tkn">Enviar %1$s</string>

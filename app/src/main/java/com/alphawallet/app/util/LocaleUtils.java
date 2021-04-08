@@ -9,6 +9,7 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 
 import com.alphawallet.app.repository.SharedPreferenceRepository;
 
@@ -100,7 +101,7 @@ public class LocaleUtils {
 
     private static String getActiveLocaleName(Context context)
     {
-        String useLocale = PreferenceManager.getDefaultSharedPreferences(context).getString(SharedPreferenceRepository.USER_LOCALE_PREF, "");
+        String useLocale = PreferenceManager.getDefaultSharedPreferences(context).getString(SharedPreferenceRepository.USER_LOCALE_PREF, "en");
         if (TextUtils.isEmpty(useLocale)) useLocale = getDeviceSettingsLocale(context);
         return useLocale;
     }

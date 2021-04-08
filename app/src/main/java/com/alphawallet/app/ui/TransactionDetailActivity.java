@@ -40,6 +40,8 @@ import dagger.android.AndroidInjection;
 
 import static com.alphawallet.app.C.Key.WALLET;
 import static com.alphawallet.app.repository.EthereumNetworkBase.MAINNET_ID;
+import static com.alphawallet.app.service.TickerService.getCurrencySymbol;
+import static com.alphawallet.app.service.TickerService.getCurrencySymbolTxt;
 import static com.alphawallet.app.ui.widget.holder.TransactionHolder.TRANSACTION_BALANCE_PRECISION;
 
 public class TransactionDetailActivity extends BaseActivity implements StandardFunctionInterface
@@ -199,7 +201,7 @@ public class TransactionDetailActivity extends BaseActivity implements StandardF
             if (currencyRate > 0) {
                 BigDecimal usdDecimal = gasFee.multiply(new BigDecimal(currencyRate));
                 String usdStr = BalanceUtils.getScaledValueFixed(usdDecimal, 18, 2);
-                nwFeeText += "\n($"+usdStr+" USD)";
+                nwFeeText += "\n("+getCurrencySymbol()+usdStr+" "+getCurrencySymbolTxt()+")";
                 nwFee.setText(nwFeeText);
             } else {
                 nwFee.setText(nwFeeText);
@@ -226,7 +228,7 @@ public class TransactionDetailActivity extends BaseActivity implements StandardF
         if (currencyRate > 0 && token.isEthereum() && !transaction.hasInput()) {
             BigDecimal usdDecimal = new BigDecimal(transaction.value).multiply(new BigDecimal(currencyRate));
             String usdStr = BalanceUtils.getScaledValueFixed(usdDecimal, 18, 2);
-            transactionOperation += " ($"+usdStr+" USD)";
+            transactionOperation += " ("+getCurrencySymbol()+usdStr+" "+getCurrencySymbolTxt()+")";
         }
         amount.setText(Utils.isContractCall(this, operationName) ? "" : transactionOperation);
     }

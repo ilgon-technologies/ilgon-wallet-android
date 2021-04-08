@@ -35,10 +35,10 @@
             android:paddingStart="12dp"
             app:layout_scrollFlags="enterAlways"
             app:tabGravity="center"
-            app:tabIndicatorColor="@color/colorHighlight"
+            app:tabIndicatorColor="@color/ilgoin_button_primary_color_pressed"
             app:tabIndicatorFullWidth="true"
             app:tabMode="scrollable"
-            app:tabSelectedTextColor="@color/colorHighlight"
+            app:tabSelectedTextColor="@color/ilgoin_button_primary_color_pressed"
             app:tabTextAppearance="@style/WalletTabTextAppearance"
             app:tabTextColor="@color/dove" />
 

@@ -26,6 +26,7 @@ import com.alphawallet.app.router.HomeRouter;
 import com.alphawallet.app.router.ImportTokenRouter;
 import com.alphawallet.app.router.ImportWalletRouter;
 import com.alphawallet.app.service.KeyService;
+import com.alphawallet.app.service.TransactionsBgService;
 import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.viewmodel.SplashViewModel;
 import com.alphawallet.app.viewmodel.SplashViewModelFactory;
@@ -136,6 +137,7 @@ public class SplashActivity extends BaseActivity implements CreateWalletCallback
     }
 
     private void onWallets(Wallet[] wallets) {
+        TransactionsBgService.saveWalletsDataForBgTxLoad(getApplicationContext(), wallets);
         //event chain should look like this:
         //1. check if wallets are empty:
         //      - yes, get either create a new account or take user to wallet page if SHOW_NEW_ACCOUNT_PROMPT is set

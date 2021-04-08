@@ -15,6 +15,9 @@
     <string name="barcode_error_format">Invalid barcode format: %s</string>
     <string name="title_delete_account">Are you sure you want to delete wallet?</string>
 
+    <string name="received_noti_title">Received %s</string>
+    <string name="received_noti_content">You have received %s!\nWallet: %s</string>
+
     <string name="error_import">Error importing keystore</string>
     <string name="error_deleting_account">Error deleting wallet</string>
     <string name="do_manage_make_backup">Did you manage to make a backup?</string>

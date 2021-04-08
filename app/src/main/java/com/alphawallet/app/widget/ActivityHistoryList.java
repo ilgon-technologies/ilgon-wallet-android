@@ -120,7 +120,7 @@ public class ActivityHistoryList extends LinearLayout
         for (RealmTransaction item : realmTransactions)
         {
             TransactionMeta tm = new TransactionMeta(item.getHash(), item.getTimeStamp(), item.getTo(), item.getChainId(), item.getBlockNumber());
-            if(token != null && tm.contractAddress.equals(token.tokenInfo.address))
+            if(token != null &&  (token.isEthereum() || tm.contractAddress.equals(token.tokenInfo.address)))
                 metas.add(tm);
             if (tm.isPending) hasPending = true;
         }

@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -105,6 +106,7 @@ public class WalletFragment extends BaseFragment implements
     private Realm realm;
     private RealmResults<RealmToken> realmUpdates;
     private String realmId;
+    private String lastWalletAddress = "";
 
     @Nullable
     @Override
@@ -183,6 +185,10 @@ public class WalletFragment extends BaseFragment implements
     private void onDefaultWallet(Wallet wallet)
     {
         if (CustomViewSettings.showManageTokens()) {
+            if (lastWalletAddress != null && !lastWalletAddress.equals(wallet.address)) {
+                lastWalletAddress = wallet.address;
+                adapter.clear();
+            }
             adapter.setWalletAddress(wallet.address);
         }
 

@@ -13,7 +13,7 @@ public class SharedPreferenceRepository implements PreferenceRepositoryType {
     private static final String CURRENT_ACCOUNT_ADDRESS_KEY = "current_account_address";
     private static final String DEFAULT_NETWORK_NAME_KEY = "default_network_name";
     private static final String NETWORK_FILTER_KEY = "network_filters";
-    private static final String NOTIFICATIONS_KEY = "notifications";
+    public static final String NOTIFICATIONS_KEY = "notifications";
     private static final String DEFAULT_SET_KEY = "default_net_set";
     private static final String LOCALE_KEY = "locale";
     private static final String BACKUP_WALLET_SHOWN = "backup_wallet_shown";
@@ -126,7 +126,7 @@ public class SharedPreferenceRepository implements PreferenceRepositoryType {
     @Override
     public String getUserPreferenceLocale()
     {
-        return pref.getString(USER_LOCALE_PREF, "");
+        return pref.getString(USER_LOCALE_PREF, "en");
     }
 
     @Override

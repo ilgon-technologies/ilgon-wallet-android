@@ -35,8 +35,8 @@ android {
         }
     }
     defaultConfig {
-        versionCode 142
-        versionName "1.1.2"
+        versionCode 143
+        versionName "1.2"
 
         applicationId "com.dlabs.ilgonwallet"
         minSdkVersion 23
@@ -61,9 +61,9 @@ android {
             // replace your specific flavor here instead of 'flavor1' & 'flavor2'
             if (variantName.contains("analytics")) {
                 variant.buildConfigField 'String', "MAIN_RPC_URL", '"https://mainnet-rpc.ilgonwallet.com/"'
-                variant.buildConfigField 'String', "SECONDARY_RPC_URL", '"https://testnet-rpc.ilgonwallet.com"'
+                variant.buildConfigField 'String', "SECONDARY_RPC_URL", '"https://testnet-rpc.ilgonwallet.com/"'
                 variant.buildConfigField 'String', "MAIN_NETWORK_NAME", '"ILGON"'
-                variant.buildConfigField 'String', "SECONDARY_NETWORK_NAME", '"ILGON test"'
+                variant.buildConfigField 'String', "SECONDARY_NETWORK_NAME", '"ILGON Test"'
                 variant.buildConfigField 'String', "MAIN_TX_URL", '" https://www.ilgonexplorer.com/"'
                 variant.buildConfigField 'String', "SECONDARY_TX_URL", '"https://testnet.ilgonexplorer.com/"'
                 variant.buildConfigField 'int', "MAIN_CHAIN_ID", '6909031'

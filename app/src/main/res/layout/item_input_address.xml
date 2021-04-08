@@ -105,7 +105,7 @@
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="16dp"
         android:fontFamily="@font/font_semibold"
-        android:textColor="@color/azure"
+        android:textColor="@color/ilgoin_button_primary_color"
         android:textSize="@dimen/sp17"
         android:text="@string/paste"
         android:visibility="visible" />

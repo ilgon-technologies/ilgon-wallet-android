@@ -86,15 +86,15 @@ public class AWalletBottomNavigationView extends LinearLayout {
                 break;
             case WALLET:
                 wallet.setImageResource(R.drawable.ic_tab_wallet_active);
-                walletLabel.setTextColor(getResources().getColor(R.color.colorHighlight, getContext().getTheme()));
+                walletLabel.setTextColor(getResources().getColor(R.color.ilgoin_button_primary_color_pressed, getContext().getTheme()));
                 break;
             case SETTINGS:
                 settings.setImageResource(R.drawable.ic_tab_settings_active);
-                settingsLabel.setTextColor(getResources().getColor(R.color.colorHighlight, getContext().getTheme()));
+                settingsLabel.setTextColor(getResources().getColor(R.color.ilgoin_button_primary_color_pressed, getContext().getTheme()));
                 break;
             case ACTIVITY:
                 activity.setImageResource(R.drawable.ic_tab_activity_active);
-                activityLabel.setTextColor(getResources().getColor(R.color.colorHighlight, getContext().getTheme()));
+                activityLabel.setTextColor(getResources().getColor(R.color.ilgoin_button_primary_color_pressed, getContext().getTheme()));
                 break;
         }
     }

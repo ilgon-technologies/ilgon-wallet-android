@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.lifecycle.LiveData;
@@ -42,6 +43,7 @@ import com.alphawallet.app.router.MyAddressRouter;
 import com.alphawallet.app.service.AnalyticsServiceType;
 import com.alphawallet.app.service.AssetDefinitionService;
 import com.alphawallet.app.service.TickerService;
+import com.alphawallet.app.service.TransactionsBgService;
 import com.alphawallet.app.service.TransactionsService;
 import com.alphawallet.app.ui.HomeActivity;
 import com.alphawallet.app.ui.SendActivity;
@@ -51,9 +53,13 @@ import com.alphawallet.token.entity.MagicLinkData;
 import com.alphawallet.token.tools.ParseMagicLink;
 
 import java.io.File;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import static org.web3j.crypto.WalletUtils.isValidAddress;
@@ -118,6 +124,10 @@ public class HomeViewModel extends BaseViewModel {
         this.transactionsService = transactionsService;
         this.tickerService = tickerService;
         this.analyticsService = analyticsService;
+    }
+
+    public boolean showNotifications() {
+        return preferenceRepository.getNotificationsState();
     }
 
     @Override
@@ -299,6 +309,15 @@ public class HomeViewModel extends BaseViewModel {
     public void setFindWalletAddressDialogShown(boolean isShown) {
         preferenceRepository.setFindWalletAddressDialogShown(isShown);
     }
+
+    public void saveInitialWalletAddresses() {
+        disposable = fetchWalletsInteract.fetch().subscribe(this::onHasWalletAddresses, this::onError);
+    }
+
+    private void onHasWalletAddresses(Wallet[] wallets) {
+        TransactionsBgService.saveWalletsDataForBgTxLoad(context.getApplicationContext(), wallets);
+    }
+
 
     public String getDefaultCurrency(){
         return currencyRepository.getDefaultCurrency();
