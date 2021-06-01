@@ -35,8 +35,8 @@ android {
         }
     }
     defaultConfig {
-        versionCode 143
-        versionName "1.2"
+        versionCode 147
+        versionName "1.3"
 
         applicationId "com.dlabs.ilgonwallet"
         minSdkVersion 23
@@ -49,7 +49,7 @@ android {
         //Put your Infura key here, NB with over 30 - 40 users this API key will rate limit, it's only here for bootstrapping a free build
         def DEFAULT_INFURA_API_KEY = "\"da3717f25f824cc1baa32d812386d93f\"";
 
-        buildConfigField 'int', 'DB_VERSION', '22'
+        buildConfigField 'int', 'DB_VERSION', '23'
         buildConfigField "String", XInfuraAPI, DEFAULT_INFURA_API_KEY
 
         ndk {
@@ -70,8 +70,6 @@ android {
                 variant.buildConfigField 'int', "SECONDARY_CHAIN_ID", '1768712052'
                 variant.buildConfigField 'String', "ETHERSCAN_URL_MAIN", '"https://ilgonexplorer.com/tx/"'
                 variant.buildConfigField 'String', "ETHERSCAN_URL_SECONDRARY", '"https://testnet.ilgonexplorer.com/tx/"'
-                variant.buildConfigField 'String', "MAIN_STAKING_CONTRACT_ADDRESS", '"0xebE14A98E366196f16529c5E9Ecfea43fbC9940b"'
-                variant.buildConfigField 'String', "SECONDARY_STAKING_CONTRACT_ADDRESS", '"0x933cdac7b0bD9519C84e8F1F74Be51b07921e596"'
             } else  {
                 variant.buildConfigField 'String', "SECONDARY_RPC_URL", '"https://testnet-rpc.ilgonwallet.com"'
                 variant.buildConfigField 'String', "MAIN_RPC_URL", '"https://wallet.ilgoindev.e-diploma.org/rpc/eth/"'
@@ -83,8 +81,6 @@ android {
                 variant.buildConfigField 'int', "MAIN_CHAIN_ID", '1768711028'
                 variant.buildConfigField 'String', "ETHERSCAN_URL_MAIN", '"https://explorer.ilgoindev.e-diploma.org/tx/"'
                 variant.buildConfigField 'String', "ETHERSCAN_URL_SECONDRARY", '"https://testnet.ilgonexplorer.com/tx/"'
-                variant.buildConfigField 'String', "MAIN_STAKING_CONTRACT_ADDRESS", 'null'
-                variant.buildConfigField 'String', "SECONDARY_STAKING_CONTRACT_ADDRESS", '"0x933cdac7b0bD9519C84e8F1F74Be51b07921e596"'
             }
         }
     }
@@ -140,18 +136,6 @@ android {
     This is due to China release where Google services should not be included
      */
     def task = gradle.startParameter.taskNames[0] ?: ""
-
-    afterEvaluate { project ->
-        if (!task.toLowerCase().contains("noanalytics"))
-        {
-            apply plugin: 'com.google.gms.google-services'
-            apply plugin: 'com.google.firebase.crashlytics'
-            dependencies {
-                implementation 'com.google.firebase:firebase-analytics:18.0.2'
-                implementation 'com.mixpanel.android:mixpanel-android:5.8.4'
-            }
-        }
-    }
 
 }
 
@@ -232,8 +216,6 @@ dependencies {
     androidTestImplementation('tools.fastlane:screengrab:1.1.0', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-
-    implementation 'com.google.firebase:firebase-crashlytics:17.3.1'
 
     implementation "com.trustwallet:wallet-core:0.12.31"
 

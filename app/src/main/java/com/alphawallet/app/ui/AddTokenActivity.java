@@ -42,7 +42,6 @@ import com.alphawallet.app.widget.FunctionButtonBar;
 import com.alphawallet.app.widget.InputAddress;
 import com.alphawallet.app.widget.InputView;
 import com.alphawallet.token.entity.SalesOrderMalformed;
-import com.alphawallet.token.tools.ParseMagicLink;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -457,24 +456,6 @@ public class AddTokenActivity extends BaseActivity implements AddressReadyCallba
                                     break;
                                 default:
                                     break;
-                            }
-                        }
-                        else //try magiclink
-                        {
-                            ParseMagicLink magicParser = new ParseMagicLink(new CryptoFunctions(), EthereumNetworkRepository.extraChains());
-                            try
-                            {
-                                if (magicParser.parseUniversalLink(barcode).chainId > 0) //see if it's a valid link
-                                {
-                                    //let's try to import the link
-                                    viewModel.showImportLink(this, barcode);
-                                    finish();
-                                    return;
-                                }
-                            }
-                            catch (SalesOrderMalformed e)
-                            {
-                                e.printStackTrace();
                             }
                         }
 

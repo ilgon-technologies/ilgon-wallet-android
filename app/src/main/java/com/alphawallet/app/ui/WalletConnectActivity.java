@@ -29,8 +29,8 @@ import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.entity.walletconnect.WCRequest;
 import com.alphawallet.app.repository.SignRecord;
-import com.alphawallet.app.service.GasService2;
 import com.alphawallet.app.ui.widget.entity.ActionSheetCallback;
+import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.viewmodel.WalletConnectViewModel;
 import com.alphawallet.app.viewmodel.WalletConnectViewModelFactory;
 import com.alphawallet.app.walletconnect.WCClient;
@@ -129,7 +129,7 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
         super.onCreate(savedInstanceState);
 
         AndroidInjection.inject(this);
-
+        LocaleUtils.setActiveLocale(this);
         setContentView(R.layout.activity_wallet_connect);
 
         toolbar();
@@ -451,7 +451,7 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
     private void initWalletConnectPeerMeta()
     {
         String name = getString(R.string.app_name);
-        String url = "https://www.alphawallet.com";
+        String url = "https://www.ilgonwallet.com";
         String description = viewModel.getWallet().address;
         String[] icons = {C.ALPHAWALLET_LOGO_URI};
 
@@ -952,10 +952,9 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
                 {
                     int gasSelectionIndex = data.getIntExtra(C.EXTRA_SINGLE_ITEM, -1);
                     long customNonce = data.getLongExtra(C.EXTRA_NONCE, -1);
-                    BigDecimal customGasPrice = new BigDecimal(data.getStringExtra(C.EXTRA_GAS_PRICE));
                     BigDecimal customGasLimit = new BigDecimal(data.getStringExtra(C.EXTRA_GAS_LIMIT));
                     long expectedTxTime = data.getLongExtra(C.EXTRA_AMOUNT, 0);
-                    confirmationDialog.setCurrentGasIndex(gasSelectionIndex, customGasPrice, customGasLimit, expectedTxTime, customNonce);
+                    confirmationDialog.setCurrentGasIndex(gasSelectionIndex, viewModel.getGasPrice(), customGasLimit, expectedTxTime, customNonce);
                 }
             }
             else if (signCallback != null) signCallback.gotAuthorisation(true);
@@ -1049,7 +1048,7 @@ public class WalletConnectActivity extends BaseActivity implements ActionSheetCa
     @Override
     public void notifyConfirm(String mode)
     {
-        viewModel.actionSheetConfirm(mode);
+        //viewModel.actionSheetConfirm(mode);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.alphawallet.app.ui;
 
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
+
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
@@ -11,18 +11,19 @@ import androidx.gridlayout.widget.GridLayout;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.alphawallet.app.entity.StandardFunctionInterface;
+import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.viewmodel.TokenFunctionViewModel;
 import com.alphawallet.app.viewmodel.TokenFunctionViewModelFactory;
 import com.alphawallet.app.widget.AWalletAlertDialog;
 import com.alphawallet.app.widget.FunctionButtonBar;
 import com.alphawallet.token.entity.TSAction;
 import com.bumptech.glide.Glide;
-import com.alphawallet.app.util.KittyUtils;
 
 import com.alphawallet.app.R;
 
@@ -31,6 +32,7 @@ import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.opensea.Asset;
 import com.alphawallet.app.entity.opensea.Trait;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -96,6 +98,7 @@ public class TokenDetailActivity extends BaseActivity implements StandardFunctio
         AndroidInjection.inject(this);
 
         super.onCreate(savedInstanceState);
+        LocaleUtils.setActiveLocale(this);
         setContentView(R.layout.activity_token_detail);
         viewModel = new ViewModelProvider(this, tokenFunctionViewModelFactory)
                 .get(TokenFunctionViewModel.class);
@@ -200,17 +203,6 @@ public class TokenDetailActivity extends BaseActivity implements StandardFunctio
                     asset.getTraitFromType("gen").getValue()));
         } else {
             generation.setVisibility(View.GONE);
-        }
-
-        if (asset.getTraitFromType("cooldown_index") != null) {
-            cooldown.setText(String.format("%s Cooldown",
-                    KittyUtils.parseCooldownIndex(
-                            asset.getTraitFromType("cooldown_index").getValue())));
-        } else if (asset.getTraitFromType("cooldown") != null) { // Non-CK
-            cooldown.setText(String.format("%s Cooldown",
-                    asset.getTraitFromType("cooldown").getValue()));
-        } else {
-            cooldown.setVisibility(View.GONE);
         }
     }
 

@@ -201,7 +201,7 @@ public class ActionSheetDialog extends BottomSheetDialog implements StandardFunc
         detailWidget.setLockCallback(this);
     }
 
-    public void setCurrentGasIndex(int gasSelectionIndex, BigDecimal customGasPrice, BigDecimal customGasLimit, long expectedTxTime, long nonce)
+    public void setCurrentGasIndex(int gasSelectionIndex, BigInteger customGasPrice, BigDecimal customGasLimit, long expectedTxTime, long nonce)
     {
         gasWidget.setCurrentGasIndex(gasSelectionIndex, customGasPrice, customGasLimit, expectedTxTime, nonce);
         updateAmount();
@@ -263,8 +263,6 @@ public class ActionSheetDialog extends BottomSheetDialog implements StandardFunc
                 signTransaction();
                 break;
         }
-
-        actionSheetCallback.notifyConfirm(mode.toString());
     }
 
     private BigDecimal getTransactionAmount()
@@ -517,39 +515,12 @@ public class ActionSheetDialog extends BottomSheetDialog implements StandardFunc
 
     public void setGasEstimate(BigInteger estimate)
     {
-        //String amountVal = BalanceUtils.getScaledValueScientific(new BigDecimal(candidateTransaction.value.add(estimate)), token.tokenInfo.decimals);
         gasWidget.setGasEstimate(estimate);
     }
 
     private void showAmount(String amountVal)
     {
         String displayStr = getContext().getString(R.string.total_cost, amountVal, token.getSymbol());
-
-       /* //fetch ticker if required
-        if (gasWidget.getValue().compareTo(BigInteger.ZERO) > 0)
-        {
-            try (Realm realm = tokensService.getTickerRealmInstance())
-            {
-                RealmTokenTicker rtt = realm.where(RealmTokenTicker.class)
-                        .equalTo("contract", TokensRealmSource.databaseKey(token.tokenInfo.chainId, token.isEthereum() ? "eth" : token.getAddress().toLowerCase()))
-                        .findFirst();
-
-                if (rtt != null)
-                {
-                    //calculate equivalent fiat
-                    double cryptoRate = Double.parseDouble(rtt.getPrice());
-                    double cryptoAmount = Double.parseDouble(amountVal);
-                    displayStr = getContext().getString(R.string.fiat_format, amountVal, token.getSymbol(),
-                            TickerService.getCurrencyString(cryptoAmount * cryptoRate),
-                            rtt.getCurrencySymbol()) ;
-                }
-            }
-            catch (Exception e)
-            {
-                //
-            }
-        }*/
-
         amount.setText(displayStr);
         setNewBalanceText();
     }

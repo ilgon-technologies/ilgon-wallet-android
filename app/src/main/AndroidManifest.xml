@@ -52,47 +52,7 @@
                     android:pathPrefix="/"
                     android:scheme="https" />
                 <data
-                    android:host="classic.aw.app"
-                    android:pathPrefix="/"
-                    android:scheme="https" />
-                <data
-                    android:host="kovan.aw.app"
-                    android:pathPrefix="/"
-                    android:scheme="https" />
-                <data
-                    android:host="ropsten.aw.app"
-                    android:pathPrefix="/"
-                    android:scheme="https" />
-                <data
-                    android:host="rinkeby.aw.app"
-                    android:pathPrefix="/"
-                    android:scheme="https" />
-                <data
-                    android:host="poa.aw.app"
-                    android:pathPrefix="/"
-                    android:scheme="https" />
-                <data
-                    android:host="sokol.aw.app"
-                    android:pathPrefix="/"
-                    android:scheme="https" />
-                <data
-                    android:host="xdai.aw.app"
-                    android:pathPrefix="/"
-                    android:scheme="https" />
-                <data
                     android:host="app.awallet.io"
-                    android:pathPrefix="/"
-                    android:scheme="https" />
-                <data
-                    android:host="goerli.aw.app"
-                    android:pathPrefix="/"
-                    android:scheme="https" />
-                <data
-                    android:host="artissigma1.aw.app"
-                    android:pathPrefix="/"
-                    android:scheme="https" />
-                <data
-                    android:host="artistau1.aw.app"
                     android:pathPrefix="/"
                     android:scheme="https" />
             </intent-filter>
@@ -162,10 +122,6 @@
             android:windowSoftInputMode="adjustResize" />
 
         <activity
-            android:name=".ui.ConfirmationActivity"
-            android:label="@string/title_activity_confirmation" />
-
-        <activity
             android:name=".ui.AddTokenActivity"
             android:label="@string/title_add_token" />
 
@@ -174,34 +130,13 @@
             android:label="@string/title_use_token" />
 
         <activity
-            android:name=".ui.RedeemSignatureDisplayActivity"
-            android:label="@string/title_use_token" />
-
-        <activity
             android:name=".ui.GasSettingsActivity"
             android:label="@string/title_send_settings" />
-
-        <activity
-            android:name=".ui.GasSettingsActivityLegacy"
-            android:label="@string/title_send_settings" />
-
-        <activity
-            android:name=".ui.SellDetailActivity"
-            android:label="@string/action_sell"
-            android:windowSoftInputMode="adjustPan" />
-
-        <activity
-            android:name=".ui.RedeemAssetSelectActivity"
-            android:label="@string/title_redeem" />
 
         <activity
             android:name=".ui.HomeActivity"
             android:label="@string/toolbar_header_wallet"
             android:windowSoftInputMode="adjustPan" />
-
-        <activity
-            android:name=".ui.ImportTokenActivity"
-            android:label="@string/title_import_token" />
 
         <activity
             android:name=".ui.TransferTicketActivity"
@@ -210,10 +145,6 @@
         <activity
             android:name=".ui.TransferTicketDetailActivity"
             android:label="@string/label_transfer_ticket_detail" />
-
-        <activity
-            android:name=".ui.HelpActivity"
-            android:label="@string/toolbar_header_help" />
 
         <activity
             android:name=".ui.zxing.QRScanningActivity"
@@ -226,14 +157,6 @@
         <activity
             android:name=".ui.Erc20DetailActivity"
             android:label="@string/erc20_details" />
-
-        <activity
-            android:name=".ui.TokenFunctionActivity"
-            android:label="@string/token_function" />
-
-        <activity
-            android:name=".ui.FunctionActivity"
-            android:label="@string/token_function" />
 
         <!--<service android:name="AlphaWalletFirebaseMessagingService">-->
         <!--<intent-filter>-->
@@ -252,6 +175,8 @@
         <!--<meta-data-->
         <!--android:name="com.google.firebase.messaging.default_notification_color"-->
         <!--android:resource="@color/colorAccent" />-->
+
+        <meta-data android:name="com.google.android.gms.vision.DEPENDENCIES" android:value="barcode" />
 
         <activity
             android:name=".ui.WalletActionsActivity"
@@ -282,19 +207,12 @@
             android:windowSoftInputMode="stateHidden|adjustResize" />
 
         <activity
-            android:name=".ui.SupportSettingsActivity"
-            android:label="Support Settings" />
-
-        <activity
             android:name=".ui.AdvancedSettingsActivity"
             android:label="Advanced Settings" />
 
         <activity
             android:name=".ui.StaticViewer"
             android:label="View Text" />
-
-        <activity android:name=".ui.TokenScriptManagementActivity"
-            android:label="@string/tokenscript_management"/>
 
         <activity android:name=".ui.TokenActivity"
             android:label="@string/activity_label"/>

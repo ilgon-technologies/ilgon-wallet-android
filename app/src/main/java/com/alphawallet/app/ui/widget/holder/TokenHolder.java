@@ -61,12 +61,14 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
     private final TextView balanceEth;
     private final TextView balanceCurrency;
     private final TextView stakingBalance;
+    private final TextView compensationBalance;
     private final TextView issuer;
     private final TextView issuerPlaceholder;
     private final TextView contractType;
     private final View contractSeparator;
     private final LinearLayout extendedInfo;
     private final LinearLayout stakingLinearLayout;
+    private final LinearLayout compensationLinearLayout;
     private final AssetDefinitionService assetDefinition; //need to cache this locally, unless we cache every string we need in the constructor
     private final TokensService tokensService;
     private final TextView pendingText;
@@ -89,6 +91,8 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
         balanceEth = findViewById(R.id.eth_data);
         stakingBalance = findViewById(R.id.staking_balance_text);
         stakingLinearLayout = findViewById(R.id.staking_linear_layout);
+        compensationBalance = findViewById(R.id.compensation_balance_text);
+        compensationLinearLayout = findViewById(R.id.compensation_linear_layout);
         balanceCurrency = findViewById(R.id.balance_currency);
         balanceCurrency.setVisibility(View.GONE);
         issuer = findViewById(R.id.issuer);
@@ -153,23 +157,22 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
             if (EthereumNetworkRepository.isPriorityToken(token)) extendedInfo.setVisibility(View.GONE);
             contractSeparator.setVisibility(View.GONE);
 
-           // ActivityManager am = (ActivityManager)getContext().getSystemService(Context.ACTIVITY_SERVICE);
-            //ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
             if(token.isEthereum() && token.showStakingBalance()) {
-                stakingBalance.setText("Staking balance: " + token.getStringStakingBalance()+" "+token.getSymbol());
+                String text = getString(R.string.staking_balance) + ": " + token.getStringStakingBalance() + " " + token.getSymbol();
+                stakingBalance.setText(text);
                 stakingLinearLayout.setVisibility(View.VISIBLE);
-                /*if(!cn.getClassName().equals(HomeActivity.class.getName())){
-                    stakingBalance.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_baseline_info_24, 0);
-                    stakingBalance.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            showInformPopUp();
-                        }
-                    });
-                }*/
             } else {
                 stakingLinearLayout.setVisibility(View.GONE);
             }
+
+            if(token.isEthereum() && token.showCompensationBalance()) {
+                String text = getString(R.string.compensation_balance) + ": " + token.getStringCompensationBalance() + " " + token.getSymbol();
+                compensationBalance.setText(text);
+                compensationLinearLayout.setVisibility(View.VISIBLE);
+            } else {
+                compensationLinearLayout.setVisibility(View.GONE);
+            }
+
 
             //setup name and value (put these together on a single string to make wrap-around text appear better).
             String nameValue = token.getStringBalance() + " " + token.getFullName(assetDefinition, token.getTicketCount());
@@ -312,7 +315,7 @@ public class TokenHolder extends BinderViewHolder<TokenCardMeta> implements View
         }
         else
         {
-            String chainName = "Chain: " + (token.tokenInfo.chainId == BuildConfig.MAIN_CHAIN_ID ? "ILGON" : "ILGON Test"); //assetDefinition.getIssuerName(token);
+            String chainName = getString(R.string.chain)+": " + (token.tokenInfo.chainId == BuildConfig.MAIN_CHAIN_ID ? "ILGON" : "ILGON Test");
             String issuerAddress = Utils.formatAddress(token.getAddress());
             boolean onlyMainnetActive = (getContext() instanceof HomeActivity) &&
                     ((HomeActivity) getContext()).onlyMainnetActive();

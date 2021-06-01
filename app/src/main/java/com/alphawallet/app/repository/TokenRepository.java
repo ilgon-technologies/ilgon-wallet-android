@@ -6,8 +6,10 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.dynamicanimation.animation.SpringAnimation;
 
 import com.alphawallet.app.BuildConfig;
+import com.alphawallet.app.C;
 import com.alphawallet.app.entity.ContractLocator;
 import com.alphawallet.app.entity.ContractType;
 import com.alphawallet.app.entity.NetworkInfo;
@@ -30,6 +32,8 @@ import com.alphawallet.app.util.AWEnsResolver;
 import com.alphawallet.app.util.Utils;
 import com.alphawallet.token.entity.MagicLinkData;
 
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.FunctionReturnDecoder;
 import org.web3j.abi.TypeReference;
@@ -70,7 +74,11 @@ import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import io.realm.Realm;
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import static com.alphawallet.app.entity.tokenscript.TokenscriptFunction.ZERO_ADDRESS;
 import static org.web3j.protocol.core.methods.request.Transaction.createEthCallTransaction;
@@ -95,8 +103,14 @@ public class TokenRepository implements TokenRepositoryType {
     private static final int NODE_COMMS_ERROR = -1;
     private static final int CONTRACT_BALANCE_NULL = -2;
 
+    private String stakingAddressMainnet = "0xebE14A98E366196f16529c5E9Ecfea43fbC9940b";
+    private String stakingAddressTestnet = "0x933cdac7b0bD9519C84e8F1F74Be51b07921e596";
+    private String compensationAddressMainnet = "0x2AD237C8a3A2e80c7d08c12fA1B1CfAe697DfA88";
+    private String compensationAddressTestnet = "0x1b06EE9D79209814e4c8f612c7BE25fA942124F6";
+
     private final Map<Integer, Web3j> web3jNodeServers;
     private AWEnsResolver ensResolver;
+    private boolean loadingStakingData = false;
 
     public TokenRepository(
             EthereumNetworkRepositoryType ethereumNetworkRepository,
@@ -112,6 +126,47 @@ public class TokenRepository implements TokenRepositoryType {
         this.tickerService = tickerService;
 
         web3jNodeServers = new ConcurrentHashMap<>();
+        //loadStakingData();
+    }
+
+    private void loadStakingData() {
+        if (loadingStakingData) return;
+
+        loadingStakingData = true;
+        Request request = new Request.Builder()
+                .url(C.STAKING_DATA_URL)
+                .addHeader("Connection","close")
+                .get()
+                .build();
+        okClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+                Log.d("DEBUG", "Staking data loading error!");
+                e.printStackTrace();
+                loadingStakingData = false;
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) {
+                try {
+                    int resultCode = response.code();
+                    if ((resultCode / 100) == 2 && response.body() != null)
+                    {
+                        String responseBody = response.body().string();
+                        JSONObject jsonObject = new JSONObject(responseBody);
+                        JSONObject mainnetObject = jsonObject.getJSONObject("main");
+                        JSONObject testnetObject = jsonObject.getJSONObject("test");
+                        stakingAddressMainnet = mainnetObject.getString("staking");
+                        compensationAddressMainnet = mainnetObject.getString("compensation");
+                        stakingAddressTestnet = testnetObject.getString("staking");
+                        compensationAddressTestnet = testnetObject.getString("compensation");
+                    }
+                } catch (Exception e) {
+                    Log.d("DEBUG", "Staking data load error: "+e.getMessage());
+                }
+                loadingStakingData = false;
+            }
+        });
     }
 
     private void buildWeb3jClient(NetworkInfo networkInfo)
@@ -301,10 +356,6 @@ public class TokenRepository implements TokenRepositoryType {
             BigDecimal       balance      = BigDecimal.ZERO;
             switch (contractType)
             {
-                case ERC875:
-                case ERC875_LEGACY:
-                    balanceArray = checkERC875BalanceArray(wallet, tokenInfo, null);
-                    break;
                 case ERC721_LEGACY:
                 case ERC721:
                     break;
@@ -459,13 +510,17 @@ public class TokenRepository implements TokenRepositoryType {
                     List<BigInteger> balanceArray = null;
                     BigDecimal balance = BigDecimal.valueOf(-1);
                     BigDecimal stakingBalance = BigDecimal.ZERO;
+                    BigDecimal compensationBalance = BigDecimal.ZERO;
                     String currentStakingContractAddress = null;
+                    String currentCompensationContractAddress = null;
                     switch (chainId){
                         case BuildConfig.MAIN_CHAIN_ID:
-                            currentStakingContractAddress = BuildConfig.MAIN_STAKING_CONTRACT_ADDRESS;
+                            currentStakingContractAddress = stakingAddressMainnet;
+                            currentCompensationContractAddress = compensationAddressMainnet;
                             break;
                         case BuildConfig.SECONDARY_CHAIN_ID:
-                            currentStakingContractAddress = BuildConfig.SECONDARY_STAKING_CONTRACT_ADDRESS;
+                            currentStakingContractAddress = stakingAddressTestnet;
+                            currentCompensationContractAddress = compensationAddressTestnet;
                         default:
                             break;
                     }
@@ -474,16 +529,9 @@ public class TokenRepository implements TokenRepositoryType {
                     {
                         case ETHEREUM:
                             balance = getEthBalance(wallet, chainId);
-                            //Date date = new Date();
-                            //This method returns the time in millis
-                            //long timeMilli = date.getTime();
 
                             stakingBalance = getStake(wallet, currentStakingContractAddress, chainId);
-                            //stakingBalance = new BigDecimal(timeMilli);
-                            break;
-                        case ERC875:
-                        case ERC875_LEGACY:
-                            balanceArray = getBalanceArray875(wallet, chainId, tokenAddress);
+                            compensationBalance = getCompensationBalance(wallet, currentCompensationContractAddress, chainId);
                             break;
                         case ERC721_LEGACY:
                         case ERC721:
@@ -508,7 +556,7 @@ public class TokenRepository implements TokenRepositoryType {
 
                     if (!balance.equals(BigDecimal.valueOf(-1)) || balanceArray != null)
                     {
-                        hasBalanceChanged = localSource.updateTokenBalance(wallet, chainId, tokenAddress, balance, balanceArray, type, stakingBalance);
+                        hasBalanceChanged = localSource.updateTokenBalance(wallet, chainId, tokenAddress, balance, balanceArray, type, stakingBalance, compensationBalance);
                     }
 
                     if (type != ContractType.ETHEREUM && wallet.address.equalsIgnoreCase(tokenAddress))
@@ -538,10 +586,12 @@ public class TokenRepository implements TokenRepositoryType {
         TokenInfo tInfo = new TokenInfo("eth", network.name, network.symbol, 18, true, network.chainId);
         BigDecimal balance = getEthBalance(wallet, chainId);
         BigDecimal stake = BigDecimal.ZERO;
+        BigDecimal compensation = BigDecimal.ZERO;
         if (!balance.equals(BigDecimal.valueOf(-1)))
         {
             Token nativeEthBackupToken = tFactory.createToken(tInfo, balance, null, System.currentTimeMillis(), ContractType.ETHEREUM, network.getShortName(), System.currentTimeMillis());
             nativeEthBackupToken.stakingBalance = stake;
+            nativeEthBackupToken.compensationBalance = compensation;
             localSource.updateTokenBalance(network, wallet, nativeEthBackupToken);
         }
 
@@ -579,10 +629,6 @@ public class TokenRepository implements TokenRepositoryType {
                         {
                             Log.d(TAG, "NOT SET: " + token.getFullName());
                         }
-                        break;
-                    case ERC875:
-                    case ERC875_LEGACY:
-                        balanceArray = checkERC875BalanceArray(wallet, tInfo, token);
                         break;
                     case ERC721_LEGACY:
                     case ERC721:
@@ -639,10 +685,32 @@ public class TokenRepository implements TokenRepositoryType {
         return balance;
     }
 
+    private BigDecimal getCompensationBalance(Wallet wallet, String compensationContractAddress, int chainId)
+    {
+        BigDecimal balance = BigDecimal.valueOf(-1);
+
+        try
+        {
+            Function function = stakeOf(wallet.address);
+            NetworkInfo network = ethereumNetworkRepository.getNetworkByChain(chainId);
+            String responseValue = callSmartContractFunction(function, compensationContractAddress, network, wallet);
+            if (!TextUtils.isEmpty(responseValue))
+            {
+                List<Type> response = FunctionReturnDecoder.decode(responseValue, function.getOutputParameters());
+                if (response.size() > 0) balance = new BigDecimal(((Uint256) response.get(0)).getValue());
+            }
+        }
+        catch (Exception e)
+        {
+            Log.e("Exception",""+e.getLocalizedMessage());
+        }
+
+        return balance;
+    }
+
     public BigDecimal getStake(Wallet wallet, String stakingContractAddress, int chainId)
     {
         BigDecimal staking = BigDecimal.valueOf(-1);
-        //Wallet wallet = new Wallet("0x288cb755bD8Ef6aF16602F932Bd020D2C6706608");
 
         try
         {
@@ -742,20 +810,6 @@ public class TokenRepository implements TokenRepositoryType {
         }
     }
 
-    /**
-     * Checks the balance array for an ERC875 token.
-     * The balance function returns a value of NODE_COMMS_ERROR in the first entry if there was a comms error.
-     * In the event of a comms error, just use the previously obtained balance of the token
-     * @param wallet
-     * @param tInfo
-     * @param token
-     * @return
-     */
-    private List<BigInteger> checkERC875BalanceArray(Wallet wallet, TokenInfo tInfo, Token token)
-    {
-        List<BigInteger> balance = getBalanceArray875(wallet, tInfo);
-        return checkBalanceArrayValidity(balance, token);
-    }
 
     // Only works with 721 tickets that have a special getBalances function which returns an array of uint256
     private List<BigInteger> checkERC721TicketBalanceArray(Wallet wallet, TokenInfo tInfo, Token token)
@@ -833,58 +887,6 @@ public class TokenRepository implements TokenRepositoryType {
                 return BigDecimal.valueOf(-1);
             }
         }).subscribeOn(Schedulers.io());
-    }
-
-    private List<BigInteger> getBalanceArray875(Wallet wallet, int chainId, String tokenAddress) {
-        List<BigInteger> result = new ArrayList<>();
-        result.add(BigInteger.valueOf(NODE_COMMS_ERROR));
-        try
-        {
-            Function function = balanceOfArray(wallet.address);
-            NetworkInfo network = ethereumNetworkRepository.getNetworkByChain(chainId);
-            List<Type> indices = callSmartContractFunctionArray(function, tokenAddress, network, wallet);
-            if (indices != null)
-            {
-                result.clear();
-                for (Type val : indices)
-                {
-                    result.add((BigInteger)val.getValue());
-                }
-            }
-        }
-        catch (StringIndexOutOfBoundsException e)
-        {
-            //contract call error
-            result.clear();
-            result.add(BigInteger.valueOf(NODE_COMMS_ERROR));
-        }
-        return result;
-    }
-
-    private List<BigInteger> getBalanceArray875(Wallet wallet, TokenInfo tokenInfo) {
-        List<BigInteger> result = new ArrayList<>();
-        result.add(BigInteger.valueOf(NODE_COMMS_ERROR));
-        try
-        {
-            Function function = balanceOfArray(wallet.address);
-            NetworkInfo network = ethereumNetworkRepository.getNetworkByChain(tokenInfo.chainId);
-            List<Type> indices = callSmartContractFunctionArray(function, tokenInfo.address, network, wallet);
-            if (indices != null)
-            {
-                result.clear();
-                for (Type val : indices)
-                {
-                    result.add((BigInteger)val.getValue());
-                }
-            }
-        }
-        catch (StringIndexOutOfBoundsException e)
-        {
-            //contract call error
-            result.clear();
-            result.add(BigInteger.valueOf(NODE_COMMS_ERROR));
-        }
-        return result;
     }
 
     private List<BigInteger> getBalanceArray721Ticket(Wallet wallet, int chainId, String tokenAddress) {
@@ -1454,13 +1456,6 @@ public class TokenRepository implements TokenRepositoryType {
             case ERC721:
             case ERC721_LEGACY:
             case ERC721_TICKET:
-                return Single.fromCallable(() -> type);
-            case ERC875:
-                //requires additional handling to determine if it's Legacy type, but safe to return ERC875 for now:
-                queryInterfaceSpec(tokenInfo.address, tokenInfo)
-                        .subscribeOn(Schedulers.io())
-                        .subscribe(actualType -> TokensService.setInterfaceSpec(tokenInfo.chainId, tokenInfo.address, actualType)).isDisposed();
-                return Single.fromCallable(() -> type);
             default:
                 return Single.fromCallable(() -> type); //take no further action: possible that this is not a valid token
         }
@@ -1474,11 +1469,7 @@ public class TokenRepository implements TokenRepositoryType {
         {
             int responseLength = balanceResponse.length();
 
-            if (isERC875 || (responseLength > 66))
-            {
-                returnType = ContractType.ERC875;
-            }
-            else if (balanceResponse.length() == 66) //expected biginteger size in hex + 0x
+            if (balanceResponse.length() == 66) //expected biginteger size in hex + 0x
             {
                 returnType = ContractType.ERC20;
             }

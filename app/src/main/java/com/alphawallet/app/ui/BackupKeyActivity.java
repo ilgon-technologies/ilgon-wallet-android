@@ -15,6 +15,7 @@ import androidx.core.content.res.ResourcesCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -35,6 +36,7 @@ import com.alphawallet.app.entity.StandardFunctionInterface;
 import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.WalletType;
 import com.alphawallet.app.service.KeyService;
+import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.util.Utils;
 import com.alphawallet.app.viewmodel.BackupKeyViewModel;
 import com.alphawallet.app.viewmodel.BackupKeyViewModelFactory;
@@ -93,6 +95,7 @@ public class BackupKeyActivity extends BaseActivity implements
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
+        LocaleUtils.setActiveLocale(this);
         secureWindow();
 
         alertDialog = null;
@@ -346,7 +349,7 @@ public class BackupKeyActivity extends BaseActivity implements
     @Override
     public void onPause() {
         super.onPause();
-
+        if (isFinishing()) return;
         viewModel.resetSignDialog();
         //hide seed phrase and any visible words
         if (layoutWordHolder != null) layoutWordHolder.removeAllViews();

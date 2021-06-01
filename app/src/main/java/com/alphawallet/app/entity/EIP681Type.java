@@ -11,6 +11,5 @@ public enum EIP681Type
     TRANSFER,
     FUNCTION_CALL,
     URL,
-    MAGIC_LINK,
     OTHER
 }

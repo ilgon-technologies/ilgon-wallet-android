@@ -12,8 +12,6 @@ public enum ContractType
     ETHEREUM,
     ERC20,
     ERC721,
-    ERC875_LEGACY,
-    ERC875,
     OTHER,
     CURRENCY,
     DELETED_ACCOUNT,

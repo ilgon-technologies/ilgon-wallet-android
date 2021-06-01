@@ -70,11 +70,6 @@ public class FunctionData
         return (contractType.contains(ERC20));
     }
 
-    public boolean isERC875()
-    {
-        return (contractType.contains(ERC875) || contractType.contains(ERC875_LEGACY));
-    }
-
     public boolean isConstructor()
     {
         return (contractType.contains(CREATION));

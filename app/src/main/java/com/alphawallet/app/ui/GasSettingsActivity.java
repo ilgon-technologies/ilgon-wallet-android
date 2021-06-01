@@ -31,6 +31,7 @@ import com.alphawallet.app.ui.widget.divider.ListDivider;
 import com.alphawallet.app.ui.widget.entity.GasSettingsCallback;
 import com.alphawallet.app.ui.widget.entity.GasSpeed;
 import com.alphawallet.app.util.BalanceUtils;
+import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.util.Utils;
 import com.alphawallet.app.viewmodel.GasSettingsViewModel;
 import com.alphawallet.app.viewmodel.GasSettingsViewModelFactory;
@@ -80,7 +81,7 @@ public class GasSettingsActivity extends BaseActivity implements GasSettingsCall
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
-
+        LocaleUtils.setActiveLocale(this);
         setContentView(R.layout.activity_gas_settings);
         toolbar();
         setTitle(R.string.set_speed_title);

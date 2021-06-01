@@ -121,6 +121,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.SignatureException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -148,7 +149,7 @@ import static org.web3j.protocol.core.methods.request.Transaction.createEthCallT
 
 public class DappBrowserFragment extends Fragment implements OnSignTransactionListener, OnSignPersonalMessageListener, OnSignTypedMessageListener, OnSignMessageListener,
         OnEthCallListener, URLLoadInterface, ItemClickListener, OnDappClickListener, OnDappHomeNavClickListener, OnHistoryItemRemovedListener, DappBrowserSwipeInterface, SignAuthenticationCallback,
-        ActionSheetCallback
+        ActionSheetCallback, BrowserHistoryFragment.OnHistoryClearedListener
 {
     private static final String TAG = DappBrowserFragment.class.getSimpleName();
     private static final String DAPP_BROWSER = "DAPP_BROWSER";
@@ -269,14 +270,17 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
             String url = getArguments().getString("url");
             loadOnInit = url;
         } else {
-            String lastUrl = PreferenceManager.getDefaultSharedPreferences(getContext()).getString(CURRENT_URL, "");
+            /*String lastUrl = PreferenceManager.getDefaultSharedPreferences(getContext()).getString(CURRENT_URL, "");
             if (savedInstanceState != null)
             {
                 lastUrl = savedInstanceState.getString(CURRENT_URL, "");
             }
 
             attachFragment(DAPP_BROWSER);
-            loadOnInit = TextUtils.isEmpty(lastUrl) ? EthereumNetworkRepository.defaultDapp() : lastUrl;
+            if (lastUrl.contains("alphawallet")) {
+                lastUrl = "";
+            }*/
+            loadOnInit = EthereumNetworkRepository.defaultDapp();//TextUtils.isEmpty(lastUrl) ? EthereumNetworkRepository.defaultDapp() : lastUrl;
         }
 
         return view;
@@ -295,7 +299,7 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
                     ((MyDappsFragment) fragment).setCallbacks(this);
                     break;
                 case HISTORY:
-                    ((BrowserHistoryFragment) fragment).setCallbacks(this, this);
+                    ((BrowserHistoryFragment) fragment).setCallbacks(this, this, this);
                     break;
                 case DAPP_BROWSER:
                     break;
@@ -415,7 +419,12 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
 
     @Override
     public void onHistoryItemRemoved(DApp dApp) {
-        adapter.removeSuggestion(dApp);
+        adapter.removeSuggestion(dApp, true);
+    }
+
+    @Override
+    public void onHistoryCleared(List<DApp> formerList) {
+        adapter.clearHistory(formerList);
     }
 
     @Override
@@ -919,11 +928,11 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
         return true;
     }
 
-    public void setCurrentGasIndex(int gasSelectionIndex, BigDecimal customGasPrice, BigDecimal customGasLimit, long expectedTxTime, long customNonce)
+    public void setCurrentGasIndex(int gasSelectionIndex, BigDecimal customGasLimit, long expectedTxTime, long customNonce)
     {
         if (confirmationDialog != null && confirmationDialog.isShowing())
         {
-            confirmationDialog.setCurrentGasIndex(gasSelectionIndex, customGasPrice, customGasLimit, expectedTxTime, customNonce);
+            confirmationDialog.setCurrentGasIndex(gasSelectionIndex, viewModel.getGasPrice(), customGasLimit, expectedTxTime, customNonce);
         }
     }
 
@@ -1332,7 +1341,6 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
         detachFragments();
         addToBackStack(DAPP_BROWSER);
         cancelSearchSession();
-        if (checkForMagicLink(urlText)) return true;
         web3.loadUrl(Utils.formatUrl(urlText), getWeb3Headers());
         urlTv.setText(Utils.formatUrl(urlText));
         web3.requestFocus();
@@ -1411,7 +1419,7 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
         if (getActivity() == null) return;
         if (resultCode == RESULT_OK)
         {
-            int networkId = data.getIntExtra(C.EXTRA_CHAIN_ID, 1); //default to mainnet in case of trouble
+            int networkId = data.getIntExtra(C.EXTRA_CHAIN_ID, BuildConfig.MAIN_CHAIN_ID); //default to mainnet in case of trouble
             if (networkInfo.chainId != networkId)
             {
                 balance.setVisibility(View.GONE);
@@ -1434,7 +1442,7 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
                     if (data != null)
                     {
                         qrCode = data.getStringExtra(FullScannerFragment.BarcodeObject);
-                        if (qrCode == null || checkForMagicLink(qrCode)) return;
+                        if (qrCode == null) return;
                         QRParser parser = QRParser.getInstance(EthereumNetworkBase.extraChains());
                         QRResult result = parser.parse(qrCode);
                         switch (result.type)
@@ -1514,26 +1522,6 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
             clipboard.setPrimaryClip(clip);
         }
         Toast.makeText(getActivity(), R.string.copied_to_clipboard, Toast.LENGTH_SHORT).show();
-    }
-
-    private boolean checkForMagicLink(String data)
-    {
-        try
-        {
-            ParseMagicLink parser = new ParseMagicLink(new CryptoFunctions(), EthereumNetworkRepository.extraChains());
-            if (parser.parseUniversalLink(data).chainId > 0) //see if it's a valid link
-            {
-                //handle magic link import
-                viewModel.showImportLink(getActivity(), data);
-                return true;
-            }
-        }
-        catch (SalesOrderMalformed e)
-        {
-            //
-        }
-
-        return false;
     }
 
     @Override
@@ -1763,9 +1751,7 @@ public class DappBrowserFragment extends Fragment implements OnSignTransactionLi
 
     @Override
     public void notifyConfirm(String mode)
-    {
-        if (getActivity() != null) ((HomeActivity)getActivity()).useActionSheet(mode);
-    }
+    {}
 
     public void softKeyboardVisible()
     {

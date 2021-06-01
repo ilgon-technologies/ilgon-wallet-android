@@ -2,7 +2,7 @@ package com.alphawallet.app.ui;
 
 
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
+
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
@@ -16,7 +16,6 @@ import com.alphawallet.app.entity.StandardFunctionInterface;
 import com.alphawallet.app.repository.EthereumNetworkRepository;
 import com.alphawallet.app.viewmodel.GasSettingsViewModel;
 import com.alphawallet.app.viewmodel.GasSettingsViewModelFactory;
-import com.alphawallet.app.viewmodel.TokenFunctionViewModel;
 import com.alphawallet.app.widget.FunctionButtonBar;
 import com.alphawallet.app.widget.GasSliderViewLegacy;
 import com.alphawallet.token.tools.Convert;

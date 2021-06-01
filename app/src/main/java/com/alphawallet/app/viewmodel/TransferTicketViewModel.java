@@ -98,11 +98,6 @@ public class TransferTicketViewModel extends BaseViewModel {
         fetchCurrentTicketBalance();
     }
 
-    public void openSellDialog(Context context, String ticketIDs)
-    {
-        transferTicketDetailRouter.open(context, token.getValue(), ticketIDs, defaultWallet.getValue());
-    }
-
     public void openTransferDirectDialog(Context context, String tokenId)
     {
         transferTicketDetailRouter.openTransfer(context, token.getValue(), tokenId, defaultWallet.getValue(), TRANSFER_TO_ADDRESS.ordinal());

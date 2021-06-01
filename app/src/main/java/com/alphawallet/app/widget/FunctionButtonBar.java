@@ -27,14 +27,11 @@ import androidx.core.content.ContextCompat;
 import com.alphawallet.app.BuildConfig;
 import com.alphawallet.app.C;
 import com.alphawallet.app.R;
-import com.alphawallet.app.entity.BuyCryptoInterface;
 import com.alphawallet.app.entity.ItemClick;
-import com.alphawallet.app.entity.OnRampContract;
 import com.alphawallet.app.entity.StandardFunctionInterface;
 import com.alphawallet.app.entity.WalletType;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.repository.EthereumNetworkBase;
-import com.alphawallet.app.repository.OnRampRepositoryType;
 import com.alphawallet.app.service.AssetDefinitionService;
 import com.alphawallet.app.ui.widget.OnTokenClickListener;
 import com.alphawallet.app.ui.widget.adapter.NonFungibleTokenAdapter;
@@ -63,7 +60,6 @@ public class FunctionButtonBar extends LinearLayout implements AdapterView.OnIte
     private NonFungibleTokenAdapter adapter;
     private List<BigInteger> selection = new ArrayList<>();
     private StandardFunctionInterface callStandardFunctions;
-    private BuyCryptoInterface buyFunctionInterface;
     private int buttonCount;
     private Token token = null;
     private boolean showButtons = false;
@@ -80,9 +76,6 @@ public class FunctionButtonBar extends LinearLayout implements AdapterView.OnIte
     private List<ItemClick> moreActionsList;
     private FunctionItemAdapter moreActionsAdapter;
     private final Semaphore functionMapComplete = new Semaphore(1);
-
-    private final boolean hasBuyFunction = false;
-    private OnRampRepositoryType onRampRepository;
 
     public FunctionButtonBar(Context ctx, @Nullable AttributeSet attrs) {
         super(ctx, attrs);
@@ -197,12 +190,6 @@ public class FunctionButtonBar extends LinearLayout implements AdapterView.OnIte
                 addFunction(R.string.action_use);
                 addFunction(R.string.action_transfer);
                 break;
-            case ERC875:
-            case ERC875_LEGACY:
-                addFunction(R.string.action_use);
-                addFunction(R.string.action_transfer);
-                addFunction(R.string.action_sell);
-                break;
             default:
                 addFunction(R.string.action_receive);
                 break;
@@ -230,10 +217,6 @@ public class FunctionButtonBar extends LinearLayout implements AdapterView.OnIte
         {
             handleUseClick(action);
         }
-        else if (action.buttonId == R.string.action_buy_crypto)
-        {
-            buyFunctionInterface.handleBuyFunction(token);
-        }
         else
         {
             handleStandardFunctionClick(action);
@@ -241,11 +224,7 @@ public class FunctionButtonBar extends LinearLayout implements AdapterView.OnIte
     }
 
     private void handleStandardFunctionClick(ItemClick action) {
-        if (action.buttonId == R.string.action_sell)
-        {
-            if (isSelectionValid(action.buttonId)) callStandardFunctions.sellTicketRouter(selection);
-        }
-        else if (action.buttonId == R.string.action_send)
+        if (action.buttonId == R.string.action_send)
         {
             callStandardFunctions.showSend();
         }
@@ -256,10 +235,6 @@ public class FunctionButtonBar extends LinearLayout implements AdapterView.OnIte
         else if (action.buttonId == R.string.action_transfer)
         {
             if (isSelectionValid(action.buttonId)) callStandardFunctions.showTransferToken(selection);
-        }
-        else if (action.buttonId == R.string.action_use)
-        {
-            if (isSelectionValid(action.buttonId)) callStandardFunctions.selectRedeemTokens(selection);
         }
         else
         {
@@ -559,12 +534,6 @@ public class FunctionButtonBar extends LinearLayout implements AdapterView.OnIte
             functions = null;
         }
 
-        //Add buy function
-        if (hasBuyFunction)
-        {
-            addBuyFunction();
-        }
-
         //now add the standard functions for NonFungibles
         if (token.isNonFungible())
         {
@@ -688,27 +657,4 @@ public class FunctionButtonBar extends LinearLayout implements AdapterView.OnIte
         }
     }
 
-    public void setupBuyFunction(BuyCryptoInterface buyCryptoInterface, OnRampRepositoryType onRampRepository)
-    {
-        //this.hasBuyFunction = true;
-        //this.buyFunctionInterface = buyCryptoInterface;
-        //this.onRampRepository = onRampRepository;
-    }
-
-    private void addBuyFunction()
-    {
-        switch (token.tokenInfo.chainId)
-        {
-            case EthereumNetworkBase.MAINNET_ID:
-            case EthereumNetworkBase.XDAI_ID:
-                addPurchaseVerb(token, onRampRepository);
-        }
-    }
-
-    private void addPurchaseVerb(Token token, OnRampRepositoryType onRampRepository)
-    {
-        OnRampContract contract = onRampRepository.getContract(token);
-        String symbol = contract.getSymbol().isEmpty()? context.getString(R.string.crypto) : token.tokenInfo.symbol;
-        addFunction(new ItemClick(context.getString(R.string.action_buy_crypto, symbol), R.string.action_buy_crypto));
-    }
 }

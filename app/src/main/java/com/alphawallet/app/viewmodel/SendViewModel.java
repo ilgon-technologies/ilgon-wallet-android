@@ -2,14 +2,9 @@ package com.alphawallet.app.viewmodel;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.alphawallet.app.C;
-import com.alphawallet.app.entity.AnalyticsProperties;
-import com.alphawallet.app.entity.ErrorEnvelope;
 import com.alphawallet.app.entity.NetworkInfo;
 import com.alphawallet.app.entity.SignAuthenticationCallback;
 import com.alphawallet.app.entity.TransactionData;
@@ -22,15 +17,11 @@ import com.alphawallet.app.interact.FetchTransactionsInteract;
 import com.alphawallet.app.repository.EthereumNetworkRepositoryType;
 import com.alphawallet.app.repository.TokenRepository;
 import com.alphawallet.app.router.MyAddressRouter;
-import com.alphawallet.app.service.AnalyticsServiceType;
 import com.alphawallet.app.service.AssetDefinitionService;
 import com.alphawallet.app.service.GasService;
-import com.alphawallet.app.service.GasService2;
 import com.alphawallet.app.service.KeyService;
 import com.alphawallet.app.service.TokensService;
-import com.alphawallet.app.ui.ImportTokenActivity;
 import com.alphawallet.app.web3.entity.Web3Transaction;
-import com.alphawallet.token.tools.Numeric;
 
 import org.web3j.protocol.core.methods.response.EthEstimateGas;
 
@@ -55,7 +46,6 @@ public class SendViewModel extends BaseViewModel {
     private final AssetDefinitionService assetDefinitionService;
     private final KeyService keyService;
     private final CreateTransactionInteract createTransactionInteract;
-    private final AnalyticsServiceType analyticsService;
 
     public SendViewModel(MyAddressRouter myAddressRouter,
                          EthereumNetworkRepositoryType ethereumNetworkRepositoryType,
@@ -65,8 +55,7 @@ public class SendViewModel extends BaseViewModel {
                          CreateTransactionInteract createTransactionInteract,
                          GasService gasService,
                          AssetDefinitionService assetDefinitionService,
-                         KeyService keyService,
-                         AnalyticsServiceType analyticsService)
+                         KeyService keyService)
     {
         this.myAddressRouter = myAddressRouter;
         this.networkRepository = ethereumNetworkRepositoryType;
@@ -77,7 +66,6 @@ public class SendViewModel extends BaseViewModel {
         this.assetDefinitionService = assetDefinitionService;
         this.keyService = keyService;
         this.createTransactionInteract = createTransactionInteract;
-        this.analyticsService = analyticsService;
     }
 
     public MutableLiveData<TransactionData> transactionFinalised()
@@ -98,13 +86,6 @@ public class SendViewModel extends BaseViewModel {
 
     public Token getToken(int chainId, String tokenAddress) { return tokensService.getToken(chainId, tokenAddress); };
 
-    public void showImportLink(Context context, String importTxt)
-    {
-        Intent intent = new Intent(context, ImportTokenActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        intent.putExtra(C.IMPORT_STRING, importTxt);
-        context.startActivity(intent);
-    }
 
     public void fetchToken(int chainId, String address, String walletAddress)
     {
@@ -133,9 +114,14 @@ public class SendViewModel extends BaseViewModel {
         return tokensService;
     }
 
-    public void startGasCycle(int chainId)
+    public void fetchGasPrice(int chainId)
     {
-        //gasService.startGasPriceCycle(chainId);
+        gasService.fetchGasPriceForChain(chainId);
+    }
+
+    public BigInteger getGasPrice()
+    {
+        return gasService.getGasPrice();
     }
 
     public void onDestroy()
@@ -177,10 +163,5 @@ public class SendViewModel extends BaseViewModel {
     }
 
     public void actionSheetConfirm(String mode)
-    {
-        AnalyticsProperties analyticsProperties = new AnalyticsProperties();
-        analyticsProperties.setData(mode);
-
-        analyticsService.track(C.AN_CALL_ACTIONSHEET, analyticsProperties);
-    }
+    { }
 }

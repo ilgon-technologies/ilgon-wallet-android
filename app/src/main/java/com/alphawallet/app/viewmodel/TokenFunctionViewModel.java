@@ -32,8 +32,6 @@ import com.alphawallet.app.ui.ConfirmationActivity;
 import com.alphawallet.app.ui.Erc20DetailActivity;
 import com.alphawallet.app.ui.FunctionActivity;
 import com.alphawallet.app.ui.MyAddressActivity;
-import com.alphawallet.app.ui.RedeemAssetSelectActivity;
-import com.alphawallet.app.ui.SellDetailActivity;
 import com.alphawallet.app.ui.TransactionDetailActivity;
 import com.alphawallet.app.ui.TransferTicketDetailActivity;
 import com.alphawallet.app.ui.widget.entity.TicketRangeParcel;
@@ -85,7 +83,6 @@ public class TokenFunctionViewModel extends BaseViewModel
     private final MutableLiveData<Token> insufficientFunds = new MutableLiveData<>();
     private final MutableLiveData<String> invalidAddress = new MutableLiveData<>();
     private final MutableLiveData<XMLDsigDescriptor> sig = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> newScriptFound = new MutableLiveData<>();
     private final MutableLiveData<Wallet> walletUpdate = new MutableLiveData<>();
 
     TokenFunctionViewModel(
@@ -118,32 +115,17 @@ public class TokenFunctionViewModel extends BaseViewModel
     public LiveData<String> invalidAddress() { return invalidAddress; }
     public LiveData<XMLDsigDescriptor> sig() { return sig; }
     public LiveData<Wallet> walletUpdate() { return walletUpdate; }
-    public LiveData<Boolean> newScriptFound() { return newScriptFound; }
-
     public void prepare()
     {
         getCurrentWallet();
     }
 
     public void openUniversalLink(Context context, Token token, List<BigInteger> selection) {
-        Intent intent = new Intent(context, SellDetailActivity.class);
-        intent.putExtra(C.Key.WALLET, wallet);
-        intent.putExtra(C.Key.TICKET, token);
-        intent.putExtra(C.EXTRA_TOKENID_LIST, token.bigIntListToString(selection, false));
-        intent.putExtra(C.EXTRA_STATE, SellDetailActivity.SET_A_PRICE);
-        intent.putExtra(C.EXTRA_PRICE, 0);
-        intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-        context.startActivity(intent);
     }
 
     @Override
     protected void onCleared() {
         super.onCleared();
-    }
-
-    public void startGasPriceUpdate(int chainId)
-    {
-        gasService.startGasListener(chainId);
     }
 
     public void showTransferToken(Context ctx, Token token, List<BigInteger> selection)
@@ -274,21 +256,6 @@ public class TokenFunctionViewModel extends BaseViewModel
         return tokensService.getToken(chainId, contractAddress);
     }
 
-    public void selectRedeemToken(Context ctx, Token token, List<BigInteger> idList)
-    {
-        TicketRangeParcel parcel = new TicketRangeParcel(new TicketRange(idList, token.getAddress(), true));
-        Intent intent = new Intent(ctx, RedeemAssetSelectActivity.class);
-        intent.putExtra(C.Key.TICKET, token);
-        intent.putExtra(C.Key.TICKET_RANGE, parcel);
-        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        ctx.startActivity(intent);
-    }
-
-    public void stopGasSettingsFetch()
-    {
-        gasService.stopGasListener();
-    }
-
     public void getAuthorisation(Activity activity, SignAuthenticationCallback callback)
     {
         keyService.getAuthenticationForSignature(wallet, activity, callback);
@@ -334,27 +301,6 @@ public class TokenFunctionViewModel extends BaseViewModel
         intent.putExtra(C.EXTRA_TOKEN_ID, token);
         intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         ctx.startActivity(intent);
-    }
-
-    public void selectRedeemTokens(Context ctx, Token token, List<BigInteger> idList)
-    {
-        TicketRangeParcel parcel = new TicketRangeParcel(new TicketRange(idList, token.getAddress(), true));
-        Intent intent = new Intent(ctx, RedeemAssetSelectActivity.class);
-        intent.putExtra(C.Key.TICKET, token);
-        intent.putExtra(C.Key.TICKET_RANGE, parcel);
-        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        ctx.startActivity(intent);
-    }
-
-    public void sellTicketRouter(Context context, Token token, List<BigInteger> idList) {
-        Intent intent = new Intent(context, SellDetailActivity.class);
-        intent.putExtra(C.Key.WALLET, wallet);
-        intent.putExtra(C.Key.TICKET, token);
-        intent.putExtra(C.EXTRA_TOKENID_LIST, token.bigIntListToString(idList, false));
-        intent.putExtra(C.EXTRA_STATE, SellDetailActivity.SET_A_PRICE);
-        intent.putExtra(C.EXTRA_PRICE, 0);
-        intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-        context.startActivity(intent);
     }
 
     public boolean handleFunction(TSAction action, BigInteger tokenId, Token token, Context context)
@@ -462,21 +408,6 @@ public class TokenFunctionViewModel extends BaseViewModel
     {
         assetDefinitionService.storeTokenViewHeight(token.tokenInfo.chainId, token.getAddress(), itemViewHeight)
                 .isDisposed();
-    }
-
-    public void checkForNewScript(Token token)
-    {
-        //check server for new tokenscript
-        assetDefinitionService.checkServerForScript(token.tokenInfo.chainId, token.getAddress())
-                .observeOn(Schedulers.io())
-                .subscribeOn(Schedulers.single())
-                .subscribe(this::handleDefinition, this::onError)
-                .isDisposed();
-    }
-
-    private void handleDefinition(TokenDefinition td)
-    {
-        if (!TextUtils.isEmpty(td.holdingToken)) newScriptFound.postValue(true);
     }
 
     public boolean isAuthorizeToFunction()

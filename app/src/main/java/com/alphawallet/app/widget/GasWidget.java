@@ -4,11 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
-import android.text.format.DateUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -17,37 +14,22 @@ import com.alphawallet.app.R;
 import com.alphawallet.app.entity.GasPriceSpread;
 import com.alphawallet.app.entity.StandardFunctionInterface;
 import com.alphawallet.app.entity.tokens.Token;
-import com.alphawallet.app.repository.TokensRealmSource;
 import com.alphawallet.app.repository.entity.RealmGasSpread;
-import com.alphawallet.app.repository.entity.RealmTokenTicker;
 import com.alphawallet.app.service.GasService;
-import com.alphawallet.app.service.GasService2;
-import com.alphawallet.app.service.TickerService;
 import com.alphawallet.app.service.TokensService;
 import com.alphawallet.app.ui.GasSettingsActivity;
 import com.alphawallet.app.ui.widget.entity.GasSpeed;
 import com.alphawallet.app.util.BalanceUtils;
-import com.alphawallet.app.util.Utils;
 import com.alphawallet.app.web3.entity.Web3Transaction;
-import com.google.api.Distribution;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.realm.Realm;
-import io.realm.RealmQuery;
-import io.realm.Sort;
-
 import static com.alphawallet.app.C.DEFAULT_GAS_LIMIT;
-import static com.alphawallet.app.C.DEFAULT_GAS_LIMIT_FOR_END_CONTRACT;
 import static com.alphawallet.app.C.DEFAULT_GAS_PRICE;
-import static com.alphawallet.app.C.DEFAULT_UNKNOWN_FUNCTION_GAS_LIMIT;
-import static com.alphawallet.app.C.GAS_LIMIT_DEFAULT;
 import static com.alphawallet.app.C.GAS_LIMIT_MIN;
-import static com.alphawallet.app.C.GAS_PRICE_DEFAULT;
-import static com.alphawallet.app.repository.EthereumNetworkBase.MAINNET_ID;
 
 /**
  * Created by JB on 19/11/2020.
@@ -124,7 +106,7 @@ public class GasWidget extends LinearLayout implements Runnable
 
         if (tx.gasLimit.equals(BigInteger.ZERO)) //dapp didn't specify a limit, use default limits until node returns an estimate (see setGasEstimate())
         {
-            baseLineGasLimit = new BigInteger(DEFAULT_GAS_LIMIT);//GasService2.getDefaultGasLimit(token, tx);
+            baseLineGasLimit = GasService.getDefaultGasLimit(token, tx);
         }
         else
         {
@@ -196,7 +178,7 @@ public class GasWidget extends LinearLayout implements Runnable
      * @param expectedTxTime
      * @param nonce
      */
-    public void setCurrentGasIndex(int gasSelectionIndex, BigDecimal customGasPrice, BigDecimal customGasLimit, long expectedTxTime, long nonce)
+    public void setCurrentGasIndex(int gasSelectionIndex, BigInteger customGasPrice, BigDecimal customGasLimit, long expectedTxTime, long nonce)
     {
         currentGasSpeedIndex = gasSelectionIndex;
         customNonce = nonce;
@@ -205,17 +187,17 @@ public class GasWidget extends LinearLayout implements Runnable
         handler.post(this);
     }
 
-    private void handleCustomGas(BigDecimal customGasPrice, BigDecimal custGasLimit, long expectedTxTime)
+    private void handleCustomGas(BigInteger customGasPrice, BigDecimal custGasLimit, long expectedTxTime)
     {
         if (currentGasSpeedIndex >= gasSpeeds.size())
         {
-            setupGasSpeeds(customGasPrice.toBigInteger());
+            setupGasSpeeds(customGasPrice);
         }
 
         GasSpeed gs = gasSpeeds.get(currentGasSpeedIndex);
         if (gs.isCustom)
         {
-            gs = buildCustomGasElement(customGasPrice.toBigInteger(), expectedTxTime);
+            gs = buildCustomGasElement(customGasPrice, expectedTxTime);
             gasSpeeds.remove(currentGasSpeedIndex);
             gasSpeeds.add(gs);
             customGasLimit = custGasLimit.toBigInteger();
@@ -223,7 +205,6 @@ public class GasWidget extends LinearLayout implements Runnable
         }
 
         adjustedValue = calculateSendAllValue();
-        tokensService.track(gs.speed);
     }
 
     public boolean checkSufficientGas()

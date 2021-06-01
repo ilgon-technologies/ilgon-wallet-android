@@ -16,6 +16,7 @@ import com.alphawallet.app.ui.widget.OnHistoryItemRemovedListener;
 import com.alphawallet.app.ui.widget.adapter.BrowserHistoryAdapter;
 import com.alphawallet.app.util.DappBrowserUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.alphawallet.app.R;
@@ -27,14 +28,17 @@ public class BrowserHistoryFragment extends Fragment {
     private BrowserHistoryAdapter adapter;
     private OnDappClickListener onDappClickListener;
     private OnHistoryItemRemovedListener onHistoryItemRemovedListener;
+    private OnHistoryClearedListener onHistoryClearedListener;
     private AWalletAlertDialog dialog;
     private TextView clear;
     private TextView noHistory;
 
     void setCallbacks(OnDappClickListener onDappClickListener,
-                      OnHistoryItemRemovedListener onHistoryItemRemovedListener) {
+                      OnHistoryItemRemovedListener onHistoryItemRemovedListener,
+                      OnHistoryClearedListener onHistoryClearedListener) {
         this.onDappClickListener = onDappClickListener;
         this.onHistoryItemRemovedListener = onHistoryItemRemovedListener;
+        this.onHistoryClearedListener = onHistoryClearedListener;
     }
 
     @Nullable
@@ -82,9 +86,13 @@ public class BrowserHistoryFragment extends Fragment {
     }
 
     private void clearHistory() {
+        List<DApp> formerList = new ArrayList<>(adapter.getDappList());
         DappBrowserUtils.clearHistory(getContext());
         adapter.setDapps(getData());
         showOrHideViews();
+        if (onHistoryClearedListener != null) {
+            onHistoryClearedListener.onHistoryCleared(formerList);
+        }
     }
 
     private void onHistoryItemRemoved(DApp dapp) {
@@ -96,5 +104,9 @@ public class BrowserHistoryFragment extends Fragment {
 
     private List<DApp> getData() {
         return DappBrowserUtils.getBrowserHistory(getContext());
+    }
+
+    public interface OnHistoryClearedListener {
+        void onHistoryCleared(List<DApp> formerList);
     }
 }

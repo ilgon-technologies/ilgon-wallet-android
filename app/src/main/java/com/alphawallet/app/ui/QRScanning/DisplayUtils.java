@@ -3,6 +3,7 @@ package com.alphawallet.app.ui.QRScanning;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Point;
+import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.WindowManager;
 
@@ -12,25 +13,21 @@ public class DisplayUtils
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         Point screenResolution = new Point();
-        if (android.os.Build.VERSION.SDK_INT >= 13) {
-            display.getSize(screenResolution);
-        } else {
-            screenResolution.set(display.getWidth(), display.getHeight());
-        }
-
+        display.getSize(screenResolution);
         return screenResolution;
     }
 
     public static int getScreenOrientation(Context context)
     {
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        Display display = wm.getDefaultDisplay();
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(displayMetrics);
 
         int orientation = Configuration.ORIENTATION_UNDEFINED;
-        if(display.getWidth()==display.getHeight()){
+        if(displayMetrics.widthPixels==displayMetrics.heightPixels){
             orientation = Configuration.ORIENTATION_SQUARE;
         } else{
-            if(display.getWidth() < display.getHeight()){
+            if(displayMetrics.widthPixels < displayMetrics.heightPixels){
                 orientation = Configuration.ORIENTATION_PORTRAIT;
             }else {
                 orientation = Configuration.ORIENTATION_LANDSCAPE;

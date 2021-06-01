@@ -1,17 +1,34 @@
 package com.alphawallet.app.ui;
 
+import android.annotation.SuppressLint;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
+import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import com.alphawallet.app.R;
+import com.alphawallet.app.ui.zxing.QRScanningActivity;
 import com.alphawallet.app.viewmodel.BaseViewModel;
 
 public abstract class BaseActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (!(this instanceof QRScanningActivity)) lockOrientation();
+    }
+
+    @SuppressLint("SourceLockedOrientationActivity")
+    private void lockOrientation() {
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
+
 
     protected Toolbar toolbar() {
         Toolbar toolbar = findViewById(R.id.toolbar);

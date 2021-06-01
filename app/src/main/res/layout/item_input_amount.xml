@@ -89,7 +89,6 @@
                 tools:text="ETH"/>
 
                 <ImageView
-                    android:id="@+id/expand_more"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -100,7 +99,6 @@
             </LinearLayout>
 
             <ProgressBar
-                android:id="@+id/gas_fetch_progress"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:paddingBottom="@dimen/dp8"
@@ -190,11 +188,11 @@
             android:fontFamily="@font/font_semibold"
             android:textColor="@color/ilgoin_button_primary_color"
             android:textSize="@dimen/sp17"
-            android:text="Send All"
+            android:text="@string/send_all"
             android:lines="1"
             android:visibility="visible" />
         <com.google.android.material.switchmaterial.SwitchMaterial
-            style="@style/SettingsItemSwitchAppearance"
+            android:theme="@style/SettingsItemSwitchAppearance"
             android:id="@+id/deduct_tx_fee"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -203,7 +201,7 @@
             android:fontFamily="@font/font_semibold"
             android:textColor="@color/ilgoin_button_primary_color"
             android:textSize="@dimen/sp17"
-            android:text="Deduct with TX fee"
+            android:text="@string/deductWithTxFee"
             android:lines="1"
             android:visibility="visible" />
     </LinearLayout>

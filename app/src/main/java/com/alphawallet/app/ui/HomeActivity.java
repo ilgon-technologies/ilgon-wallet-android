@@ -12,6 +12,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -85,6 +87,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -156,12 +159,6 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         Log.d("LIFE", "AlphaWallet into background");
         ((WalletFragment) walletFragment).walletOutOfFocus();
         if (viewModel != null) viewModel.stopTransactionUpdate();
-    }
-
-    @Override
-    protected void attachBaseContext(Context base)
-    {
-        super.attachBaseContext(base);
     }
 
     @Override
@@ -396,6 +393,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         super.onResume();
         viewModel.prepare();
         viewModel.getWalletName();
+        viewModel.fetchGasPrice();
         viewModel.setErrorCallback(this);
         if (homeReceiver == null)
         {
@@ -404,35 +402,6 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
         checkRoot();
         initViews();
 
-        //check clipboard
-        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        try
-        {
-            if (clipboard != null && clipboard.getPrimaryClip() != null)
-            {
-                ClipData.Item clipItem = clipboard.getPrimaryClip().getItemAt(0);
-                if (clipItem != null)
-                {
-                    CharSequence clipText = clipItem.getText();
-                    if (clipText != null && clipText.length() > 60 && clipText.length() < 400)
-                    {
-                        ParseMagicLink parser = new ParseMagicLink(new CryptoFunctions(), EthereumNetworkRepository.extraChains());
-                        if (parser.parseUniversalLink(clipText.toString()).chainId > 0) //see if it's a valid link
-                        {
-                            //valid link, remove from clipboard
-                            ClipData clipData = ClipData.newPlainText("", "");
-                            clipboard.setPrimaryClip(clipData);
-                            //let's try to import the link
-                            viewModel.showImportLink(this, clipText.toString());
-                        }
-                    }
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }
         if (!TransactionsBgService.hasSavedWalletsData(getApplicationContext())) {
             viewModel.saveInitialWalletAddresses();
         }
@@ -543,7 +512,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
             case DAPP_BROWSER:
             {
                 hideToolbar();
-                viewPager.setCurrentItem(DAPP_BROWSER.ordinal());
+                viewPager.setCurrentItem(DAPP_BROWSER.ordinal(), false);
                 setTitle(getString(R.string.toolbar_header_browser));
                 selectNavigationItem(DAPP_BROWSER);
                 enableDisplayHomeAsHome(true);
@@ -553,7 +522,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
             case WALLET:
             {
                 showToolbar();
-                viewPager.setCurrentItem(WALLET.ordinal());
+                viewPager.setCurrentItem(WALLET.ordinal(), false);
                 if (walletTitle == null || walletTitle.isEmpty())
                 {
                     setTitle(getString(R.string.toolbar_header_wallet));
@@ -570,7 +539,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
             case SETTINGS:
             {
                 showToolbar();
-                viewPager.setCurrentItem(SETTINGS.ordinal());
+                viewPager.setCurrentItem(SETTINGS.ordinal(), false);
                 setTitle(getString(R.string.toolbar_header_settings));
                 selectNavigationItem(SETTINGS);
                 enableDisplayHomeAsHome(false);
@@ -580,7 +549,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
             case ACTIVITY:
             {
                 showToolbar();
-                viewPager.setCurrentItem(ACTIVITY.ordinal());
+                viewPager.setCurrentItem(ACTIVITY.ordinal(), false);
                 setTitle(getString(R.string.activity_label));
                 selectNavigationItem(ACTIVITY);
                 enableDisplayHomeAsHome(false);
@@ -589,7 +558,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
             }
             default:
                 showToolbar();
-                viewPager.setCurrentItem(WALLET.ordinal());
+                viewPager.setCurrentItem(WALLET.ordinal(), false);
                 setTitle(getString(R.string.toolbar_header_wallet));
                 selectNavigationItem(WALLET);
                 enableDisplayHomeAsHome(false);
@@ -612,7 +581,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                 AWalletConfirmationDialog cDialog = new AWalletConfirmationDialog(this);
                 cDialog.setTitle(R.string.alphawallet_update);
                 cDialog.setCancelable(true);
-                cDialog.setSmallText("Using an old version of Alphawallet. Please update from the Play Store or Alphawallet website.");
+                cDialog.setSmallText("Using an old version of ILGON wallet. Please update from the Play Store.");
                 cDialog.setPrimaryButtonText(R.string.ok);
                 cDialog.setPrimaryButtonListener(v -> {
                     cDialog.dismiss();
@@ -772,43 +741,7 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
     }
 
     @Override
-    public void downloadReady(String build)
-    {
-        hideDialog();
-        buildVersion = build;
-        //display download ready popup
-        //Possibly only show this once per day otherwise too annoying!
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        int asks = pref.getInt("update_asks", 0) + 1;
-        AWalletConfirmationDialog dialog = new AWalletConfirmationDialog(this);
-        dialog.setTitle(R.string.new_version_title);
-        dialog.setSmallText(R.string.new_version);
-        String newBuild = "New version: " + build;
-        dialog.setMediumText(newBuild);
-        dialog.setPrimaryButtonText(R.string.confirm_update);
-        dialog.setPrimaryButtonListener(v -> {
-            if (checkWritePermission(RC_DOWNLOAD_EXTERNAL_WRITE_PERM))
-            {
-                viewModel.downloadAndInstall(build, this);
-            }
-            dialog.dismiss();
-        });
-        if (asks > 1)
-        {
-            dialog.setSecondaryButtonText(R.string.dialog_not_again);
-        }
-        else
-        {
-            dialog.setSecondaryButtonText(R.string.dialog_later);
-        }
-        dialog.setSecondaryButtonListener(v -> {
-            //only dismiss twice before we stop warning.
-            pref.edit().putInt("update_asks", asks).apply();
-            dialog.dismiss();
-        });
-        this.dialog = dialog;
-        dialog.show();
-    }
+    public void downloadReady(String build) { }
 
     @Override
     public void resetToolbar()
@@ -952,16 +885,6 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
             case DappBrowserFragment.REQUEST_FINE_LOCATION:
                 ((DappBrowserFragment) dappBrowserFragment).gotGeoAccess(permissions, grantResults);
                 break;
-            case RC_DOWNLOAD_EXTERNAL_WRITE_PERM:
-                if (hasPermission(permissions, grantResults))
-                {
-                    viewModel.downloadAndInstall(buildVersion, this);
-                }
-                else
-                {
-                    showRequirePermissionError();
-                }
-                break;
             case RC_ASSET_EXTERNAL_WRITE_PERM:
                 //Can't get here
                 break;
@@ -1036,10 +959,9 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
                 {
                     int gasSelectionIndex = data.getIntExtra(C.EXTRA_SINGLE_ITEM, -1);
                     long customNonce = data.getLongExtra(C.EXTRA_NONCE, -1);
-                    BigDecimal customGasPrice = new BigDecimal(data.getStringExtra(C.EXTRA_GAS_PRICE));
                     BigDecimal customGasLimit = new BigDecimal(data.getStringExtra(C.EXTRA_GAS_LIMIT));
                     long expectedTxTime = data.getLongExtra(C.EXTRA_AMOUNT, 0);
-                    ((DappBrowserFragment) dappBrowserFragment).setCurrentGasIndex(gasSelectionIndex, customGasPrice, customGasLimit, expectedTxTime, customNonce);
+                    ((DappBrowserFragment) dappBrowserFragment).setCurrentGasIndex(gasSelectionIndex, customGasLimit, expectedTxTime, customNonce);
                 }
                 break;
             case DAPP_BARCODE_READER_REQUEST_CODE:
@@ -1059,9 +981,9 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
             case SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS:
                 switch (getSelectedItem())
                 {
-                    //case DAPP_BROWSER:
-                    //    ((DappBrowserFragment) dappBrowserFragment).pinAuthorisation(resultCode == RESULT_OK);
-                    //    break;
+                    case DAPP_BROWSER:
+                        ((DappBrowserFragment) dappBrowserFragment).pinAuthorisation(resultCode == RESULT_OK);
+                        break;
                     default:
                         //continue with generating the authenticated key - NB currently no flow reaches this code but in future it could
                         if (resultCode == RESULT_OK) authInterface.completeAuthentication(taskCode);
@@ -1215,11 +1137,6 @@ public class HomeActivity extends BaseNavigationActivity implements View.OnClick
 
     public boolean onlyMainnetActive() {
         return viewModel.onlyMainnetActive();
-    }
-
-    public void useActionSheet(String mode)
-    {
-        viewModel.actionSheetConfirm(mode);
     }
 
     private void hideSystemUI() {

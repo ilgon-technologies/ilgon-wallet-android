@@ -3,6 +3,8 @@ package com.alphawallet.app.ui;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 
+import com.alphawallet.app.util.LocaleUtils;
+
 import dagger.android.AndroidInjection;
 
 public class EditTokensVisibilityActivity extends BaseActivity {
@@ -11,5 +13,6 @@ public class EditTokensVisibilityActivity extends BaseActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
+        LocaleUtils.setActiveLocale(this);
     }
 }

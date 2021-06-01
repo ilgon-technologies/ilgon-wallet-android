@@ -175,8 +175,6 @@ public class TokensRealmSource implements TokenLocalSource {
             case ETHEREUM:
             case ERC20:
             case DYNAMIC_CONTRACT:
-            case ERC875_LEGACY:
-            case ERC875:
             case CURRENCY:
             case ERC721_TICKET:
             case ERC721:
@@ -376,7 +374,9 @@ public class TokensRealmSource implements TokenLocalSource {
     }
 
     @Override
-    public boolean updateTokenBalance(Wallet wallet, int chainId, String tokenAddress, BigDecimal balance, List<BigInteger> balanceArray, ContractType type, BigDecimal stakingBalance)
+    public boolean updateTokenBalance(Wallet wallet, int chainId, String tokenAddress,
+                                      BigDecimal balance, List<BigInteger> balanceArray, ContractType type,
+                                      BigDecimal stakingBalance, BigDecimal compensationBalance)
     {
         boolean balanceChanged = false;
         if (tokenAddress == null) tokenAddress = wallet.address; //base chain update
@@ -392,10 +392,11 @@ public class TokensRealmSource implements TokenLocalSource {
             {
                 String currentBalance = realmToken.getBalance();
                 String currentStakingBalance = realmToken.getStakingBalance();
+                String currentCompensationBalance = realmToken.getCompensationBalance();
                 String newBalance = balance.toString();
                 String newStakingBalance = stakingBalance.toString();
+                String newCompensationBalance = compensationBalance.toString();
                 if (balanceArray != null) newBalance = Token.bigIntListToString(balanceArray, true);
-
                 if (type == ContractType.ERC721 || type == ContractType.ERC721_LEGACY)
                 {
                     //only used for determining if balance is now zero
@@ -409,12 +410,15 @@ public class TokensRealmSource implements TokenLocalSource {
                         balanceChanged = true;
                     }
                 }
-                else if (!newBalance.equals(currentBalance) || !newStakingBalance.equals(currentStakingBalance))
+                else if (!newBalance.equals(currentBalance)
+                        || !newStakingBalance.equals(currentStakingBalance)
+                        || !newCompensationBalance.equals(currentCompensationBalance))
                 {
                     realm.beginTransaction();
                     //updating balance
                     realmToken.setBalance(newBalance);
                     realmToken.setStakingBalance(newStakingBalance);
+                    realmToken.setCompensationBalance(newCompensationBalance);
                     realmToken.setUpdateTime(System.currentTimeMillis());
                     Log.d(TAG, "Update Token Balance: " + realmToken.getName() + " :" + tokenAddress);
                     balanceChanged = true;
@@ -453,6 +457,7 @@ public class TokensRealmSource implements TokenLocalSource {
             {
                 realm.beginTransaction();
                 token.setRealmBalance(realmToken);
+                token.setRealmCompensationBalance(realmToken);
                 token.setRealmStakingBalance(realmToken);
                 realmToken.updateTokenInfoIfRequired(token.tokenInfo);
                 token.setRealmInterfaceSpec(realmToken);
@@ -1057,8 +1062,6 @@ public class TokensRealmSource implements TokenLocalSource {
                     return balance;
 
                 case ERC721_TICKET:
-                case ERC875_LEGACY:
-                case ERC875:
                 case ERC721_UNDETERMINED:
                 case ERC721:
                 case ERC721_LEGACY:

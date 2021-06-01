@@ -33,7 +33,6 @@ import com.alphawallet.app.util.BalanceUtils;
 import com.alphawallet.app.util.Utils;
 import com.alphawallet.app.viewmodel.HomeViewModel;
 import com.alphawallet.app.viewmodel.HomeViewModelFactory;
-import com.google.firebase.crashlytics.internal.settings.model.SettingsData;
 
 import org.json.JSONArray;
 import org.json.JSONObject;

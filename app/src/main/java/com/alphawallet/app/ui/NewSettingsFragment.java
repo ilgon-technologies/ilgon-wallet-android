@@ -32,7 +32,6 @@ import com.alphawallet.app.repository.EthereumNetworkRepository;
 import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.viewmodel.NewSettingsViewModel;
 import com.alphawallet.app.viewmodel.NewSettingsViewModelFactory;
-import com.alphawallet.app.widget.NotificationView;
 import com.alphawallet.app.widget.SettingsItemView;
 
 import java.util.Locale;
@@ -45,6 +44,7 @@ import static com.alphawallet.app.C.CHANGED_LOCALE;
 import static com.alphawallet.app.C.CHANGE_CURRENCY;
 import static com.alphawallet.app.C.EXTRA_CURRENCY;
 import static com.alphawallet.app.C.EXTRA_LOCALE;
+import static com.alphawallet.app.C.EXTRA_NETWORK_MAINNET;
 import static com.alphawallet.app.C.EXTRA_STATE;
 import static com.alphawallet.app.C.Key.WALLET;
 import static com.alphawallet.app.entity.BackupOperationType.BACKUP_HD_KEY;
@@ -80,7 +80,6 @@ public class NewSettingsFragment extends BaseFragment {
     private TextView backupDetail;
     private ImageView backupMenuButton;
     private View backupPopupAnchor;
-    private NotificationView notificationView;
 
     private Wallet wallet;
 
@@ -108,20 +107,7 @@ public class NewSettingsFragment extends BaseFragment {
 
         initBackupWarningViews(view);
 
-        initNotificationView(view);
-
         return view;
-    }
-
-    private void initNotificationView(View view) {
-        notificationView = view.findViewById(R.id.notification);
-        if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
-            notificationView.setNotificationBackgroundColor(R.color.indigo);
-            notificationView.setTitle(getContext().getString(R.string.title_version_support_warning));
-            notificationView.setMessage(getContext().getString(R.string.message_version_support_warning));
-        } else {
-            notificationView.setVisibility(View.GONE);
-        }
     }
 
     private void initBackupWarningViews(View view) {
@@ -220,7 +206,6 @@ public class NewSettingsFragment extends BaseFragment {
     private void addSettingsToLayout() {
         int walletIndex = 0;
         int systemIndex = 0;
-        int supportIndex = 0;
 
         walletSettingsLayout.addView(myAddressSetting, walletIndex++);
 
@@ -499,19 +484,11 @@ public class NewSettingsFragment extends BaseFragment {
         startActivity(intent);
     }
 
-    private void onSupportSettingClicked() {
-        Intent intent = new Intent(getActivity(), SupportSettingsActivity.class);
-        startActivity(intent);
-    }
 
     private void onWalletConnectSettingClicked() {
         Intent intent = new Intent(getActivity(), WalletConnectSessionActivity.class);
+        intent.putExtra(EXTRA_NETWORK_MAINNET, viewModel.onlyMainnetActive());
         intent.putExtra("wallet", wallet);
         startActivity(intent);
-
-//        Intent intent = new Intent(getActivity(), QRScanningActivity.class);
-//        intent.putExtra("wallet", wallet);
-//        intent.putExtra(C.EXTRA_UNIVERSAL_SCAN, true);
-//        startActivityForResult(intent, C.REQUEST_UNIVERSAL_SCAN);
     }
 }

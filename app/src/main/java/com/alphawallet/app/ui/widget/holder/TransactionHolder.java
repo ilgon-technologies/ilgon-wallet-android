@@ -115,10 +115,6 @@ public class TransactionHolder extends BinderViewHolder<TransactionMeta> impleme
         tokenIcon.bindData(token, assetService);
         tokenIcon.setStatusIcon(token.getTxStatus(transaction));
 
-        String supplementalTxt = transaction.getSupplementalInfo(token.getWallet(), EthereumNetworkBase.getChainSymbol(token.tokenInfo.chainId));
-        supplemental.setText(supplementalTxt);
-        supplemental.setTextColor(getContext().getColor(transaction.getSupplementalColour(supplementalTxt)));
-
         date.setText(Utils.localiseUnixTime(getContext(), transaction.timeStamp));
         date.setVisibility(View.VISIBLE);
 

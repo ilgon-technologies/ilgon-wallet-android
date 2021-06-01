@@ -82,7 +82,7 @@ public class AWalletBottomNavigationView extends LinearLayout {
         switch (index) {
             case DAPP_BROWSER:
                 dappBrowser.setImageResource(R.drawable.ic_tab_browser_active);
-                dappBrowserLabel.setTextColor(getResources().getColor(R.color.colorHighlight, getContext().getTheme()));
+                dappBrowserLabel.setTextColor(getResources().getColor(R.color.ilgoin_button_primary_color_pressed, getContext().getTheme()));
                 break;
             case WALLET:
                 wallet.setImageResource(R.drawable.ic_tab_wallet_active);

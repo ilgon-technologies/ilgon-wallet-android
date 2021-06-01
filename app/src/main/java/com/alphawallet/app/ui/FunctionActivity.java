@@ -121,7 +121,6 @@ public class FunctionActivity extends BaseActivity implements FunctionCallback,
         tokenView.setOnSignPersonalMessageListener(this);
         tokenView.setOnSetValuesListener(this);
         tokenView.setKeyboardListenerCallback(this);
-        viewModel.startGasPriceUpdate(token.tokenInfo.chainId);
         viewModel.getCurrentWallet();
         parsePass = 0;
     }
@@ -392,7 +391,6 @@ public class FunctionActivity extends BaseActivity implements FunctionCallback,
     public void onDestroy()
     {
         super.onDestroy();
-        viewModel.stopGasSettingsFetch();
         viewModel.getAssetDefinitionService().clearResultMap();
     }
 

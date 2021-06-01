@@ -33,6 +33,7 @@ import com.alphawallet.app.ui.QRScanning.DisplayUtils;
 import com.alphawallet.app.ui.widget.entity.AmountReadyCallback;
 import com.alphawallet.app.util.AWEnsResolver;
 import com.alphawallet.app.util.KeyboardUtils;
+import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.util.QRUtils;
 import com.alphawallet.app.util.Utils;
 import com.alphawallet.app.viewmodel.MyAddressViewModel;
@@ -90,6 +91,7 @@ public class MyAddressActivity extends BaseActivity implements AmountReadyCallba
         screenWidth = (int) ((float)DisplayUtils.getScreenResolution(this).x * 0.8f);
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
+        LocaleUtils.setActiveLocale(this);
         initViewModel();
         overrideNetwork = 0;
         getInfo();

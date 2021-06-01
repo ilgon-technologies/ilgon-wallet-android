@@ -126,7 +126,7 @@ public class SharedPreferenceRepository implements PreferenceRepositoryType {
     @Override
     public String getUserPreferenceLocale()
     {
-        return pref.getString(USER_LOCALE_PREF, "en");
+        return pref.getString(USER_LOCALE_PREF, "");
     }
 
     @Override

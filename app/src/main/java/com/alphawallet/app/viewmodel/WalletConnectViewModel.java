@@ -12,7 +12,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.alphawallet.app.C;
-import com.alphawallet.app.entity.AnalyticsProperties;
 import com.alphawallet.app.entity.ConfirmationType;
 import com.alphawallet.app.entity.DAppFunction;
 import com.alphawallet.app.entity.NetworkInfo;
@@ -27,8 +26,7 @@ import com.alphawallet.app.interact.GenericWalletInteract;
 import com.alphawallet.app.repository.SignRecord;
 import com.alphawallet.app.repository.entity.RealmWCSession;
 import com.alphawallet.app.repository.entity.RealmWCSignElement;
-import com.alphawallet.app.service.AnalyticsServiceType;
-import com.alphawallet.app.service.GasService2;
+import com.alphawallet.app.service.GasService;
 import com.alphawallet.app.service.KeyService;
 import com.alphawallet.app.service.RealmManager;
 import com.alphawallet.app.service.TokensService;
@@ -49,6 +47,7 @@ import com.alphawallet.token.tools.Numeric;
 import org.web3j.protocol.core.methods.response.EthEstimateGas;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -73,9 +72,8 @@ public class WalletConnectViewModel extends BaseViewModel {
     private final GenericWalletInteract genericWalletInteract;
     private final CreateTransactionInteract createTransactionInteract;
     private final RealmManager realmManager;
-    private final GasService2 gasService;
+    private final GasService gasService;
     private final TokensService tokensService;
-    private final AnalyticsServiceType analyticsService;
     private final Context context;
     private WalletConnectService walletConnectService;
     private final ServiceConnection serviceConnection;
@@ -92,9 +90,8 @@ public class WalletConnectViewModel extends BaseViewModel {
                            CreateTransactionInteract createTransactionInteract,
                            GenericWalletInteract genericWalletInteract,
                            RealmManager realmManager,
-                           GasService2 gasService,
+                           GasService gasService,
                            TokensService tokensService,
-                           AnalyticsServiceType analyticsService,
                            Context ctx) {
         this.keyService = keyService;
         this.findDefaultNetworkInteract = findDefaultNetworkInteract;
@@ -104,7 +101,6 @@ public class WalletConnectViewModel extends BaseViewModel {
         this.context = ctx;
         this.gasService = gasService;
         this.tokensService = tokensService;
-        this.analyticsService = analyticsService;
         serviceConnection = startService();
         disposable = genericWalletInteract
                 .find()
@@ -420,7 +416,11 @@ public class WalletConnectViewModel extends BaseViewModel {
             });
         }
 
-        gasService.startGasPriceCycle(sessionChainId);
+        gasService.fetchGasPriceForChain(sessionChainId);
+    }
+
+    public BigInteger getGasPrice() {
+        return gasService.getGasPrice();
     }
 
     public void deleteSession(String sessionId)
@@ -538,14 +538,6 @@ public class WalletConnectViewModel extends BaseViewModel {
         NetworkInfo info = findDefaultNetworkInteract.getNetworkInfo(chainId);
         if (info == null) { info = findDefaultNetworkInteract.getNetworkInfo(MAINNET_ID); }
         return info.symbol;
-    }
-
-    public void actionSheetConfirm(String mode)
-    {
-        AnalyticsProperties analyticsProperties = new AnalyticsProperties();
-        analyticsProperties.setData("(WC)" + mode); //disambiguate signs/sends etc through WC
-
-        analyticsService.track(C.AN_CALL_ACTIONSHEET, analyticsProperties);
     }
 
     public boolean connectedToService()

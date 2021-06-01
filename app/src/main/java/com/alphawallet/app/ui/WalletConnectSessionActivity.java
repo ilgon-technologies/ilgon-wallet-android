@@ -27,6 +27,7 @@ import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.walletconnect.WalletConnectSessionItem;
 import com.alphawallet.app.ui.widget.divider.ListDivider;
 import com.alphawallet.app.ui.zxing.QRScanningActivity;
+import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.viewmodel.WalletConnectViewModel;
 import com.alphawallet.app.viewmodel.WalletConnectViewModelFactory;
 import com.alphawallet.app.walletconnect.WCClient;
@@ -42,6 +43,7 @@ import dagger.android.AndroidInjection;
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 
+import static com.alphawallet.app.C.EXTRA_NETWORK_MAINNET;
 import static com.alphawallet.app.C.Key.WALLET;
 import static com.alphawallet.app.ui.zxing.QRScanningActivity.WALLET_CONNECT;
 
@@ -58,6 +60,7 @@ public class WalletConnectSessionActivity extends BaseActivity
     private CustomAdapter adapter;
     private Wallet wallet;
     private List<WalletConnectSessionItem> wcSessions;
+    private boolean onlyMainnet;
 
     private final Handler handler = new Handler();
 
@@ -71,10 +74,12 @@ public class WalletConnectSessionActivity extends BaseActivity
     {
         super.onCreate(savedInstanceState);
         AndroidInjection.inject(this);
+        LocaleUtils.setActiveLocale(this);
         setContentView(R.layout.activity_list);
         toolbar();
         setTitle(getString(R.string.title_wallet_connect));
         wallet = getIntent().getParcelableExtra(WALLET);
+        onlyMainnet = getIntent().getBooleanExtra(EXTRA_NETWORK_MAINNET, false);
         initViewModel();
     }
 
@@ -149,6 +154,7 @@ public class WalletConnectSessionActivity extends BaseActivity
         {
             Intent intent = new Intent(this, QRScanningActivity.class);
             intent.putExtra("wallet", wallet);
+            intent.putExtra(EXTRA_NETWORK_MAINNET, onlyMainnet);
             intent.putExtra(C.EXTRA_UNIVERSAL_SCAN, true);
             startActivityForResult(intent, C.REQUEST_UNIVERSAL_SCAN);
         }

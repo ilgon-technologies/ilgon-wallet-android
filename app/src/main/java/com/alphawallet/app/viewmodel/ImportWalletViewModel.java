@@ -4,10 +4,8 @@ import android.app.Activity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.alphawallet.app.entity.AnalyticsProperties;
 import com.alphawallet.app.entity.Operation;
 import com.alphawallet.app.repository.EthereumNetworkRepository;
-import com.alphawallet.app.service.AnalyticsServiceType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.alphawallet.app.C;
 import com.alphawallet.app.repository.TokenRepository;
@@ -35,23 +33,21 @@ public class ImportWalletViewModel extends BaseViewModel implements OnSetWatchWa
     private final ImportWalletInteract importWalletInteract;
     private final KeyService keyService;
     private final AWEnsResolver ensResolver;
-    private final AnalyticsServiceType analyticsService;
+    public boolean isWatch;
 
     private final MutableLiveData<Wallet> wallet = new MutableLiveData<>();
     private final MutableLiveData<Boolean> badSeed = new MutableLiveData<>();
     private final MutableLiveData<String> watchExists = new MutableLiveData<>();
-    private String importWalletType = "";
 
     ImportWalletViewModel(ImportWalletInteract importWalletInteract, KeyService keyService,
-                          GasService gasService, AnalyticsServiceType analyticsService) {
+                          GasService gasService, boolean isWatch) {
         this.importWalletInteract = importWalletInteract;
         this.keyService = keyService;
         this.ensResolver = new AWEnsResolver(TokenRepository.getWeb3jService(EthereumNetworkRepository.MAINNET_ID), keyService.getContext());
-        this.analyticsService = analyticsService;
+        this.isWatch = isWatch;
     }
 
     public void onKeystore(String keystore, String password, String newPassword, KeyService.AuthenticationLevel level) {
-        importWalletType = C.AN_KEYSTORE;
         progress.postValue(true);
 
         importWalletInteract
@@ -63,7 +59,6 @@ public class ImportWalletViewModel extends BaseViewModel implements OnSetWatchWa
     }
 
     public void onPrivateKey(String privateKey, String newPassword, KeyService.AuthenticationLevel level) {
-        importWalletType = C.AN_PRIVATE_KEY;
         progress.postValue(true);
         importWalletInteract
                 .importPrivateKey(privateKey, newPassword)
@@ -100,7 +95,6 @@ public class ImportWalletViewModel extends BaseViewModel implements OnSetWatchWa
     private void onWallet(Wallet wallet) {
         progress.postValue(false);
         this.wallet.postValue(wallet);
-        track(wallet);
     }
 
     public void onError(Throwable throwable) {
@@ -109,7 +103,6 @@ public class ImportWalletViewModel extends BaseViewModel implements OnSetWatchWa
 
     public void onSeed(String walletAddress, KeyService.AuthenticationLevel level)
     {
-        importWalletType = C.AN_SEED_PHRASE;
         if (walletAddress == null)
         {
             progress.postValue(false);
@@ -187,11 +180,4 @@ public class ImportWalletViewModel extends BaseViewModel implements OnSetWatchWa
         keyService.failedAuthentication(taskCode);
     }
 
-    public void track(Wallet wallet)
-    {
-        AnalyticsProperties analyticsProperties = new AnalyticsProperties();
-        analyticsProperties.setWalletType(importWalletType);
-
-        analyticsService.track(C.AN_IMPORT_WALLET, analyticsProperties);
-    }
 }

@@ -20,11 +20,6 @@ public class TokenFactory
         Token thisToken;
         switch (type)
         {
-            case ERC875:
-            case ERC875_LEGACY:
-                if (balances == null) balances = new ArrayList<>();
-                thisToken = new Ticket(tokenInfo, balances, updateBlancaTime, networkName, type);
-                break;
             case ERC721_TICKET:
                 if (balances == null) balances = new ArrayList<>();
                 thisToken = new ERC721Ticket(tokenInfo, balances, updateBlancaTime, networkName, type);
@@ -79,8 +74,10 @@ public class TokenFactory
                 if (realmBalance == null || realmBalance.length() == 0) realmBalance = "0";
                 balance = new BigDecimal(realmBalance);
                 BigDecimal stakingBalance = new BigDecimal(realmItem.getStakingBalance());
+                BigDecimal compensationBalance = new BigDecimal(realmItem.getCompensationBalance());
                 thisToken = new Token(tokenInfo, balance, updateBlancaTime, networkName, type);
                 thisToken.stakingBalance = stakingBalance;
+                thisToken.compensationBalance = compensationBalance;
                 thisToken.pendingBalance = balance;
                 break;
             case DYNAMIC_CONTRACT:
@@ -93,12 +90,6 @@ public class TokenFactory
                 if (realmBalance == null) realmBalance = "";
                 thisToken = new ERC721Ticket(tokenInfo, realmBalance, updateBlancaTime, networkName, type);
                 break;
-            case ERC875:
-            case ERC875_LEGACY:
-                if (realmBalance == null) realmBalance = "";
-                thisToken = new Ticket(tokenInfo, realmBalance, updateBlancaTime, networkName, type);
-                break;
-
             case OTHER:
                 balance = new BigDecimal(0);
                 thisToken = new Token(tokenInfo, balance, updateBlancaTime, networkName, type);
@@ -136,10 +127,6 @@ public class TokenFactory
         long currentTime = System.currentTimeMillis();
         switch (type)
         {
-            case ERC875:
-            case ERC875_LEGACY:
-                thisToken = new Ticket(tokenInfo, new ArrayList<BigInteger>(), currentTime, networkName, type);
-                break;
             case ERC721_TICKET:
                 thisToken = new ERC721Ticket(tokenInfo, new ArrayList<BigInteger>(), currentTime, networkName, type);
                 break;

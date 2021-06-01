@@ -3,7 +3,6 @@ package com.alphawallet.app.service;
 import android.util.Log;
 
 import com.alphawallet.app.entity.CryptoFunctions;
-import com.alphawallet.app.entity.tokens.Ticket;
 import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.repository.EthereumNetworkRepository;
 import com.alphawallet.app.repository.TransactionRepositoryType;
@@ -155,15 +154,6 @@ public class AlphaWalletService
         });
     }
 
-    private Single<int[]> generateTicketArray(String indices, Ticket ticket)
-    {
-        return Single.fromCallable(() -> {
-            List<Integer> ticketIndices = ticket.stringIntsToIntegerList(indices);
-            int[] indicesArray = new int[ticketIndices.size()];
-            for (int i = 0; i < ticketIndices.size(); i++) indicesArray[i] = ticketIndices.get(i);
-            return indicesArray;
-        });
-    }
 
     private Single<String> generateTicketString(int[] tickets)
     {

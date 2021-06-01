@@ -330,7 +330,7 @@
     <string name="ticket_magiclink_purchase">Magiclink Purchase</string>
 
     <string name="action_next">Next</string>
-    <string name="send_all" tools:ignore="MissingTranslation">Send All</string>
+    <string name="send_all">Send All</string>
     <string name="action_save">Save</string>
     <string name="action_contract_info">Contract Info</string>
     <string name="contract_address">Contract Address</string>
@@ -758,11 +758,23 @@
     <string name="disconnect">Disconnect</string>
     <string name="keep_connect">Keep Connected</string>
     <string name="beware_of_scammers">Beware of scammers!\nDon\'t share seed phrase.</string>
-    <string name="alphawallet_never_ask">AlphaWallet will NEVER ask about your seed phrase (especially on Telegram).</string>
+    <string name="alphawallet_never_ask">ILGON Wallet will NEVER ask about your seed phrase (especially on Telegram).</string>
     <string name="your_seed_phrase">Your seed phrase (do not share with anyone)</string>
     <string name="hide_seed_text">OK, Hide Seed Phrase</string>
     <string name="ens_not_match_wallet">ENS Name does not match wallet address</string>
     <string name="action_allow_webkit_camera">Allow</string>
     <string name="action_deny_webkit_camera">Deny</string>
     <string name="message_permission_request_webkit_camera">%s wants to use your camera</string>
+
+    <string name="choose_network">Choose Network</string>
+
+    <string name="chain">Chain</string>
+    <string name="deductWithTxFee">Deduct with TX fee</string>
+    <string name="stakingDetailsButton">See staking details</string>
+    <string name="stakingDetailsDialogTitle">Staking details</string>
+    <string name="stakingDetailsDialogMessage">Connect to the ILGON Web Wallet with WalletConnect in the Browser tab to see the staking details.</string>
+    <string name="stakingDetailsDialogContinueButton">Go to browser</string>
+    <string name="staking_balance">Staking balance</string>
+    <string name="compensation_balance">Compensation balance</string>
+
 </resources>

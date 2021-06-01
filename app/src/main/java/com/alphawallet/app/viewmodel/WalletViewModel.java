@@ -185,9 +185,10 @@ public class WalletViewModel extends BaseViewModel implements onTokenBalanceChan
         myAddressRouter.open(context, defaultWallet.getValue());
     }
 
-    public void showQRCodeScanning(Activity activity) {
+    public void showQRCodeScanning(Activity activity, boolean onlyMainnet) {
         Intent intent = new Intent(activity, QRScanningActivity.class);
         intent.putExtra(C.EXTRA_UNIVERSAL_SCAN, true);
+        intent.putExtra(C.EXTRA_NETWORK_MAINNET, onlyMainnet);
         activity.startActivityForResult(intent, C.REQUEST_UNIVERSAL_SCAN);
     }
 

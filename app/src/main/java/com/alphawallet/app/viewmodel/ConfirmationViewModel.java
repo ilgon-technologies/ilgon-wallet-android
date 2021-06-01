@@ -124,7 +124,6 @@ public class ConfirmationViewModel extends BaseViewModel {
     {
         overrideDefaultGasLimit = true;
         gasService.setOverrideGasLimit(settings.gasLimit);
-        gasService.setOverrideGasPrice(settings.gasPrice);
         gasSettings.postValue(settings);
     }
 

@@ -2,6 +2,7 @@ package com.alphawallet.app.repository;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.alphawallet.app.util.LocaleUtils;
 
@@ -14,6 +15,7 @@ import com.alphawallet.app.entity.LocaleItem;
 public class LocaleRepository implements LocaleRepositoryType {
     private static final String[] LOCALES = {
             "en",
+            "hu",
             "zh",
             "es"
     };

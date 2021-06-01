@@ -27,7 +27,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     private boolean mSurfaceCreated = false;
     private boolean mShouldScaleToFill = true;
     private Camera.PreviewCallback mPreviewCallback;
-    private float mAspectTolerance = 0.1f;
+    private float mAspectTolerance = 0.5f;
 
     public CameraPreview(Context context, CameraWrapper cameraWrapper, Camera.PreviewCallback previewCallback) {
         super(context);

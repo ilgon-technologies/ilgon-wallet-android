@@ -215,8 +215,6 @@ public class TokenCardMeta implements Comparable<TokenCardMeta>, Parcelable
             default:
                 return false;
             case ERC721:
-            case ERC875_LEGACY:
-            case ERC875:
             case ERC721_LEGACY:
             case ERC721_TICKET:
             case ERC721_UNDETERMINED:

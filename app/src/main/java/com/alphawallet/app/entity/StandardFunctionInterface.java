@@ -7,8 +7,6 @@ import java.util.List;
 
 public interface StandardFunctionInterface
 {
-    default void selectRedeemTokens(List<BigInteger> selection) { };
-    default void sellTicketRouter(List<BigInteger> selection) { };
     default void showTransferToken(List<BigInteger> selection) { };
     default void showSend() { };
     default void showReceive() { };

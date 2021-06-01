@@ -37,7 +37,7 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
     private boolean mSquaredFinder = false;
     private float mBorderAlpha = 1.0f;
     private int mViewFinderOffset = 1;
-    private float mAspectTolerance = 0.1f;
+    private float mAspectTolerance = 0.5f;
 
     private boolean isFlashOn = false;
 
@@ -191,7 +191,7 @@ public abstract class BarcodeScannerView extends FrameLayout implements Camera.P
         if(mCameraWrapper != null) {
             setupLayout(mCameraWrapper);
             mViewFinderView.setupViewFinder();
-            setAutoFocus(mAutofocusState);
+            setAutoFocus(true);//mAutofocusState);
         }
     }
 

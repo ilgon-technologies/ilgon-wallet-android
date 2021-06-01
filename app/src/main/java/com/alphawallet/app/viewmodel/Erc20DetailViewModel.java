@@ -10,12 +10,9 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.alphawallet.app.C;
 import com.alphawallet.app.entity.ActivityMeta;
-import com.alphawallet.app.entity.OnRampContract;
 import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.interact.FetchTransactionsInteract;
-import com.alphawallet.app.repository.OnRampRepository;
-import com.alphawallet.app.repository.OnRampRepositoryType;
 import com.alphawallet.app.router.MyAddressRouter;
 import com.alphawallet.app.router.SendTokenRouter;
 import com.alphawallet.app.service.AssetDefinitionService;
@@ -36,19 +33,16 @@ public class Erc20DetailViewModel extends BaseViewModel {
     private final FetchTransactionsInteract fetchTransactionsInteract;
     private final AssetDefinitionService assetDefinitionService;
     private final TokensService tokensService;
-    private final OnRampRepositoryType onRampRepository;
 
     public Erc20DetailViewModel(MyAddressRouter myAddressRouter,
                                 FetchTransactionsInteract fetchTransactionsInteract,
                                 AssetDefinitionService assetDefinitionService,
-                                TokensService tokensService,
-                                OnRampRepositoryType onRampRepository)
+                                TokensService tokensService)
     {
         this.myAddressRouter = myAddressRouter;
         this.fetchTransactionsInteract = fetchTransactionsInteract;
         this.assetDefinitionService = assetDefinitionService;
         this.tokensService = tokensService;
-        this.onRampRepository = onRampRepository;
     }
 
     public LiveData<XMLDsigDescriptor> sig()
@@ -135,16 +129,5 @@ public class Erc20DetailViewModel extends BaseViewModel {
     public void restartServices()
     {
         fetchTransactionsInteract.restartTransactionService();
-    }
-
-    public Intent getBuyIntent(String address, Token token)
-    {
-        Intent intent = new Intent();
-        intent.putExtra(C.DAPP_URL_LOAD, onRampRepository.getUri(address, token));
-        return intent;
-    }
-
-    public OnRampRepositoryType getOnRampRepository() {
-        return onRampRepository;
     }
 }

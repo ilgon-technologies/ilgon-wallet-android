@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 import com.alphawallet.app.C;
 import com.alphawallet.app.R;
 import com.alphawallet.app.entity.StandardFunctionInterface;
+import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.widget.CopyTextView;
 import com.alphawallet.app.widget.FunctionButtonBar;
 
@@ -22,6 +23,7 @@ public class TransactionSuccessActivity extends BaseActivity implements Standard
     protected void onCreate(@Nullable Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        LocaleUtils.setActiveLocale(this);
         setContentView(R.layout.activity_transaction_success);
 
         String transactionHash = getIntent().getStringExtra(C.EXTRA_TXHASH);

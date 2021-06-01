@@ -88,13 +88,6 @@ public class QRParser {
 
         QRResult result = null;
 
-        //Check for import/magic link
-        if(checkForMagicLink(url))
-        {
-            result = new QRResult(url, EIP681Type.MAGIC_LINK);
-            return result;
-        }
-
         if (parts.length == 1)
         {
             String address = extractAddress(parts[0]);
@@ -145,31 +138,4 @@ public class QRParser {
         return result.getAddress();
     }
 
-    /**
-     * This method checks for Magic/Import token kind of URL which can be redirected to
-     * import token screen later.
-     * @param data QR Code
-     * @return
-     * TRUE: The given data is Magic/Import one
-     * FALSE: The given data is not Magic/Import one
-     */
-    private boolean checkForMagicLink(String data)
-    {
-        try
-        {
-            int chainId = MagicLinkInfo.identifyChainId(data);
-
-            if (chainId > 0) //see if it's a valid link
-            {
-                return true;
-            }
-        }
-        catch (Exception e)
-        {
-            // No action
-            e.printStackTrace();
-        }
-
-        return false;
-    }
 }

@@ -10,7 +10,6 @@ import com.alphawallet.app.service.TokensService;
 import com.alphawallet.app.ui.widget.entity.ENSHandler;
 import com.alphawallet.app.ui.widget.entity.StatusType;
 import com.alphawallet.app.util.BalanceUtils;
-import com.alphawallet.token.tools.ParseMagicLink;
 
 import org.web3j.crypto.Keys;
 import org.web3j.crypto.Sign;
@@ -178,15 +177,11 @@ public class TransactionInput
     {
         switch (type)
         {
-            case MAGICLINK_SALE:
-            case MAGICLINK_TRANSFER:
             case TRANSFER_TO:
             case SEND:
                 return R.string.to;
             case RECEIVED:
             case RECEIVE_FROM:
-            case MAGICLINK_PURCHASE:
-            case MAGICLINK_PICKUP:
                 return R.string.from_op;
             case APPROVE:
                 return R.string.approve;
@@ -235,28 +230,6 @@ public class TransactionInput
 
         switch (type)
         {
-            case MAGICLINK_TRANSFER: //transferred out of our wallet via magic link (to ->)
-                address = tx.from;
-                break;
-            case MAGICLINK_SALE: //we received ether from magiclink sale (to ->)
-                address = tx.from;
-                break;
-            case MAGICLINK_PURCHASE: //we purchased a ticket from a magiclink (from ->)
-                address = tradeAddress;
-                break;
-            case MAGICLINK_PICKUP: //received ticket from a magic link (from ->)
-                address = tradeAddress;
-                break;
-            case PASS_TO: //we had a ticket transferred out of our wallet paid for by server. (to -> )
-                address = getDestinationAddress();
-                break;
-            case PASS_FROM: //we received a ticket from magiclink with transfer paid by server
-                address = tx.from; //(from ->)
-                break;
-            case REDEEM:
-            case ADMIN_REDEEM:
-                address = BURN_ADDRESS;
-                break;
             case TRANSFER_TO:
                 break;
             case SEND:
@@ -291,33 +264,6 @@ public class TransactionInput
         return address;
     }
 
-    private String getMagicLinkAddress(Transaction tx)
-    {
-        String address = tx.from;
-        if (!tx.error.equals("0")) return address;
-        try
-        {
-            Sign.SignatureData sig = Transaction.decoder.getSignatureData(this);
-            //ecrecover the recipient of the ether
-            int[] ticketIndexArray = Transaction.decoder.getIndices(this);
-            String expiryStr = miscData.get(0);
-            long expiry = Long.valueOf(expiryStr, 16);
-            BigInteger priceWei = new BigInteger(tx.value);
-            String contractAddress = tx.to;
-
-            ParseMagicLink parser = new ParseMagicLink(new CryptoFunctions(), EthereumNetworkRepository.extraChains()); //parser on demand
-            byte[] tradeBytes = parser.getTradeBytes(ticketIndexArray, contractAddress, priceWei, expiry);
-            //attempt ecrecover
-            BigInteger key = Sign.signedMessageToKey(tradeBytes, sig);
-            address = "0x" + Keys.getAddress(key);
-        }
-        catch (Exception e)
-        {
-            address = tx.from;
-        }
-
-        return address;
-    }
 
     /*
     addFunction("transferFrom(address,address,uint16[])", ContractType.ERC875_LEGACY, false);
@@ -388,9 +334,6 @@ public class TransactionInput
 
         switch (functionData.functionName)
         {
-            case "trade":
-                type = interpretTradeData(tx, walletAddress);
-                break;
             case "safeTransferFrom":
             case "transferFrom":
                 type = interpretTransferFrom(walletAddress);
@@ -407,16 +350,10 @@ public class TransactionInput
             case "loadNewTickets":
                 type = TransactionType.LOAD_NEW_TOKENS;
                 break;
-            case "passTo":
-                type = interpretPassTo(tx, walletAddress);
-                break;
             case "endContract":
             case "selfdestruct":
             case "kill":
                 type = TransactionType.TERMINATE_CONTRACT;
-                break;
-            case "swapExactTokensForTokens":
-                type = TransactionType.TOKEN_SWAP;
                 break;
             case "withdraw":
                 type = TransactionType.WITHDRAW;
@@ -430,60 +367,7 @@ public class TransactionInput
         }
     }
 
-    private TransactionType interpretTradeData(Transaction tx, String walletAddr)
-    {
-        if (tx == null)
-        {
-            return TransactionType.MAGICLINK_TRANSFER;
-        }
 
-        BigInteger priceWei = new BigInteger(tx.value);
-        tradeAddress = getMagicLinkAddress(tx);
-        if (priceWei.equals(BigInteger.ZERO))
-        {
-            if (tradeAddress.equalsIgnoreCase(walletAddr))
-            {
-                //transfered out of our wallet via magic link
-                return TransactionType.MAGICLINK_TRANSFER;// R.string.ticket_magiclink_transfer;
-            }
-            else
-            {
-                //received ticket from a magic link
-                return TransactionType.MAGICLINK_PICKUP;// R.string.ticket_magiclink_pickup;
-            }
-        }
-        else
-        {
-            if (tradeAddress.equalsIgnoreCase(walletAddr))
-            {
-                //we received ether from magiclink sale
-                return TransactionType.MAGICLINK_SALE;// R.string.ticket_magiclink_sale;
-            }
-            else
-            {
-                //we purchased a ticket from a magiclink
-                return TransactionType.MAGICLINK_PURCHASE;// R.string.ticket_magiclink_purchase;
-            }
-        }
-    }
-
-    private TransactionType interpretPassTo(Transaction tx, String walletAddr)
-    {
-        if (tx == null)
-        {
-            return TransactionType.PASS_TO;
-        }
-
-        tradeAddress = getMagicLinkAddress(tx);
-        if (tradeAddress.equalsIgnoreCase(walletAddr))
-        {
-            return TransactionType.PASS_FROM;
-        }
-        else
-        {
-            return TransactionType.PASS_TO;
-        }
-    }
 
     private TransactionType interpretTransferFrom(String walletAddr)
     {
@@ -491,10 +375,6 @@ public class TransactionInput
         if (walletAddr == null)
         {
             return TransactionType.TRANSFER_FROM;
-        }
-        else if (destinationAddr.equals(C.BURN_ADDRESS))
-        {
-            return TransactionType.REDEEM;
         }
         else if (!destinationAddr.equalsIgnoreCase(walletAddr)) //otherparty in this case will be the first address, the previous owner of the token(s)
         {
@@ -524,24 +404,6 @@ public class TransactionInput
         }
     }
 
-    public String getSupplimentalInfo(Transaction tx, String walletAddress, String networkName)
-    {
-        String supplimentalTxt = "";
-        switch (type)
-        {
-            case MAGICLINK_SALE: //we received ether from magiclink sale
-                supplimentalTxt = "(+" + BalanceUtils.getScaledValue(tx.value, ETHER_DECIMALS) + " " + networkName + ")";
-                break;
-            case MAGICLINK_PURCHASE: //we purchased a ticket from a magiclink
-                supplimentalTxt = "(-" + BalanceUtils.getScaledValue(tx.value, ETHER_DECIMALS) + " " + networkName + ")";
-                break;
-            default:
-                break;
-        }
-
-        return supplimentalTxt;
-    }
-
     public String getOperationValue(Token token, Transaction tx)
     {
         String operationValue = "";
@@ -550,16 +412,6 @@ public class TransactionInput
 
         switch (type)
         {
-            case PASS_TO:   //we had a ticket transferred out of our wallet paid for by server.
-            case PASS_FROM: //we received a ticket from magiclink with transfer paid by server
-            case REDEEM:
-            case ADMIN_REDEEM:
-            case MAGICLINK_TRANSFER: //transferred out of our wallet via magic link (to ->)
-            case MAGICLINK_SALE: //we received ether from magiclink sale (to ->)
-            case MAGICLINK_PURCHASE: //we purchased a ticket from a magiclink (from ->)
-            case MAGICLINK_PICKUP: //received ticket from a magic link (from ->)
-                operationValue = String.valueOf(arrayValues.size());
-                break;
             case APPROVE:
             case ALLOCATE_TO:
                 operationValue = getFirstValueScaled(null, token.tokenInfo.decimals);
@@ -580,9 +432,6 @@ public class TransactionInput
                 operationValue = "";
                 break;
             case CONTRACT_CALL:
-                addSymbol = false;
-                break;
-            case TOKEN_SWAP:
                 addSymbol = false;
                 break;
             case WITHDRAW:
@@ -618,7 +467,6 @@ public class TransactionInput
         switch (type)
         {
             case CONTRACT_CALL:
-            case TOKEN_SWAP:
             case WITHDRAW:
                 return false;
             default:
@@ -630,22 +478,8 @@ public class TransactionInput
     {
         switch (type)
         {
-            case PASS_TO:
             case SEND:
                 return StatusType.SENT;
-            case PASS_FROM:
-                return StatusType.RECEIVE;
-            case REDEEM:
-            case ADMIN_REDEEM:
-                return StatusType.SENT;
-            case MAGICLINK_TRANSFER: //transferred out of our wallet via magic link (to ->)
-                return StatusType.SENT;
-            case MAGICLINK_SALE: //we received ether from magiclink sale (to ->)
-                return StatusType.SENT;
-            case MAGICLINK_PURCHASE: //we purchased a ticket from a magiclink (from ->)
-                return StatusType.RECEIVE;
-            case MAGICLINK_PICKUP: //received ticket from a magic link (from ->)
-                return StatusType.RECEIVE;
             case TRANSFER_TO:
                 return StatusType.RECEIVE;
             case RECEIVE_FROM:
@@ -715,21 +549,7 @@ public class TransactionInput
         switch (type)
         {
             case SEND:
-            case PASS_TO:
                 return true;
-            case PASS_FROM:
-                return false;
-            case REDEEM:
-            case ADMIN_REDEEM:
-                return true;
-            case MAGICLINK_TRANSFER: //transferred out of our wallet via magic link (to ->)
-                return true;
-            case MAGICLINK_SALE: //we received ether from magiclink sale (to ->)
-                return true;
-            case MAGICLINK_PURCHASE: //we purchased a ticket from a magiclink (from ->)
-                return false;
-            case MAGICLINK_PICKUP: //received ticket from a magic link (from ->)
-                return false;
             case TRANSFER_TO:
                 return false;
             case RECEIVE_FROM:
@@ -752,14 +572,6 @@ public class TransactionInput
         switch (type)
         {
             case SEND:
-            case PASS_TO:
-            case PASS_FROM:
-            case REDEEM:
-            case ADMIN_REDEEM:
-            case MAGICLINK_TRANSFER: //transferred out of our wallet via magic link (to ->)
-            case MAGICLINK_SALE: //we received ether from magiclink sale (to ->)
-            case MAGICLINK_PURCHASE: //we purchased a ticket from a magiclink (from ->)
-            case MAGICLINK_PICKUP: //received ticket from a magic link (from ->)
             case TRANSFER_TO:
             case RECEIVE_FROM:
             case TRANSFER_FROM:

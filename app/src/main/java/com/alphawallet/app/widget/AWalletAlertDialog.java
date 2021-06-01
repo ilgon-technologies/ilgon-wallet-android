@@ -17,6 +17,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.alphawallet.app.R;
+import com.alphawallet.app.util.LocaleUtils;
 
 public class AWalletAlertDialog extends Dialog {
     public static final int NONE = 0;
@@ -44,7 +45,7 @@ public class AWalletAlertDialog extends Dialog {
     public AWalletAlertDialog(@NonNull Context context) {
         super(context);
         this.context = context;
-
+        LocaleUtils.setActiveLocale(context);
         setContentView(R.layout.dialog_awallet_alert);
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         setCanceledOnTouchOutside(true);

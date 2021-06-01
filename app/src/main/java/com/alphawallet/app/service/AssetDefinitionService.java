@@ -1999,10 +1999,6 @@ public class AssetDefinitionService implements ParseResult, AttributeInterface
         ContractType cType;
         switch (contractInterface.toLowerCase())
         {
-            case "erc875":
-                cType = ContractType.ERC875;
-                if (token.isERC875()) return;
-                break;
             case "erc20":
                 cType = ContractType.ERC20;
                 break;

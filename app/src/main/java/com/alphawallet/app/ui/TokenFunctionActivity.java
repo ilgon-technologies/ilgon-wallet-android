@@ -20,6 +20,7 @@ import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.repository.entity.RealmAuxData;
 import com.alphawallet.app.repository.entity.RealmToken;
 import com.alphawallet.app.ui.widget.adapter.ActivityAdapter;
+import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.viewmodel.TokenFunctionViewModel;
 import com.alphawallet.app.viewmodel.TokenFunctionViewModelFactory;
 import com.alphawallet.app.web3.OnSetValuesListener;
@@ -91,6 +92,7 @@ public class TokenFunctionActivity extends BaseActivity implements StandardFunct
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
+        LocaleUtils.setActiveLocale(this);
         setContentView(R.layout.activity_script_view);
 
         viewModel = new ViewModelProvider(this, tokenFunctionViewModelFactory)
@@ -106,7 +108,6 @@ public class TokenFunctionActivity extends BaseActivity implements StandardFunct
         toolbar();
         setTitle(getString(R.string.token_function));
 
-        viewModel.startGasPriceUpdate(token.tokenInfo.chainId);
         viewModel.getCurrentWallet();
     }
 
@@ -173,7 +174,6 @@ public class TokenFunctionActivity extends BaseActivity implements StandardFunct
     public void onDestroy()
     {
         super.onDestroy();
-        viewModel.stopGasSettingsFetch();
         if (activityHistoryList != null) activityHistoryList.onDestroy();
         if (realmTokenUpdates != null) realmTokenUpdates.removeAllChangeListeners();
         if (realm != null) realm.close();
@@ -191,18 +191,6 @@ public class TokenFunctionActivity extends BaseActivity implements StandardFunct
         webWrapper.setVisibility(View.VISIBLE);
         if (!reloaded) tokenView.reload(); //issue a single reload
         reloaded = true;
-    }
-
-    @Override
-    public void selectRedeemTokens(List<BigInteger> selection)
-    {
-        viewModel.selectRedeemToken(this, token, selection);
-    }
-
-    @Override
-    public void sellTicketRouter(List<BigInteger> selection)
-    {
-        viewModel.openUniversalLink(this, token, selection);
     }
 
     @Override

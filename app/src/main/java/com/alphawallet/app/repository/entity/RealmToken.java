@@ -27,12 +27,22 @@ public class RealmToken extends RealmObject {
         }
         return stakingBalance;
     }
+    public String getCompensationBalance() {
+        if(compensationBalance == null){
+            return "0.00";
+        }
+        return compensationBalance;
+    }
 
     public void setStakingBalance(String stakingBalance) {
         this.stakingBalance = stakingBalance;
     }
+    public void setCompensationBalance(String compensationBalance) {
+        this.compensationBalance = compensationBalance;
+    }
 
     private String stakingBalance;
+    private String compensationBalance;
 
     private boolean isEnabled;
     private int tokenId;

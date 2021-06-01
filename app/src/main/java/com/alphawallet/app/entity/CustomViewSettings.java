@@ -72,7 +72,7 @@ public class CustomViewSettings
     //Switch off dapp browser
     public static boolean hideDappBrowser()
     {
-        return true;
+        return false;
     }
 
     //Hides the filter tab bar at the top of the wallet screen (ALL/CURRENCY/COLLECTIBLES)

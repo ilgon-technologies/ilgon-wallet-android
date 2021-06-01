@@ -78,7 +78,7 @@ public class FullScannerFragment extends Fragment implements ZXingScannerView.Re
         super.onResume();
         mScannerView.setResultHandler(this);
         mScannerView.startCamera(mCameraId);
-        mScannerView.setAutoFocus(mAutoFocus);
+        mScannerView.setAutoFocus(true);//mAutoFocus);
     }
 
     @Override

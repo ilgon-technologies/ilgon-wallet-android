@@ -61,6 +61,10 @@ public class BrowserHistoryAdapter extends RecyclerView.Adapter<BrowserHistoryAd
         notifyDataSetChanged();
     }
 
+    public List<DApp> getDappList() {
+        return data;
+    }
+
     @NonNull
     @Override
     public BrowserHistoryAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
@@ -83,7 +87,7 @@ public class BrowserHistoryAdapter extends RecyclerView.Adapter<BrowserHistoryAd
             Glide.with(viewHolder.icon.getContext())
                     .load(favicon)
                     .apply(new RequestOptions().circleCrop())
-                    .apply(new RequestOptions().placeholder(R.drawable.ic_logo))
+                    .apply(new RequestOptions().placeholder(R.drawable.ic_dragon))
                     .listener(requestListener)
                     .into(viewHolder.icon);
 

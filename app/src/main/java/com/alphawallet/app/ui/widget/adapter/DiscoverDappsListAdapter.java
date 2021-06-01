@@ -85,7 +85,7 @@ public class DiscoverDappsListAdapter extends RecyclerView.Adapter<DiscoverDapps
             Glide.with(viewHolder.icon.getContext())
                     .load(favicon)
                     .apply(new RequestOptions().circleCrop())
-                    .apply(new RequestOptions().placeholder(R.drawable.ic_logo))
+                    .apply(new RequestOptions().placeholder(R.drawable.ic_dragon))
                     .listener(requestListener)
                     .into(viewHolder.icon);
 

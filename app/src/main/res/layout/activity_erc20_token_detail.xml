@@ -34,6 +34,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingTop="5dp"/>
+            <Button
+                android:id="@+id/staking_details_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp"
+                android:background="@drawable/selector_round_button"
+                android:ellipsize="end"
+                android:fontFamily="@font/font_semibold"
+                android:lines="1"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:text="@string/stakingDetailsButton"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:visibility="gone"
+                android:textSize="17sp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="4dp"
+                />
 
             <com.alphawallet.app.widget.ActivityHistoryList
                 android:id="@+id/history_list"

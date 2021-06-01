@@ -1,6 +1,5 @@
 package com.alphawallet.app;
 
-import java.math.BigDecimal;
 
 public abstract class C {
 
@@ -22,40 +21,10 @@ public abstract class C {
 
     public static final String ETHEREUM_NETWORK_NAME = BuildConfig.MAIN_NETWORK_NAME;
     public static final String CLASSIC_NETWORK_NAME = BuildConfig.SECONDARY_NETWORK_NAME;
-    public static final String POA_NETWORK_NAME = "POA";
-    public static final String XDAI_NETWORK_NAME = "xDai";
-    public static final String KOVAN_NETWORK_NAME = "Kovan (Test)";
-    public static final String ROPSTEN_NETWORK_NAME = "Ropsten (Test)";
-    public static final String SOKOL_NETWORK_NAME = "Sokol (Test)";
-    public static final String RINKEBY_NETWORK_NAME = "Rinkeby (Test)";
-    public static final String GOERLI_NETWORK_NAME = "Görli (Test)";
-    public static final String ARTIS_SIGMA1_NETWORK = "ARTIS sigma1";
-    public static final String ARTIS_TAU1_NETWORK = "ARTIS tau1 (Test)";
-    public static final String BINANCE_TEST_NETWORK = "BSC TestNet";
-    public static final String BINANCE_MAIN_NETWORK = "Binance";
-    public static final String HECO_MAIN_NETWORK = "Heco";
-    public static final String HECO_TEST_NETWORK = "Heco (Test)";
-
-    public static final String ETHEREUM_TICKER_NAME = "ethereum";
-    public static final String CLASSIC_TICKER_NAME = "ethereum-classic";
-    public static final String XDAI_TICKER_NAME = "dai";
-    public static final String ARTIS_SIGMA_TICKER = "artis";
-    public static final String BINANCE_TICKER = "binance";
-
-    public static final String ETHEREUM_TICKER = "ethereum";
-    public static final String POA_TICKER = "poa";
 
     public static final String USD_SYMBOL = "$";
     public static final String ETH_SYMBOL = "ILG";
     public static final String Secondary_SYMBOL = "ILGT";
-    public static final String xDAI_SYMBOL = "xDai";
-    public static final String POA_SYMBOL = "POA";
-    public static final String ETC_SYMBOL = "ETC";
-    public static final String GOERLI_SYMBOL = "GÖETH";
-    public static final String ARTIS_SIGMA1_SYMBOL = "ATS";
-    public static final String ARTIS_TAU1_SYMBOL = "ATS";
-    public static final String BINANCE_SYMBOL = "BNB";
-    public static final String HECO_SYMBOL = "HT";
 
     public static final String BURN_ADDRESS = "0x0000000000000000000000000000000000000000";
 
@@ -63,11 +32,7 @@ public abstract class C {
     public static final String DAI_TOKEN = "0x6b175474e89094c44da98b954eedeac495271d0f";
     public static final String SAI_TOKEN = "0x89d24a6b4ccb1b6faa2625fe562bdd9a23260359";
 
-    public static final String XDAI_BRIDGE_DAPP = "https://bridge.xdaichain.com/";
-
     public static final String GWEI_UNIT = "Gwei";
-
-    public static final String MARKET_SALE = "market";
 
     public static final String EXTRA_ADDRESS = "ADDRESS";
     public static final String EXTRA_CONTRACT_ADDRESS = "CONTRACT_ADDRESS";
@@ -146,14 +111,13 @@ public abstract class C {
             "com.stormbird.wallet.WALLET_CONNECT";
 
     public static final String DEFAULT_GAS_PRICE = "10000000000000";
-    public static final String DEFAULT_XDAI_GAS_PRICE = "1000000000";
     public static final String DEFAULT_GAS_LIMIT = "21000";//"90000";
     public static final String DEFAULT_GAS_LIMIT_FOR_TOKENS = "144000";
     public static final String DEFAULT_UNKNOWN_FUNCTION_GAS_LIMIT = "1000000"; //if we don't know the specific function, we default to 1 million gas limit
     public static final String DEFAULT_GAS_LIMIT_FOR_NONFUNGIBLE_TOKENS = "432000"; //NFT's typically require more gas
     public static final String DEFAULT_GAS_LIMIT_FOR_END_CONTRACT = "200000"; //TODO: determine appropriate gas limit for contract destruct
     public static final long GAS_PER_BYTE = 310; //from experimentation
-    public static final long GAS_PRICE_DEFAULT = 10000000000000L;
+    //public static final long GAS_PRICE_DEFAULT = 10000000000000L;
     public static final long GAS_LIMIT_MIN = 21000L;
     public static final long GAS_LIMIT_DEFAULT = 21000L;//90000L;
     public static final long GAS_LIMIT_CONTRACT = 1000000L;
@@ -165,13 +129,6 @@ public abstract class C {
     public static final boolean SHOW_NEW_ACCOUNT_PROMPT = false;   //this will switch off the splash screen 'please make a key' message
 
     public static final String DEFAULT_NETWORK = ETHEREUM_NETWORK_NAME;
-
-    public static final String TELEGRAM_PACKAGE_NAME = "org.telegram.messenger";
-    public static final String TWITTER_PACKAGE_NAME = "com.twitter.android";
-    public static final String FACEBOOK_PACKAGE_NAME = "com.facebook.katana";
-    public static final String LINKEDIN_PACKAGE_NAME = "com.linkedin.android";
-    public static final String REDDIT_PACKAGE_NAME = "com.reddit.frontpage";
-    public static final String INSTAGRAM_PACKAGE_NAME = "com.instagram.android";
 
     public interface ErrorCode {
         int UNKNOWN = 1;
@@ -185,15 +142,16 @@ public abstract class C {
         String TRANSACTION = "transaction";
         String TICKET = "ticket";
         String TICKET_RANGE = "ticket_range";
-        String MARKETPLACE_EVENT = "marketplace_event";
         String SHOULD_SHOW_SECURITY_WARNING = "should_show_security_warning";
         String FROM_SETTINGS = "from_settings";
     }
 
+    public static final String STAKING_DATA_URL = "TODO";
+
     public static final String DAPP_LASTURL_KEY = "dappURL";
     public static final String DAPP_BROWSER_HISTORY = "DAPP_BROWSER_HISTORY";
     public static final String DAPP_BROWSER_BOOKMARKS = "dappBrowserBookmarks";
-    public static final String DAPP_DEFAULT_URL = "https://www.stateofthedapps.com/";
+    public static final String DAPP_DEFAULT_URL = "https://www.ilgonwallet.com/";
     public static final String DAPP_PREFIX_TELEPHONE = "tel";
     public static final String DAPP_PREFIX_MAILTO = "mailto";
     public static final String DAPP_PREFIX_ALPHAWALLET = "alphawallet";
@@ -220,15 +178,8 @@ public abstract class C {
 
     //Analytics
     public static final String PREF_UNIQUE_ID = "unique_id";
-    public static final String AN_IMPORT_WALLET = "Wallet Imported";
-    public static final String AN_WALLET_TYPE = "Wallet Type";
-    public static final String AN_SEED_PHRASE = "Seed Phrase";
-    public static final String AN_KEYSTORE = "Keystore";
-    public static final String AN_PRIVATE_KEY = "Private Key";
-    public static final String AN_USE_GAS = "Gas Settings";
-    public static final String AN_CALL_ACTIONSHEET = "Use ActionSheet";
-    public static final String AN_USE_ONRAMP = "Use OnRamp";
-    public static final String APP_NAME = "PACKAGE_NAME";
 
     public static final String ALPHAWALLET_LOGO_URI = "https://alphawallet.com/wp-content/themes/alphawallet/img/alphawallet-logo.svg";
+
+
 }

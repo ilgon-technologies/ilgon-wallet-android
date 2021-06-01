@@ -81,7 +81,7 @@
                 android:layout_marginRight="3dp"
                 android:padding="3dp"
                 android:src="@drawable/ic_clear"
-                android:tint="@color/light_gray"
+                app:tint="@color/light_gray"
                 android:visibility="gone" />
 
             <LinearLayout

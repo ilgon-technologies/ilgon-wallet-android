@@ -1,7 +1,7 @@
 package com.alphawallet.app.ui;
 
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
+
 import android.os.Bundle;
 import android.os.Handler;
 import androidx.annotation.Nullable;
@@ -9,7 +9,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,12 +20,8 @@ import com.alphawallet.app.entity.FinishReceiver;
 import com.alphawallet.app.entity.StandardFunctionInterface;
 import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.tokens.Token;
-import com.alphawallet.app.entity.tokens.TokenCardMeta;
-import com.alphawallet.app.repository.entity.RealmToken;
 import com.alphawallet.app.ui.widget.adapter.ActivityAdapter;
 import com.alphawallet.app.ui.widget.adapter.NonFungibleTokenAdapter;
-import com.alphawallet.app.ui.widget.adapter.TokensAdapter;
-import com.alphawallet.app.viewmodel.AdvancedSettingsViewModel;
 import com.alphawallet.app.viewmodel.TokenFunctionViewModel;
 import com.alphawallet.app.viewmodel.TokenFunctionViewModelFactory;
 import com.alphawallet.app.web3.Web3TokenView;
@@ -49,8 +44,6 @@ import javax.inject.Inject;
 import dagger.android.AndroidInjection;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
-import io.realm.Realm;
-import io.realm.RealmResults;
 
 import static com.alphawallet.app.C.Key.TICKET;
 import static com.alphawallet.app.C.Key.WALLET;
@@ -138,7 +131,6 @@ public class AssetDisplayActivity extends BaseActivity implements StandardFuncti
         viewModel.sig().observe(this, this::onSigData);
         viewModel.insufficientFunds().observe(this, this::errorInsufficientFunds);
         viewModel.invalidAddress().observe(this, this::errorInvalidAddress);
-        viewModel.newScriptFound().observe(this, this::onNewScript);
 
         functionBar = findViewById(R.id.layoutButtons);
 
@@ -147,7 +139,6 @@ public class AssetDisplayActivity extends BaseActivity implements StandardFuncti
 
         finishReceiver = new FinishReceiver(this);
         findViewById(R.id.certificate_spinner).setVisibility(View.VISIBLE);
-        viewModel.checkTokenScriptValidity(token);
         token.clearResultMap();
 
         if (token.getArrayBalance().size() > 0 && viewModel.getAssetDefinitionService().hasDefinition(token.tokenInfo.chainId, token.tokenInfo.address))
@@ -159,7 +150,6 @@ public class AssetDisplayActivity extends BaseActivity implements StandardFuncti
             displayTokens();
         }
 
-        viewModel.checkForNewScript(token); //check for updated script
         setUpRecentTransactionsView();
     }
 
@@ -183,16 +173,6 @@ public class AssetDisplayActivity extends BaseActivity implements StandardFuncti
         {
             token.itemViewHeight = fetchedViewHeight;
             displayTokens();
-        }
-    }
-
-    private void onNewScript(Boolean aBoolean)
-    {
-        //need to reload tokens, now we have an updated/new script
-        if (viewModel.getAssetDefinitionService().hasDefinition(token.tokenInfo.chainId, token.tokenInfo.address))
-        {
-            initWebViewCheck();
-            handler.postDelayed(this, TOKEN_SIZING_DELAY);
         }
     }
 
@@ -277,18 +257,6 @@ public class AssetDisplayActivity extends BaseActivity implements StandardFuncti
     }
 
     @Override
-    public void selectRedeemTokens(List<BigInteger> selection)
-    {
-        viewModel.selectRedeemTokens(this, token, selection);
-    }
-
-    @Override
-    public void sellTicketRouter(List<BigInteger> selection)
-    {
-        viewModel.sellTicketRouter(this, token, selection);
-    }
-
-    @Override
     public void showTransferToken(List<BigInteger> selection)
     {
         viewModel.showTransferToken(this, token, selection);
@@ -333,23 +301,7 @@ public class AssetDisplayActivity extends BaseActivity implements StandardFuncti
 
     @Override
     public void handleTokenScriptFunction(String function, List<BigInteger> selection)
-    {
-        //does the function have a view? If it's transaction only then handle here
-        Map<String, TSAction> functions = viewModel.getAssetDefinitionService().getTokenFunctionMap(token.tokenInfo.chainId, token.getAddress());
-        TSAction action = functions.get(function);
-        token.clearResultMap();
-
-        //handle TS function
-        if (action != null && action.view == null && action.function != null)
-        {
-            //go straight to function call
-            viewModel.handleFunction(action, selection.get(0), token, this);
-        }
-        else
-        {
-            viewModel.showFunction(this, token, function, selection);
-        }
-    }
+    { }
 
     @Override
     public void onPageLoaded(WebView view)

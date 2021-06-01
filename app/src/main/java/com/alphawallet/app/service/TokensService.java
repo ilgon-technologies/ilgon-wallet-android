@@ -11,7 +11,6 @@ import androidx.annotation.Nullable;
 
 import com.alphawallet.app.BuildConfig;
 import com.alphawallet.app.C;
-import com.alphawallet.app.entity.AnalyticsProperties;
 import com.alphawallet.app.entity.ContractLocator;
 import com.alphawallet.app.entity.ContractType;
 import com.alphawallet.app.entity.NetworkInfo;
@@ -37,7 +36,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
@@ -49,14 +47,12 @@ import io.realm.Realm;
 
 import static com.alphawallet.app.C.ADDED_TOKEN;
 import static com.alphawallet.app.repository.EthereumNetworkBase.MAINNET_ID;
-import static com.alphawallet.app.repository.EthereumNetworkBase.RINKEBY_ID;
 
 public class TokensService
 {
     public static final String UNKNOWN_CONTRACT = "[Unknown Contract]";
     public static final String EXPIRED_CONTRACT = "[Expired Contract]";
     private static final long OPENSEA_CHECK_INTERVAL = 30 * DateUtils.SECOND_IN_MILLIS;
-    private static final long OPENSEA_RINKEBY_CHECK = 4; //1 in [OPENSEA_RINKEBY_CHECK] opensea calls will to Rinkeby opensea
     public static final long PENDING_TIME_LIMIT = 3*DateUtils.MINUTE_IN_MILLIS; //cut off pending chain after 3 minutes
 
     private static final Map<String, Float> tokenValueMap = new ConcurrentHashMap<>(); //this is used to compute the USD value of the tokens on an address
@@ -69,7 +65,6 @@ public class TokensService
     private final Context context;
     private final TickerService tickerService;
     private final OpenseaService openseaService;
-    private final AnalyticsServiceType analyticsService;
     private final List<Integer> networkFilter;
     private ContractLocator focusToken;
     private final ConcurrentLinkedDeque<ContractAddress> unknownTokens;
@@ -107,14 +102,12 @@ public class TokensService
                          PreferenceRepositoryType preferenceRepository,
                          Context context,
                          TickerService tickerService,
-                         OpenseaService openseaService,
-                         AnalyticsServiceType analyticsService) {
+                         OpenseaService openseaService) {
         this.ethereumNetworkRepository = ethereumNetworkRepository;
         this.tokenRepository = tokenRepository;
         this.context = context;
         this.tickerService = tickerService;
         this.openseaService = openseaService;
-        this.analyticsService = analyticsService;
         networkFilter = new ArrayList<>();
         setupFilter();
         focusToken = null;
@@ -486,7 +479,7 @@ public class TokensService
         openSeaCount++;
         nextOpenSeaCheck = System.currentTimeMillis() + OPENSEA_CHECK_INTERVAL;
         final Wallet wallet = new Wallet(currentAddress);
-        NetworkInfo info = openSeaCount != OPENSEA_RINKEBY_CHECK ? ethereumNetworkRepository.getNetworkByChain(MAINNET_ID) : ethereumNetworkRepository.getNetworkByChain(RINKEBY_ID);
+        NetworkInfo info = ethereumNetworkRepository.getNetworkByChain(MAINNET_ID);
         if(info != null) {
             if (BuildConfig.DEBUG)
                 Log.d("OPENSEA", "Fetch from opensea : " + currentAddress + " : " + info.getShortName());
@@ -497,8 +490,6 @@ public class TokensService
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(this::checkERC20, this::onOpenseaError);
         }
-
-        if (openSeaCount >= OPENSEA_RINKEBY_CHECK) openSeaCount = 0;
     }
 
     private void checkERC20(Token[] checkedERC721Tokens)
@@ -760,19 +751,6 @@ public class TokensService
     public void appOutOfFocus()
     {
         appHasFocus = false;
-    }
-
-    /**
-     * Notify that the new gas setting widget was actually used :)
-     *
-     * @param gasSpeed
-     */
-    public void track(String gasSpeed)
-    {
-        AnalyticsProperties analyticsProperties = new AnalyticsProperties();
-        analyticsProperties.setData(gasSpeed);
-
-        analyticsService.track(C.AN_USE_GAS, analyticsProperties);
     }
 
     public Token getTokenOrBase(int chainId, String address)

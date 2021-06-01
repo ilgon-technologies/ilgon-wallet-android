@@ -4,8 +4,6 @@ import android.content.Context;
 
 import com.alphawallet.app.repository.EthereumNetworkRepository;
 import com.alphawallet.app.repository.EthereumNetworkRepositoryType;
-import com.alphawallet.app.repository.OnRampRepository;
-import com.alphawallet.app.repository.OnRampRepositoryType;
 import com.alphawallet.app.repository.PreferenceRepositoryType;
 import com.alphawallet.app.repository.SharedPreferenceRepository;
 import com.alphawallet.app.repository.TokenLocalSource;
@@ -21,14 +19,10 @@ import com.alphawallet.app.repository.WalletRepository;
 import com.alphawallet.app.repository.WalletRepositoryType;
 import com.alphawallet.app.service.AccountKeystoreService;
 import com.alphawallet.app.service.AlphaWalletService;
-import com.alphawallet.app.service.AnalyticsService;
-import com.alphawallet.app.service.AnalyticsServiceType;
 import com.alphawallet.app.service.AssetDefinitionService;
 import com.alphawallet.app.service.GasService;
-import com.alphawallet.app.service.GasService2;
 import com.alphawallet.app.service.KeyService;
 import com.alphawallet.app.service.KeystoreAccountService;
-import com.alphawallet.app.service.MarketQueueService;
 import com.alphawallet.app.service.NotificationService;
 import com.alphawallet.app.service.OpenseaService;
 import com.alphawallet.app.service.RealmManager;
@@ -105,12 +99,6 @@ public class RepositoriesModule {
 	}
 
 	@Singleton
-	@Provides
-	OnRampRepositoryType provideOnRampRepository(Context context, AnalyticsServiceType analyticsServiceType) {
-		return new OnRampRepository(context, analyticsServiceType);
-	}
-
-	@Singleton
     @Provides
     TransactionLocalSource provideTransactionInDiskCache(RealmManager realmManager) {
         return new TransactionsRealmCache(realmManager);
@@ -160,9 +148,8 @@ public class RepositoriesModule {
 									   PreferenceRepositoryType preferenceRepository,
 									   Context context,
 									   TickerService tickerService,
-									   OpenseaService openseaService,
-									   AnalyticsServiceType analyticsService) {
-		return new TokensService(ethereumNetworkRepository, tokenRepository, preferenceRepository, context, tickerService, openseaService, analyticsService);
+									   OpenseaService openseaService) {
+		return new TokensService(ethereumNetworkRepository, tokenRepository, preferenceRepository, context, tickerService, openseaService);
 	}
 
 	@Singleton
@@ -180,19 +167,6 @@ public class RepositoriesModule {
 	@Provides
 	GasService provideGasService(EthereumNetworkRepositoryType ethereumNetworkRepository) {
 		return new GasService(ethereumNetworkRepository);
-	}
-
-	@Singleton
-	@Provides
-	GasService2 provideGasService2(EthereumNetworkRepositoryType ethereumNetworkRepository, OkHttpClient client, RealmManager realmManager) {
-		return new GasService2(ethereumNetworkRepository, client, realmManager);
-	}
-
-	@Singleton
-	@Provides
-    MarketQueueService provideMarketQueueService(Context ctx, OkHttpClient okHttpClient,
-                                                 TransactionRepositoryType transactionRepository) {
-		return new MarketQueueService(ctx, okHttpClient, transactionRepository);
 	}
 
 	@Singleton
@@ -229,9 +203,4 @@ public class RepositoriesModule {
 		return new KeyService(ctx);
 	}
 
-	@Singleton
-	@Provides
-	AnalyticsServiceType provideAnalyticsService(Context ctx) {
-		return new AnalyticsService(ctx);
-	}
 }

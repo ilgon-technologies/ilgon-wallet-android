@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.lifecycle.LiveData;
@@ -20,7 +19,6 @@ import androidx.lifecycle.MutableLiveData;
 import com.alphawallet.app.BuildConfig;
 import com.alphawallet.app.C;
 import com.alphawallet.app.R;
-import com.alphawallet.app.entity.AnalyticsProperties;
 import com.alphawallet.app.entity.CryptoFunctions;
 import com.alphawallet.app.entity.FragmentMessenger;
 import com.alphawallet.app.entity.NetworkInfo;
@@ -38,10 +36,9 @@ import com.alphawallet.app.repository.LocaleRepositoryType;
 import com.alphawallet.app.repository.PreferenceRepositoryType;
 import com.alphawallet.app.repository.TokenRepository;
 import com.alphawallet.app.router.AddTokenRouter;
-import com.alphawallet.app.router.ImportTokenRouter;
 import com.alphawallet.app.router.MyAddressRouter;
-import com.alphawallet.app.service.AnalyticsServiceType;
 import com.alphawallet.app.service.AssetDefinitionService;
+import com.alphawallet.app.service.GasService;
 import com.alphawallet.app.service.TickerService;
 import com.alphawallet.app.service.TransactionsBgService;
 import com.alphawallet.app.service.TransactionsService;
@@ -53,13 +50,9 @@ import com.alphawallet.token.entity.MagicLinkData;
 import com.alphawallet.token.tools.ParseMagicLink;
 
 import java.io.File;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
-import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 import static org.web3j.crypto.WalletUtils.isValidAddress;
@@ -67,14 +60,12 @@ import static org.web3j.crypto.WalletUtils.isValidAddress;
 public class HomeViewModel extends BaseViewModel {
     private final String TAG = "HVM";
     public static final String ALPHAWALLET_DIR = "AlphaWallet";
-    public static final String ALPHAWALLET_FILE_URL = "https://1x.alphawallet.com/dl/latest.apk";
 
     private final MutableLiveData<NetworkInfo> defaultNetwork = new MutableLiveData<>();
     private final MutableLiveData<Transaction[]> transactions = new MutableLiveData<>();
     private final MutableLiveData<String> backUpMessage = new MutableLiveData<>();
 
     private final PreferenceRepositoryType preferenceRepository;
-    private final ImportTokenRouter importTokenRouter;
     private final AddTokenRouter addTokenRouter;
     private final LocaleRepositoryType localeRepository;
     private final AssetDefinitionService assetDefinitionService;
@@ -86,7 +77,7 @@ public class HomeViewModel extends BaseViewModel {
     private final TickerService tickerService;
     private final Context context;
     private final MyAddressRouter myAddressRouter;
-    private final AnalyticsServiceType analyticsService;
+    private final GasService gasService;
 
     private CryptoFunctions cryptoFunctions;
     private ParseMagicLink parser;
@@ -98,7 +89,6 @@ public class HomeViewModel extends BaseViewModel {
     HomeViewModel(
             PreferenceRepositoryType preferenceRepository,
             LocaleRepositoryType localeRepository,
-            ImportTokenRouter importTokenRouter,
             AddTokenRouter addTokenRouter,
             AssetDefinitionService assetDefinitionService,
             GenericWalletInteract genericWalletInteract,
@@ -109,9 +99,8 @@ public class HomeViewModel extends BaseViewModel {
             MyAddressRouter myAddressRouter,
             TransactionsService transactionsService,
             TickerService tickerService,
-            AnalyticsServiceType analyticsService) {
+            GasService gasService) {
         this.preferenceRepository = preferenceRepository;
-        this.importTokenRouter = importTokenRouter;
         this.addTokenRouter = addTokenRouter;
         this.localeRepository = localeRepository;
         this.assetDefinitionService = assetDefinitionService;
@@ -123,7 +112,7 @@ public class HomeViewModel extends BaseViewModel {
         this.myAddressRouter = myAddressRouter;
         this.transactionsService = transactionsService;
         this.tickerService = tickerService;
-        this.analyticsService = analyticsService;
+        this.gasService = gasService;
     }
 
     public boolean showNotifications() {
@@ -151,11 +140,19 @@ public class HomeViewModel extends BaseViewModel {
         return backUpMessage;
     }
 
+    public void loadStakingConstants() {
+
+    }
+
     public void prepare() {
         progress.postValue(false);
         disposable = genericWalletInteract
                 .find()
                 .subscribe(this::onDefaultWallet, this::onError);
+    }
+
+    public void fetchGasPrice() {
+        gasService.fetchGasPriceForChain(BuildConfig.MAIN_CHAIN_ID);
     }
 
     public void onClean()
@@ -166,15 +163,6 @@ public class HomeViewModel extends BaseViewModel {
     private void onDefaultWallet(final Wallet wallet)
     {
         defaultWallet.setValue(wallet);
-    }
-
-    public void showImportLink(Activity activity, String importData) {
-        disposable = genericWalletInteract
-                .find().toObservable()
-                .filter(wallet -> checkWalletNotEqual(wallet, importData))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(wallet -> importLink(wallet, activity, importData), this::onError);
     }
 
     private boolean checkWalletNotEqual(Wallet wallet, String importData) {
@@ -201,10 +189,6 @@ public class HomeViewModel extends BaseViewModel {
         return filterPass;
     }
 
-    private void importLink(Wallet wallet, Activity activity, String importData) {
-        importTokenRouter.open(activity, importData);
-    }
-
     public void showAddToken(Context context, String address) {
         addTokenRouter.open(context, address);
     }
@@ -216,50 +200,6 @@ public class HomeViewModel extends BaseViewModel {
         Intent intent = new Intent(context, HomeActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         context.startActivity(intent);
-    }
-
-    public void downloadAndInstall(String build, Context ctx) {
-        createDirectory();
-        downloadAPK(build, ctx);
-    }
-
-    private void createDirectory() {
-        //create XML repository directory
-        File directory = new File(
-                Environment.getExternalStorageDirectory()
-                        + File.separator + ALPHAWALLET_DIR);
-
-        if (!directory.exists()) {
-            directory.mkdir();
-        }
-    }
-
-    private void downloadAPK(String version, Context ctx) {
-        String destination = Environment.getExternalStorageDirectory()
-                + File.separator + ALPHAWALLET_DIR;
-
-        File testFile = new File(destination, "AlphaWallet-" + version + ".apk");
-        if (testFile.exists()) {
-            testFile.delete();
-        }
-        final Uri uri = Uri.parse("file://" + testFile.getPath());
-
-        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(ALPHAWALLET_FILE_URL));
-        request.setDescription(ctx.getString(R.string.alphawallet_update) + " " + version);
-        request.setTitle(ctx.getString(R.string.app_name));
-        request.setDestinationUri(uri);
-        final DownloadManager manager = (DownloadManager) ctx.getSystemService(Context.DOWNLOAD_SERVICE);
-        long downloadId = manager.enqueue(request);
-
-        //set BroadcastReceiver to install app when .apk is downloaded
-        BroadcastReceiver onComplete = new BroadcastReceiver() {
-            public void onReceive(Context ctxt, Intent intent) {
-                installIntent.postValue(testFile);
-                ctx.unregisterReceiver(this);
-            }
-        };
-
-        ctx.registerReceiver(onComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
 
     public void getWalletName() {
@@ -366,9 +306,6 @@ public class HomeViewModel extends BaseViewModel {
                 case URL:
                     ((HomeActivity)activity).onBrowserWithURL(qrCode);
                     break;
-                case MAGIC_LINK:
-                    showImportLink(activity, qrCode);
-                    break;
                 case OTHER:
                     qrCode = null;
                     break;
@@ -423,16 +360,7 @@ public class HomeViewModel extends BaseViewModel {
             uuid = UUID.randomUUID().toString();
         }
 
-        analyticsService.identify(uuid);
         prefs.edit().putString(C.PREF_UNIQUE_ID, uuid).apply();
-    }
-
-    public void actionSheetConfirm(String mode)
-    {
-        AnalyticsProperties analyticsProperties = new AnalyticsProperties();
-        analyticsProperties.setData(mode);
-
-        analyticsService.track(C.AN_CALL_ACTIONSHEET, analyticsProperties);
     }
 
     public void stopTransactionUpdate()

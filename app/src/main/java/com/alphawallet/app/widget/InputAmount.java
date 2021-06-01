@@ -373,7 +373,7 @@ public class InputAmount extends LinearLayout
         }
         catch (Exception e)
         {
-            Log.d("DEBUG", e.getMessage());
+            Log.d("DEBUG", ""+e.getMessage());
             // continue with old value
         }
     }

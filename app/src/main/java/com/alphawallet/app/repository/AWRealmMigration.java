@@ -249,6 +249,14 @@ public class AWRealmMigration implements RealmMigration
             if (realmData != null && !realmData.hasField("chainId")) realmData.addField("chainId", int.class);
             oldVersion++;
         }
+
+        if (oldVersion == 22)
+        {
+            RealmObjectSchema realmToken = schema.get("RealmToken");
+            if (realmToken != null && !realmToken.hasField("stakingBalance")) realmToken.addField("stakingBalance", String.class);
+            if (realmToken != null && !realmToken.hasField("compensationBalance")) realmToken.addField("compensationBalance", String.class);
+            oldVersion++;
+        }
     }
 
     @Override

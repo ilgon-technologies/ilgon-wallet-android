@@ -49,7 +49,6 @@ import io.reactivex.schedulers.Schedulers;
 
 import static com.alphawallet.app.entity.tokenscript.TokenscriptFunction.ZERO_ADDRESS;
 import static com.alphawallet.app.viewmodel.HomeViewModel.ALPHAWALLET_DIR;
-import static com.alphawallet.app.viewmodel.HomeViewModel.ALPHAWALLET_FILE_URL;
 
 public class SplashViewModel extends ViewModel
 {
@@ -163,10 +162,6 @@ public class SplashViewModel extends ViewModel
 
     private void checkWebsiteAPKFileData(long currentInstallDate, final Context baseContext)
     {
-        getFileDataFromURL(ALPHAWALLET_FILE_URL)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(result -> onUpdate(result, currentInstallDate, baseContext), this::onError).isDisposed();
     }
 
     private Single<FileData> getFileDataFromURL(final String location)

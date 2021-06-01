@@ -11,9 +11,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import com.alphawallet.app.BuildConfig;
-import com.alphawallet.app.C;
 import com.alphawallet.app.R;
-import com.alphawallet.app.entity.AnalyticsProperties;
 import com.alphawallet.app.entity.NetworkInfo;
 import com.alphawallet.app.entity.Transaction;
 import com.alphawallet.app.entity.TransactionMeta;
@@ -25,13 +23,10 @@ import com.alphawallet.app.repository.PreferenceRepositoryType;
 import com.alphawallet.app.repository.TokenRepository;
 import com.alphawallet.app.repository.TransactionLocalSource;
 import com.alphawallet.app.util.BalanceUtils;
-import com.alphawallet.app.util.Utils;
 import com.alphawallet.token.entity.ContractAddress;
 
 import org.web3j.exceptions.MessageDecodingException;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.core.methods.response.EthTransaction;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

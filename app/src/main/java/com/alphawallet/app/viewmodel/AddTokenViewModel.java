@@ -21,7 +21,6 @@ import com.alphawallet.app.repository.EthereumNetworkRepositoryType;
 import com.alphawallet.app.repository.TokenRepository;
 import com.alphawallet.app.service.AssetDefinitionService;
 import com.alphawallet.app.service.TokensService;
-import com.alphawallet.app.ui.ImportTokenActivity;
 import com.alphawallet.app.ui.SendActivity;
 import com.alphawallet.token.entity.ContractAddress;
 
@@ -303,14 +302,6 @@ public class AddTokenViewModel extends BaseViewModel {
             testAddress = null;
             noContract.postValue(true);
         }
-    }
-
-    public void showImportLink(Context context, String importTxt)
-    {
-        Intent intent = new Intent(context, ImportTokenActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        intent.putExtra(C.IMPORT_STRING, importTxt);
-        context.startActivity(intent);
     }
 
     public Token getToken(int chainId, String address)

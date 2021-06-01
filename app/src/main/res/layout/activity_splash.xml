@@ -93,8 +93,7 @@
                 android:padding="2dp"
                 android:text="@string/watch"
                 android:textAllCaps="true"
-                android:textColor="@color/tealish"
-                android:visibility="gone" />
+                android:textColor="@color/ilgoin_button_primary_color" />
 
             <Button
                 android:id="@+id/button_import"

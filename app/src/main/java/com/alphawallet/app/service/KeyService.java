@@ -34,7 +34,6 @@ import com.alphawallet.app.entity.cryptokeys.SignatureFromKey;
 import com.alphawallet.app.entity.cryptokeys.SignatureReturnType;
 import com.alphawallet.app.widget.AWalletAlertDialog;
 import com.alphawallet.app.widget.SignTransactionDialog;
-import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.Sign;
@@ -420,7 +419,6 @@ public class KeyService implements AuthenticationCallback, PinAuthenticationCall
         catch (ServiceErrorException e)
         {
             //Legacy keystore error
-            if (!BuildConfig.DEBUG) FirebaseCrashlytics.getInstance().recordException(e);
             e.printStackTrace();
         }
         catch (KeyServiceException e)
@@ -609,7 +607,6 @@ public class KeyService implements AuthenticationCallback, PinAuthenticationCall
         catch (ServiceErrorException e)
         {
             //Legacy keystore error
-            if (!BuildConfig.DEBUG) FirebaseCrashlytics.getInstance().recordException(e);
             e.printStackTrace();
             return UpgradeKeyResult.ERROR;
         }
@@ -897,6 +894,9 @@ public class KeyService implements AuthenticationCallback, PinAuthenticationCall
                 if (signDialog != null && signDialog.isShowing())
                     signDialog.dismiss();
                 break;
+            case FINGERPRINT_ERROR_CANCELED:
+                //can be called when swapping between Fingerprint and PIN, may not be a cancel event
+                return;
             case FINGERPRINT_NOT_VALIDATED:
                 vibrate();
                 Toast.makeText(context, R.string.fingerprint_authentication_failed, Toast.LENGTH_SHORT).show();
@@ -1122,7 +1122,6 @@ public class KeyService implements AuthenticationCallback, PinAuthenticationCall
         catch (ServiceErrorException e)
         {
             //Legacy keystore error
-            if (!BuildConfig.DEBUG) FirebaseCrashlytics.getInstance().recordException(e);
             returnSig.failMessage = e.getMessage();
             e.printStackTrace();
         }

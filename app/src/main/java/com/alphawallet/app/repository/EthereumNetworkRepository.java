@@ -85,13 +85,6 @@ public class EthereumNetworkRepository extends EthereumNetworkBase
                 popularTokens.put(unknownToken.address.toLowerCase(), new ContractLocator(unknownToken.address, EthereumNetworkRepository.MAINNET_ID));
             }
         }
-        if (networkFilters == null || networkFilters.contains(EthereumNetworkRepository.XDAI_ID))
-        {
-            for (UnknownToken unknownToken: knownContract.getXDAI())
-            {
-                popularTokens.put(unknownToken.address.toLowerCase(), new ContractLocator(unknownToken.address, EthereumNetworkRepository.XDAI_ID));
-            }
-        }
     }
 
     @Override

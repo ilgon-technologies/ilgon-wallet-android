@@ -355,29 +355,6 @@ public class Transaction implements Parcelable
 		}
 	}
 
-	/**
-	 * Supplimental info in this case is the intrinsic root value attached to a contract call
-	 * EG: Calling cryptokitties ERC721 'breedWithAuto' function requires you to call the function and also attach a small amount of ETH
-	 * for the 'breeding fee'. That fee is later released to the caller of the 'birth' function.
-	 * Supplemental info for these transaction would appear as -0.031 for the 'breedWithAuto' and +0.031 on the 'birth' call
-	 * However it's not that simple - the 'breeding fee' will be in the value attached to the transaction, however the 'midwife' reward appears
-	 * as an internal transaction, so won't be in the 'value' property.
-	 *
-	 * @return
-	 */
-	public String getSupplementalInfo(String walletAddress, String networkName)
-	{
-		if (hasInput())
-		{
-			decodeTransactionInput(walletAddress);
-			return transactionInput.getSupplimentalInfo(this, walletAddress, networkName);
-		}
-		else
-		{
-			return "";
-		}
-	}
-
 	public String getPrefix(Token token)
 	{
 		if (hasInput())

@@ -17,6 +17,7 @@ public class TabUtils {
         LinearLayout layout = (LinearLayout) ((ViewGroup) tabLayout.getChildAt(0)).getChildAt(tab.getPosition());
         TextView tabTextView = (TextView) layout.getChildAt(1);
         if (tabTextView != null) {
+            tabTextView.setLines(1);
             tabTextView.setTypeface(typeface);
         }
     }

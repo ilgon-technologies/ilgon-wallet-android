@@ -40,11 +40,8 @@ public class AdvancedSettingsActivity extends BaseActivity {
     AdvancedSettingsViewModelFactory viewModelFactory;
     private AdvancedSettingsViewModel viewModel;
 
-    private SettingsItemView console;
     private SettingsItemView clearBrowserCache;
-    private SettingsItemView tokenScript;
     private SettingsItemView changeLanguage;
-    private SettingsItemView tokenScriptManagement;
     private SettingsItemView changeCurrency;
     private SettingsItemView fullScreenSettings;
 
@@ -67,22 +64,10 @@ public class AdvancedSettingsActivity extends BaseActivity {
     }
 
     private void initializeSettings() {
-        console = new SettingsItemView.Builder(this)
-                .withIcon(R.drawable.ic_settings_console)
-                .withTitle(R.string.title_console)
-                .withListener(this::onConsoleClicked)
-                .build();
-
         clearBrowserCache = new SettingsItemView.Builder(this)
                 .withIcon(R.drawable.ic_settings_cache)
                 .withTitle(R.string.title_clear_browser_cache)
                 .withListener(this::onClearBrowserCacheClicked)
-                .build();
-
-        tokenScript = new SettingsItemView.Builder(this)
-                .withIcon(R.drawable.ic_settings_tokenscript)
-                .withTitle(R.string.title_tokenscript)
-                .withListener(this::onTokenScriptClicked)
                 .build();
 
         changeLanguage = new SettingsItemView.Builder(this)
@@ -95,13 +80,6 @@ public class AdvancedSettingsActivity extends BaseActivity {
                 .withIcon(R.drawable.ic_currency)
                 .withTitle(R.string.settings_locale_currency)
                 .withListener(this::onChangeCurrencyClicked)
-                .build();
-
-        //TODO Change Icon
-        tokenScriptManagement = new SettingsItemView.Builder(this)
-                .withIcon(R.drawable.ic_settings_tokenscript_manage)
-                .withTitle(R.string.tokenscript_management)
-                .withListener(this::onTokenScriptManagementClicked)
                 .build();
 
         fullScreenSettings = new SettingsItemView.Builder(this)
@@ -122,20 +100,11 @@ public class AdvancedSettingsActivity extends BaseActivity {
 
     private void addSettingsToLayout() {
         LinearLayout advancedSettingsLayout = findViewById(R.id.layout);
-        //advancedSettingsLayout.addView(console);
-        //advancedSettingsLayout.addView(clearBrowserCache);
 
-        //if (!checkWritePermission() && EthereumNetworkRepository.extraChains() == null)
-        //    advancedSettingsLayout.addView(tokenScript);
-
+        advancedSettingsLayout.addView(clearBrowserCache);
         advancedSettingsLayout.addView(changeLanguage);
-        //advancedSettingsLayout.addView(changeCurrency);
-        //advancedSettingsLayout.addView(tokenScriptManagement);
-        //advancedSettingsLayout.addView(fullScreenSettings);
-    }
-
-    private void onConsoleClicked() {
-        // TODO: Implementation
+        advancedSettingsLayout.addView(changeCurrency);
+        advancedSettingsLayout.addView(fullScreenSettings);
     }
 
     private void onClearBrowserCacheClicked() {
@@ -144,9 +113,6 @@ public class AdvancedSettingsActivity extends BaseActivity {
         Toast.makeText(this, getString(R.string.toast_browser_cache_cleared), Toast.LENGTH_SHORT).show();
     }
 
-    private void onTokenScriptClicked() {
-        showXMLOverrideDialog();
-    }
 
     private void onChangeLanguageClicked() {
         Intent intent = new Intent(this, SelectLocaleActivity.class);
@@ -162,40 +128,6 @@ public class AdvancedSettingsActivity extends BaseActivity {
         intent.putExtra(EXTRA_CURRENCY, currentLocale);
         intent.putParcelableArrayListExtra(EXTRA_STATE, viewModel.getCurrencyList());
         startActivityForResult(intent, C.UPDATE_CURRENCY);
-    }
-
-    private void onTokenScriptManagementClicked() {
-        Intent intent = new Intent(this, TokenScriptManagementActivity.class);
-        startActivity(intent);
-    }
-
-    private void showXMLOverrideDialog() {
-        AWalletConfirmationDialog cDialog = new AWalletConfirmationDialog(this);
-        cDialog.setTitle(R.string.enable_xml_override_dir);
-        cDialog.setSmallText(R.string.explain_xml_override);
-        cDialog.setMediumText(R.string.ask_user_about_xml_override);
-        cDialog.setPrimaryButtonText(R.string.dialog_ok);
-        cDialog.setPrimaryButtonListener(v -> {
-            //ask for OS permission and write directory
-            askWritePermission();
-            cDialog.dismiss();
-        });
-        cDialog.setSecondaryButtonText(R.string.dialog_cancel_back);
-        cDialog.setSecondaryButtonListener(v -> {
-            cDialog.dismiss();
-        });
-        cDialog.show();
-    }
-
-    private void askWritePermission() {
-        final String[] permissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        Log.w(AdvancedSettingsActivity.class.getSimpleName(), "Folder write permission is not granted. Requesting permission");
-        ActivityCompat.requestPermissions(this, permissions, HomeActivity.RC_ASSET_EXTERNAL_WRITE_PERM);
-    }
-
-    private boolean checkWritePermission() {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                == PackageManager.PERMISSION_GRANTED;
     }
 
     public void updateLocale(Intent data) {
@@ -241,37 +173,6 @@ public class AdvancedSettingsActivity extends BaseActivity {
                 break;
             }
         }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
-    {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode)
-        {
-            case HomeActivity.RC_ASSET_EXTERNAL_WRITE_PERM:
-                if (viewModel.createDirectory())
-                {
-                    LinearLayout advancedSettingsLayout = findViewById(R.id.layout);
-                    advancedSettingsLayout.removeView(tokenScript);
-                    showAlphaWalletDirectoryConfirmation();
-                    //need to set up the listener
-                    viewModel.startFileListeners();
-                }
-                break;
-        }
-    }
-
-    private void showAlphaWalletDirectoryConfirmation() {
-        AWalletAlertDialog cDialog = new AWalletAlertDialog(this);
-        cDialog.setIcon(AWalletAlertDialog.SUCCESS);
-        cDialog.setTitle(getString(R.string.created_aw_directory));
-        cDialog.setMessage(getString(R.string.created_aw_directory_detail));
-        cDialog.setButtonText(R.string.dialog_ok);
-        cDialog.setButtonListener(v -> {
-            cDialog.dismiss();
-        });
-        cDialog.show();
     }
 
     @Override

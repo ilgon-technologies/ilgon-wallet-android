@@ -13,6 +13,7 @@ import com.alphawallet.app.entity.Transaction;
 import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.interact.GenericWalletInteract;
 import com.alphawallet.app.repository.CurrencyRepositoryType;
+import com.alphawallet.app.repository.EthereumNetworkRepository;
 import com.alphawallet.app.repository.EthereumNetworkRepositoryType;
 import com.alphawallet.app.repository.LocaleRepositoryType;
 import com.alphawallet.app.repository.PreferenceRepositoryType;
@@ -57,6 +58,10 @@ public class NewSettingsViewModel extends BaseViewModel {
 
     public void showManageWallets(Context context, boolean clearStack) {
         manageWalletsRouter.open(context, clearStack);
+    }
+
+    public boolean onlyMainnetActive() {
+        return ethereumNetworkRepository.getFilterNetworkList().size() < 2;
     }
 
     public void setNetwork(String selectedRpcServer) {

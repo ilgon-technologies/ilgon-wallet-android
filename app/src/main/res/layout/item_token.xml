@@ -155,12 +155,27 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginBottom="4dp"
+                    android:layout_marginBottom="2dp"
                     android:layout_marginTop="2dp"
                     android:visibility="gone">
                     <TextView
                         android:textColor="@color/colorPrimaryDark"
                         android:id="@+id/staking_balance_text"
+                        android:layout_width="match_parent"
+                        android:textSize="12sp"
+                        android:fontFamily="@font/font_regular"
+                        android:layout_height="wrap_content"/>
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/compensation_linear_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="4dp"
+                    android:visibility="gone">
+                    <TextView
+                        android:textColor="@color/colorPrimaryDark"
+                        android:id="@+id/compensation_balance_text"
                         android:layout_width="match_parent"
                         android:textSize="12sp"
                         android:fontFamily="@font/font_regular"

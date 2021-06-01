@@ -45,7 +45,7 @@
         android:layout_marginBottom="25dp"
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
-        android:background="@color/nasty_green"
+        android:background="@color/ilgoin_button_primary_color"
         android:fontFamily="@font/font_semibold"
         android:text="@string/watch_wallet"
         android:textAllCaps="true"
@@ -53,7 +53,6 @@
         android:textSize="18sp" />
 
     <LinearLayout
-        android:id="@+id/bottom_marker_ww"
         android:layout_width="wrap_content"
         android:layout_height="1dp"
         android:visibility="invisible"

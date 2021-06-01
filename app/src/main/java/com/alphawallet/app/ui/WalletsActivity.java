@@ -12,6 +12,7 @@ import android.os.Handler;
 import androidx.annotation.Nullable;
 
 import com.alphawallet.app.service.TransactionsBgService;
+import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.viewmodel.ActivityViewModel;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -75,6 +76,7 @@ public class WalletsActivity extends BaseActivity implements
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
+        LocaleUtils.setActiveLocale(this);
         setContentView(R.layout.activity_wallets);
         toolbar();
         setTitle(getString(R.string.title_change_add_wallet));

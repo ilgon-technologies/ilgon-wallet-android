@@ -8,7 +8,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -16,7 +15,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.alphawallet.app.C;
 import com.alphawallet.app.R;
-import com.alphawallet.app.entity.CryptoFunctions;
 import com.alphawallet.app.entity.EIP681Type;
 import com.alphawallet.app.entity.NetworkInfo;
 import com.alphawallet.app.entity.Operation;
@@ -27,8 +25,7 @@ import com.alphawallet.app.entity.TransactionData;
 import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.repository.EthereumNetworkBase;
-import com.alphawallet.app.repository.EthereumNetworkRepository;
-import com.alphawallet.app.service.GasService2;
+import com.alphawallet.app.service.GasService;
 import com.alphawallet.app.ui.widget.entity.ActionSheetCallback;
 import com.alphawallet.app.ui.widget.entity.AddressReadyCallback;
 import com.alphawallet.app.ui.widget.entity.AmountReadyCallback;
@@ -46,10 +43,8 @@ import com.alphawallet.app.widget.FunctionButtonBar;
 import com.alphawallet.app.widget.InputAddress;
 import com.alphawallet.app.widget.InputAmount;
 import com.alphawallet.app.widget.SignTransactionDialog;
-import com.alphawallet.token.entity.SalesOrderMalformed;
 import com.alphawallet.token.tools.Convert;
 import com.alphawallet.token.tools.Numeric;
-import com.alphawallet.token.tools.ParseMagicLink;
 
 import org.web3j.protocol.core.methods.response.EthEstimateGas;
 
@@ -66,12 +61,9 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 import static com.alphawallet.app.C.DEFAULT_GAS_LIMIT;
-import static com.alphawallet.app.C.GAS_LIMIT_DEFAULT;
 import static com.alphawallet.app.C.GAS_LIMIT_MIN;
-import static com.alphawallet.app.C.GAS_PRICE_DEFAULT;
 import static com.alphawallet.app.C.Key.WALLET;
 import static com.alphawallet.app.repository.EthereumNetworkBase.MAINNET_ID;
-import static com.alphawallet.app.repository.EthereumNetworkBase.hasGasOverride;
 import static com.alphawallet.app.widget.AWalletAlertDialog.ERROR;
 import static com.alphawallet.app.widget.AWalletAlertDialog.WARNING;
 import static com.alphawallet.token.tools.Convert.getEthString;
@@ -97,12 +89,9 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
     private String sendAddress;
     private String ensAddress;
     private BigDecimal sendAmount;
-    private BigDecimal sendGasPrice;
     private ActionSheetDialog confirmationDialog;
     private SignAuthenticationCallback signingCallback;
-    //private Button sendAllBtn;
     private BigDecimal ethBalance;
-    //private boolean isSendMax;
 
     private SignAuthenticationCallback signCallback;
 
@@ -116,8 +105,6 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
 
         viewModel = new ViewModelProvider(this, sendViewModelFactory)
                 .get(SendViewModel.class);
-
-        //isSendMax = false;
 
         String contractAddress = getIntent().getStringExtra(C.EXTRA_CONTRACT_ADDRESS);
         wallet = getIntent().getParcelableExtra(WALLET);
@@ -133,7 +120,6 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
         //});
 
         sendAddress = null;
-        sendGasPrice = BigDecimal.valueOf(GAS_PRICE_DEFAULT);//BigDecimal.ZERO;
         sendAmount = NEGATIVE;
 
         if (!checkTokenValidity(currentChain, contractAddress)) { return; }
@@ -209,10 +195,9 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
             {
                 int gasSelectionIndex = data.getIntExtra(C.EXTRA_SINGLE_ITEM, -1);
                 long customNonce = data.getLongExtra(C.EXTRA_NONCE, -1);
-                BigDecimal customGasPrice = new BigDecimal(data.getStringExtra(C.EXTRA_GAS_PRICE));
                 BigDecimal customGasLimit = new BigDecimal(data.getStringExtra(C.EXTRA_GAS_LIMIT));
                 long expectedTxTime = data.getLongExtra(C.EXTRA_AMOUNT, 0);
-                confirmationDialog.setCurrentGasIndex(gasSelectionIndex, customGasPrice, customGasLimit, expectedTxTime, customNonce);
+                confirmationDialog.setCurrentGasIndex(gasSelectionIndex, viewModel.getGasPrice(), customGasLimit, expectedTxTime, customNonce);
             }
         }
         else if (requestCode >= SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS && requestCode <= SignTransactionDialog.REQUEST_CODE_CONFIRM_DEVICE_CREDENTIALS + 10)
@@ -257,24 +242,6 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
                                         break;
                                     default:
                                         break;
-                                }
-                            }
-                            else //try magiclink
-                            {
-                                ParseMagicLink magicParser = new ParseMagicLink(new CryptoFunctions(), EthereumNetworkRepository.extraChains());
-                                try
-                                {
-                                    if (magicParser.parseUniversalLink(qrCode).chainId > 0) //see if it's a valid link
-                                    {
-                                        //let's try to import the link
-                                        viewModel.showImportLink(this, qrCode);
-                                        finish();
-                                        return;
-                                    }
-                                }
-                                catch (SalesOrderMalformed e)
-                                {
-                                    e.printStackTrace();
                                 }
                             }
 
@@ -493,7 +460,7 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
         functionBar.revealButtons();
         List<Integer> functions = new ArrayList<>(Collections.singletonList(R.string.action_next));
         functionBar.setupFunctions(this, functions);
-        viewModel.startGasCycle(token.tokenInfo.chainId);
+        viewModel.fetchGasPrice(token.tokenInfo.chainId);
     }
 
     @Override
@@ -606,7 +573,7 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
                 new Address(txSendAddress),
                 new Address(token.getAddress()),
                 ethValue,
-                sendGasPrice.toBigInteger(),
+                viewModel.getGasPrice(),
                 sendGasLimit,
                 -1,
                 Numeric.toHexString(transactionBytes),
@@ -696,7 +663,7 @@ public class SendActivity extends BaseActivity implements AmountReadyCallback, S
         dialog.setButtonText(R.string.button_ok);
         dialog.setSecondaryButtonText(R.string.action_cancel);
         dialog.setButtonListener(v -> {
-            BigInteger gasEstimate = new BigInteger(DEFAULT_GAS_LIMIT);//GasService2.getDefaultGasLimit(token, w3tx);
+            BigInteger gasEstimate = GasService.getDefaultGasLimit(token, w3tx);//new BigInteger(DEFAULT_GAS_LIMIT);
             checkConfirm(gasEstimate, transactionBytes, txSendAddress, resolvedAddress);
         });
 

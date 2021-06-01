@@ -40,7 +40,6 @@ public class TransactionLookup
     {
         switch (type)
         {
-            case MAGICLINK_PURCHASE:
             case TRANSFER_TO:
                 return R.string.to;
             case RECEIVED:
@@ -59,16 +58,8 @@ public class TransactionLookup
         {
             typeMapping.put(TransactionType.UNKNOWN, R.string.ticket_invalid_op);
             typeMapping.put(TransactionType.LOAD_NEW_TOKENS, R.string.ticket_load_new_tickets);
-            typeMapping.put(TransactionType.MAGICLINK_TRANSFER, R.string.ticket_magiclink_transfer);
-            typeMapping.put(TransactionType.MAGICLINK_PICKUP, R.string.ticket_magiclink_pickup);
-            typeMapping.put(TransactionType.MAGICLINK_SALE, R.string.ticket_magiclink_sale);
-            typeMapping.put(TransactionType.MAGICLINK_PURCHASE, R.string.ticket_magiclink_purchase);
-            typeMapping.put(TransactionType.PASS_TO, R.string.ticket_pass_to);
-            typeMapping.put(TransactionType.PASS_FROM, R.string.ticket_pass_from);
             typeMapping.put(TransactionType.TRANSFER_TO, R.string.ticket_transfer_to);
             typeMapping.put(TransactionType.RECEIVE_FROM, R.string.ticket_receive_from);
-            typeMapping.put(TransactionType.REDEEM, R.string.ticket_redeem);
-            typeMapping.put(TransactionType.ADMIN_REDEEM, R.string.ticket_admin_redeem);
             typeMapping.put(TransactionType.CONSTRUCTOR, R.string.ticket_contract_constructor);
             typeMapping.put(TransactionType.TERMINATE_CONTRACT, R.string.ticket_terminate_contract);
             typeMapping.put(TransactionType.TRANSFER_FROM, R.string.ticket_transfer_from);
@@ -77,7 +68,6 @@ public class TransactionLookup
             typeMapping.put(TransactionType.RECEIVED, R.string.received);
             typeMapping.put(TransactionType.SEND, R.string.action_send);
             typeMapping.put(TransactionType.SEND_ETH, R.string.action_send_eth);
-            typeMapping.put(TransactionType.TOKEN_SWAP, R.string.action_token_swap);
             typeMapping.put(TransactionType.WITHDRAW, R.string.action_withdraw);
             typeMapping.put(TransactionType.DEPOSIT, R.string.deposit);
             typeMapping.put(TransactionType.CONTRACT_CALL, R.string.contract_call);

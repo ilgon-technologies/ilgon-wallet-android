@@ -376,12 +376,10 @@ public class TransferTicketDetailActivity extends BaseActivity implements OnToke
         {
             date = simpleDateFormat.parse(tempDateString);
             dateString = simpleDateFormat.format(date);
-            Log.d(SellDetailActivity.class.getSimpleName(), "date : " + dateString);
             UTCTimeStamp = (date.getTime()) / 1000;
         }
         catch (ParseException e)
         {
-            Log.e(SellDetailActivity.class.getSimpleName(), e.getMessage(), e);
         }
 
         return UTCTimeStamp;

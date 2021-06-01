@@ -104,6 +104,9 @@ public class SetWatchWalletFragment extends Fragment implements View.OnClickList
 
         watchAddress.setError(null);
         String value = watchAddress.getText().toString();
+        if (!(value.startsWith("0x") || value.startsWith("0X"))) {
+            value = "0x"+value;
+        }
         KeyboardUtils.hideKeyboard(view);
 
         if (!TextUtils.isEmpty(value))
@@ -159,6 +162,10 @@ public class SetWatchWalletFragment extends Fragment implements View.OnClickList
             watchAddress.setError(null);
         String value = watchAddress.getText().toString();
         value = value.replaceAll("\\s+", "");
+        if (value.isEmpty()) {
+            updateButtonState(false);
+            return;
+        }
         final Matcher matcher = pattern.matcher(value);
         if (EnsResolver.isValidEnsName(value))
         {

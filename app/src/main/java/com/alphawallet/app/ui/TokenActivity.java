@@ -24,7 +24,6 @@ import com.alphawallet.app.entity.StandardFunctionInterface;
 import com.alphawallet.app.entity.Transaction;
 import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.tokens.Token;
-import com.alphawallet.app.entity.tokens.TokenTicker;
 import com.alphawallet.app.entity.tokenscript.TokenScriptRenderCallback;
 import com.alphawallet.app.entity.tokenscript.WebCompletionCallback;
 import com.alphawallet.app.repository.EventResult;
@@ -33,6 +32,7 @@ import com.alphawallet.app.repository.entity.RealmAuxData;
 import com.alphawallet.app.repository.entity.RealmTransaction;
 import com.alphawallet.app.util.BalanceUtils;
 import com.alphawallet.app.util.KeyboardUtils;
+import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.util.Utils;
 import com.alphawallet.app.viewmodel.TokenFunctionViewModel;
 import com.alphawallet.app.viewmodel.TokenFunctionViewModelFactory;
@@ -130,6 +130,7 @@ public class TokenActivity extends BaseActivity implements PageReadyCallback, St
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
+        LocaleUtils.setActiveLocale(this);
         setContentView(R.layout.activity_token_activity);
 
         eventKey = getIntent().getStringExtra(C.EXTRA_ACTION_NAME);
@@ -387,12 +388,6 @@ public class TokenActivity extends BaseActivity implements PageReadyCallback, St
             setupPendingListener(wallet);
             pendingStart = transaction.timeStamp;
             icon.startPendingSpinner(transaction.timeStamp, viewModel.fetchExpectedTxTime(transactionHash)/1000);
-        }
-
-        String supplementalTxt = transaction.getSupplementalInfo(token.getWallet(), viewModel.getTokensService().getNetworkName(token.tokenInfo.chainId));
-        if (!TextUtils.isEmpty(supplementalTxt))
-        {
-            eventDetail.setupTransactionView(transaction, token, viewModel.getAssetDefinitionService(), supplementalTxt);
         }
 
         setChainName(transaction);

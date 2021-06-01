@@ -14,10 +14,9 @@ import com.alphawallet.app.repository.LocaleRepositoryType;
 import com.alphawallet.app.repository.PreferenceRepositoryType;
 import com.alphawallet.app.repository.WalletRepositoryType;
 import com.alphawallet.app.router.AddTokenRouter;
-import com.alphawallet.app.router.ImportTokenRouter;
 import com.alphawallet.app.router.MyAddressRouter;
-import com.alphawallet.app.service.AnalyticsServiceType;
 import com.alphawallet.app.service.AssetDefinitionService;
+import com.alphawallet.app.service.GasService;
 import com.alphawallet.app.service.TickerService;
 import com.alphawallet.app.service.TransactionsService;
 import com.alphawallet.app.viewmodel.HomeViewModelFactory;
@@ -28,7 +27,6 @@ class HomeModule {
     HomeViewModelFactory provideHomeViewModelFactory(
             PreferenceRepositoryType preferenceRepository,
             LocaleRepositoryType localeRepository,
-            ImportTokenRouter importTokenRouter,
             AddTokenRouter addTokenRouter,
             AssetDefinitionService assetDefinitionService,
             GenericWalletInteract genericWalletInteract,
@@ -39,11 +37,10 @@ class HomeModule {
             MyAddressRouter myAddressRouter,
             TransactionsService transactionsService,
             TickerService tickerService,
-            AnalyticsServiceType analyticsService) {
+            GasService gasService) {
         return new HomeViewModelFactory(
                 preferenceRepository,
                 localeRepository,
-                importTokenRouter,
                 addTokenRouter,
                 assetDefinitionService,
                 genericWalletInteract,
@@ -54,7 +51,7 @@ class HomeModule {
                 myAddressRouter,
                 transactionsService,
                 tickerService,
-                analyticsService);
+                gasService);
     }
 
     @Provides
@@ -66,9 +63,6 @@ class HomeModule {
     AddTokenRouter provideAddTokenRouter() {
         return new AddTokenRouter();
     }
-
-    @Provides
-    ImportTokenRouter providesImportTokenRouter() { return new ImportTokenRouter(); }
 
     @Provides
     GenericWalletInteract provideFindDefaultWalletInteract(WalletRepositoryType walletRepository) {

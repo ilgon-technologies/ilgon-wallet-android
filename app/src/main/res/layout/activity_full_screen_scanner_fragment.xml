@@ -4,16 +4,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <include
-        android:id="@+id/toolbar1"
-        layout="@layout/layout_app_bar" />
-
     <fragment
         android:id="@+id/scanner_fragment"
         android:name="com.alphawallet.app.ui.zxing.FullScannerFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/toolbar1" />
+        android:layout_height="match_parent"/>
 
     <TextView
         android:layout_width="wrap_content"

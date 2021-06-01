@@ -52,6 +52,7 @@ public class Token implements Parcelable, Comparable<Token>
     public final TokenInfo tokenInfo;
     public BigDecimal balance;
     public BigDecimal stakingBalance;
+    public BigDecimal compensationBalance;
     public BigDecimal pendingBalance;
     public long updateBlancaTime;
     private String tokenWallet;
@@ -84,6 +85,7 @@ public class Token implements Parcelable, Comparable<Token>
         this.contractType = type;
         this.pendingBalance = balance;
         this.stakingBalance = BigDecimal.ZERO;
+        this.compensationBalance = BigDecimal.ZERO;
         this.txSync = 0;
         this.lastTxCheck = 0;
         this.lastBlockCheck = 0;
@@ -98,6 +100,8 @@ public class Token implements Parcelable, Comparable<Token>
         tokenInfo = in.readParcelable(TokenInfo.class.getClassLoader());
         balance = new BigDecimal(in.readString());
         updateBlancaTime = in.readLong();
+        stakingBalance = new BigDecimal(in.readString());
+        compensationBalance = new BigDecimal(in.readString());
         int readType = in.readInt();
         shortNetworkName = in.readString();
         pendingBalance = new BigDecimal(in.readString());
@@ -124,16 +128,24 @@ public class Token implements Parcelable, Comparable<Token>
     }
 
     public boolean showStakingBalance() {
-        return (stakingBalance != null && !stakingBalance.equals(BigDecimal.ZERO));
+        return (stakingBalance != null && stakingBalance.compareTo(BigDecimal.ZERO) > 0);
+    }
+
+    public boolean showCompensationBalance() {
+        return (compensationBalance != null && compensationBalance.compareTo(BigDecimal.ZERO) > 0);
     }
 
     public String getStringStakingBalance()
     {
-        //String value;
-        //return stakingBalance.toString();
         int decimals = 18;
         if (tokenInfo != null) decimals = tokenInfo.decimals;
         return BalanceUtils.getScaledValueScientific(stakingBalance, decimals);
+    }
+
+    public String getStringCompensationBalance() {
+        int decimals = 18;
+        if (tokenInfo != null) decimals = tokenInfo.decimals;
+        return BalanceUtils.getScaledValueScientific(compensationBalance, decimals);
     }
 
 
@@ -199,6 +211,8 @@ public class Token implements Parcelable, Comparable<Token>
         dest.writeParcelable(tokenInfo, flags);
         dest.writeString(balance == null ? "0" : balance.toString());
         dest.writeLong(updateBlancaTime);
+        dest.writeString(stakingBalance == null ? "0" : stakingBalance.toString());
+        dest.writeString(compensationBalance == null ? "0" : compensationBalance.toString());
         dest.writeInt(contractType.ordinal());
         dest.writeString(shortNetworkName);
         dest.writeString(pendingBalance == null ? "0" : pendingBalance.toString());
@@ -220,6 +234,17 @@ public class Token implements Parcelable, Comparable<Token>
         else
         {
             realmToken.setBalance("0");
+        }
+    }
+
+    public void setRealmCompensationBalance(RealmToken realmToken) {
+        if (compensationBalance != null)
+        {
+            realmToken.setCompensationBalance(compensationBalance.toString());
+        }
+        else
+        {
+            realmToken.setCompensationBalance("0");
         }
     }
 
@@ -1028,8 +1053,6 @@ public class Token implements Parcelable, Comparable<Token>
     {
         switch (getInterfaceSpec())
         {
-            case ERC875_LEGACY:
-            case ERC875:
             case ETHEREUM:
             case ERC721_TICKET:
                 return true;

@@ -19,6 +19,7 @@ import com.alphawallet.app.entity.BackupOperationType;
 import com.alphawallet.app.entity.BackupState;
 import com.alphawallet.app.entity.StandardFunctionInterface;
 import com.alphawallet.app.entity.Wallet;
+import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.widget.AWalletAlertDialog;
 import com.alphawallet.app.widget.FunctionButtonBar;
 import com.google.android.flexbox.FlexboxLayout;
@@ -45,8 +46,9 @@ public class BackupFlowActivity extends BaseActivity implements
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        LocaleUtils.setActiveLocale(this);
         alertDialog = null;
-        lockOrientation();
+        //lockOrientation();
 
         type = (BackupOperationType) getIntent().getSerializableExtra("TYPE");
         wallet = getIntent().getParcelableExtra(WALLET);

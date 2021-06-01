@@ -5,7 +5,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -29,6 +31,7 @@ import com.alphawallet.app.ui.BaseActivity;
 import com.alphawallet.app.ui.WalletConnectActivity;
 import com.alphawallet.app.ui.WalletConnectSessionActivity;
 import com.alphawallet.app.ui.widget.OnQRCodeScannedListener;
+import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.widget.AWalletAlertDialog;
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.MultiFormatReader;
@@ -62,12 +65,13 @@ public class QRScanningActivity extends BaseActivity implements OnQRCodeScannedL
     private Disposable disposable;
     private AWalletAlertDialog dialog;
     private int chainIdOverride;
+    private boolean onlyMainnet;
 
     @Override
     public void onCreate(Bundle state)
     {
         super.onCreate(state);
-
+        LocaleUtils.setActiveLocale(this);
         int rc = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
         if (rc == PackageManager.PERMISSION_GRANTED)
         {
@@ -80,12 +84,12 @@ public class QRScanningActivity extends BaseActivity implements OnQRCodeScannedL
         }
 
         chainIdOverride = getIntent().getIntExtra(C.EXTRA_NETWORKID, 0);
+        onlyMainnet = getIntent().getBooleanExtra(C.EXTRA_NETWORK_MAINNET, false);
     }
 
     private void initView()
     {
         toolbar();
-        enableDisplayHomeAsUp();
         setTitle(getString(R.string.action_scan_dapp));
 
         flashButton = findViewById(R.id.flash_button);
@@ -205,8 +209,11 @@ public class QRScanningActivity extends BaseActivity implements OnQRCodeScannedL
     public void handleQRCode(String qrCode)
     {
         if (qrCode.startsWith("wc:")) {
-            showChannelSelectorPopUp(qrCode);
-            //startWalletConnect(qrCode);
+            if (onlyMainnet) {
+                startWalletConnectMainnet(qrCode);
+            } else {
+                showChannelSelectorPopUp(qrCode);
+            }
         } else {
             Intent intent = new Intent();
             intent.putExtra(C.EXTRA_QR_CODE, qrCode);
@@ -219,7 +226,7 @@ public class QRScanningActivity extends BaseActivity implements OnQRCodeScannedL
     {
 
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(QRScanningActivity.this,R.style.MyDialogStyle);
-        alertDialog.setTitle("Choose Network");
+        alertDialog.setTitle(R.string.choose_network);
         String[] items = {BuildConfig.MAIN_NETWORK_NAME,BuildConfig.SECONDARY_NETWORK_NAME};
         int[] channelId = {BuildConfig.MAIN_CHAIN_ID,BuildConfig.SECONDARY_CHAIN_ID};
         int checkedItem = 0;
@@ -267,10 +274,11 @@ public class QRScanningActivity extends BaseActivity implements OnQRCodeScannedL
         alert.show();
     }
 
-    private void startWalletConnect(String qrCode)
+    private void startWalletConnectMainnet(String qrCode)
     {
         Intent intent = new Intent(this, WalletConnectActivity.class);
         intent.putExtra("qrCode", qrCode);
+        intent.putExtra(C.EXTRA_CHAIN_ID, BuildConfig.MAIN_CHAIN_ID);
         startActivity(intent);
         setResult(WALLET_CONNECT);
         finish();

@@ -70,7 +70,7 @@ public class MyDappsGridAdapter extends RecyclerView.Adapter<MyDappsGridAdapter.
                     .load(favicon)
                     .override(80)
                     .apply(new RequestOptions().circleCrop())
-                    .apply(new RequestOptions().placeholder(R.drawable.ic_logo))
+                    .apply(new RequestOptions().placeholder(R.drawable.ic_dragon))
                     .into(viewHolder.icon);
 
             viewHolder.icon.setOnClickListener(v -> {

@@ -1,6 +1,6 @@
 package com.alphawallet.app.ui;
 
-import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -10,8 +10,10 @@ import android.text.format.DateUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,8 +21,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.alphawallet.app.BuildConfig;
 import com.alphawallet.app.C;
 import com.alphawallet.app.R;
-import com.alphawallet.app.entity.BuyCryptoInterface;
-import com.alphawallet.app.entity.OnRampContract;
 import com.alphawallet.app.entity.StandardFunctionInterface;
 import com.alphawallet.app.entity.Wallet;
 import com.alphawallet.app.entity.WalletType;
@@ -29,12 +29,14 @@ import com.alphawallet.app.entity.tokens.TokenCardMeta;
 import com.alphawallet.app.repository.entity.RealmToken;
 import com.alphawallet.app.ui.widget.adapter.ActivityAdapter;
 import com.alphawallet.app.ui.widget.adapter.TokensAdapter;
+import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.viewmodel.Erc20DetailViewModel;
 import com.alphawallet.app.viewmodel.Erc20DetailViewModelFactory;
 import com.alphawallet.app.widget.ActivityHistoryList;
 import com.alphawallet.app.widget.CertifiedToolbarView;
 import com.alphawallet.app.widget.FunctionButtonBar;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -48,7 +50,7 @@ import static com.alphawallet.app.C.Key.TICKET;
 import static com.alphawallet.app.C.Key.WALLET;
 import static com.alphawallet.app.repository.TokensRealmSource.databaseKey;
 
-public class Erc20DetailActivity extends BaseActivity implements StandardFunctionInterface, BuyCryptoInterface
+public class Erc20DetailActivity extends BaseActivity implements StandardFunctionInterface
 {
     @Inject
     Erc20DetailViewModelFactory erc20DetailViewModelFactory;
@@ -64,6 +66,7 @@ public class Erc20DetailActivity extends BaseActivity implements StandardFunctio
     private FunctionButtonBar functionBar;
     private RecyclerView tokenView;
     private CertifiedToolbarView toolbarView;
+    private Button stakingDetailsButton;
 
     private TokensAdapter tokenViewAdapter;
     private ActivityHistoryList activityHistoryList = null;
@@ -75,7 +78,9 @@ public class Erc20DetailActivity extends BaseActivity implements StandardFunctio
     {
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
+        LocaleUtils.setActiveLocale(this);
         setContentView(R.layout.activity_erc20_token_detail);
+        stakingDetailsButton = findViewById(R.id.staking_details_button);
         toolbar();
         setTitle("");
     }
@@ -141,11 +146,30 @@ public class Erc20DetailActivity extends BaseActivity implements StandardFunctio
         if (BuildConfig.DEBUG || wallet.type != WalletType.WATCH)
         {
             functionBar = findViewById(R.id.layoutButtons);
-            functionBar.setupBuyFunction(this, viewModel.getOnRampRepository());
             functionBar.setupFunctions(this, viewModel.getAssetDefinitionService(), token, null, null);
             functionBar.revealButtons();
             functionBar.setWalletType(wallet.type);
+
+            if (token != null && (token.showStakingBalance() || token.showCompensationBalance())) {
+                stakingDetailsButton.setVisibility(View.VISIBLE);
+                stakingDetailsButton.setOnClickListener(this::onStakingBalanceButtonClick);
+            }
         }
+    }
+
+    private void onStakingBalanceButtonClick(View button) {
+        AlertDialog dialog = new AlertDialog.Builder(this, R.style.MyDialogStyle)
+                .setTitle(R.string.stakingDetailsDialogTitle)
+                .setMessage(R.string.stakingDetailsDialogMessage)
+                .setNeutralButton(R.string.action_cancel, null)
+                .setPositiveButton(R.string.stakingDetailsDialogContinueButton, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        openDapp(C.DAPP_DEFAULT_URL);
+                    }
+                })
+                .create();
+        dialog.show();
     }
 
     private void getIntentData()
@@ -247,16 +271,7 @@ public class Erc20DetailActivity extends BaseActivity implements StandardFunctio
     }
 
     @Override
-    public void handleTokenScriptFunction(String function, List<BigInteger> selection)
-    {
-        Intent intent = new Intent(this, FunctionActivity.class);
-        intent.putExtra(TICKET, token);
-        intent.putExtra(WALLET, wallet);
-        intent.putExtra(C.EXTRA_STATE, function);
-        intent.putExtra(C.EXTRA_TOKEN_ID, BigInteger.ZERO.toString(16));
-        intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-        startActivity(intent);
-    }
+    public void handleTokenScriptFunction(String function, List<BigInteger> selection) { }
 
     @Override
     public void showSend()
@@ -292,12 +307,7 @@ public class Erc20DetailActivity extends BaseActivity implements StandardFunctio
 
     @Override
     public void handleClick(String action, int actionId)
-    {
-        if (actionId == R.string.convert_to_xdai)
-        {
-            openDapp(C.XDAI_BRIDGE_DAPP);
-        }
-    }
+    { }
 
     private void openDapp(String dappURL)
     {
@@ -308,11 +318,4 @@ public class Erc20DetailActivity extends BaseActivity implements StandardFunctio
         finish();
     }
 
-    @Override
-    public void handleBuyFunction(Token token)
-    {
-        Intent intent = viewModel.getBuyIntent(wallet.address, token);
-        setResult(RESULT_OK, intent);
-        finish();
-    }
 }

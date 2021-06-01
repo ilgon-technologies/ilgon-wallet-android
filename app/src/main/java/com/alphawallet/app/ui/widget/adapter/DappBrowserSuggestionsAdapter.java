@@ -58,6 +58,14 @@ public class DappBrowserSuggestionsAdapter extends ArrayAdapter<DApp> implements
         addSuggestions(DappBrowserUtils.getBrowserHistory(context));
     }
 
+    public void clearHistory(List<DApp> formerList) {
+        filteredSuggestions.clear();
+        for (DApp d: formerList) {
+            removeSuggestion(d, false);
+        }
+        notifyDataSetChanged();
+    }
+
     public void addSuggestion(DApp dapp) {
         if (!suggestions.contains(dapp)) {
             suggestions.add(dapp);
@@ -74,10 +82,19 @@ public class DappBrowserSuggestionsAdapter extends ArrayAdapter<DApp> implements
         notifyDataSetChanged();
     }
 
-    public void removeSuggestion(DApp dapp) {
+    public void removeSuggestion(DApp dapp, boolean notify) {
+        if (notify) {
+            for (DApp d : filteredSuggestions) {
+                if (d.getName().equals(dapp.getName()) && d.getUrl().equals(dapp.getUrl())) {
+                    filteredSuggestions.remove(d);
+                    break;
+                }
+            }
+        }
         for (DApp d : suggestions) {
             if (d.getName().equals(dapp.getName()) && d.getUrl().equals(dapp.getUrl())) {
                 suggestions.remove(d);
+                if (notify) notifyDataSetChanged();
                 break;
             }
         }
@@ -122,7 +139,7 @@ public class DappBrowserSuggestionsAdapter extends ArrayAdapter<DApp> implements
             Glide.with(icon.getContext())
                     .load(favicon)
                     .apply(new RequestOptions().circleCrop())
-                    .apply(new RequestOptions().placeholder(R.drawable.ic_logo))
+                    .apply(new RequestOptions().placeholder(R.drawable.ic_dragon))
                     .listener(requestListener)
                     .into(icon);
         }

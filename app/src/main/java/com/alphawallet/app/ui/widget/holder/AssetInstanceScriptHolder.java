@@ -11,13 +11,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 
 import com.alphawallet.app.C;
 import com.alphawallet.app.R;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.service.AssetDefinitionService;
-import com.alphawallet.app.ui.TokenFunctionActivity;
 import com.alphawallet.app.ui.widget.OnTokenClickListener;
 import com.alphawallet.app.web3.Web3TokenView;
 import com.alphawallet.app.web3.entity.PageReadyCallback;
@@ -119,17 +117,6 @@ public class AssetInstanceScriptHolder extends BinderViewHolder<TicketRange> imp
                 data.isChecked = true;
                 itemSelect.setChecked(true);
             }
-        }
-        else
-        {
-            if (activeClick) return;
-            activeClick = true;
-            handler.postDelayed(this, 500);
-            Intent intent = new Intent(getContext(), TokenFunctionActivity.class);
-            intent.putExtra(TICKET, token);
-            intent.putExtra(C.EXTRA_TOKEN_ID, token.bigIntListToString(data.tokenIds, false));
-            intent.setFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-            getContext().startActivity(intent);
         }
     }
 

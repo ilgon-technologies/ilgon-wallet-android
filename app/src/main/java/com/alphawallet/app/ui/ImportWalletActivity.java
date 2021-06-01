@@ -2,17 +2,21 @@ package com.alphawallet.app.ui;
 
 import android.app.Activity;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 
+import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.viewmodel.ImportTokenViewModel;
 import com.google.android.material.tabs.TabLayout;
 import androidx.fragment.app.Fragment;
 import androidx.core.util.Pair;
 import androidx.viewpager.widget.ViewPager;
+
+import android.os.PersistableBundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -82,15 +86,22 @@ public class ImportWalletActivity extends BaseActivity implements OnImportSeedLi
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
+        LocaleUtils.setActiveLocale(this);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_SECURE, WindowManager.LayoutParams.FLAG_SECURE);
         setContentView(R.layout.activity_import_wallet);
 
         toolbar();
         setTitle(getString(R.string.title_import));
 
+        importWalletViewModel = new ViewModelProvider(this, importWalletViewModelFactory)
+                .get(ImportWalletViewModel.class);
+
         currentPage = ImportType.SEED_FORM_INDEX;
         String receivedState = getIntent().getStringExtra(C.EXTRA_STATE);
-        boolean isWatch = receivedState != null && receivedState.equals("watch");
+        boolean isWatch = (receivedState == null && importWalletViewModel.isWatch) || (receivedState != null && receivedState.equals("watch"));
+        if (isWatch != importWalletViewModel.isWatch) {
+            importWalletViewModel.isWatch = isWatch;
+        }
 
         pages.add(ImportType.SEED_FORM_INDEX.ordinal(), new Pair<>(getString(R.string.tab_seed), ImportSeedFragment.create()));
         pages.add(ImportType.KEYSTORE_FORM_INDEX.ordinal(), new Pair<>(getString(R.string.tab_keystore), ImportKeystoreFragment.create()));
@@ -129,8 +140,6 @@ public class ImportWalletActivity extends BaseActivity implements OnImportSeedLi
             setTitle(getString(R.string.title_import));
         }
 
-        importWalletViewModel = new ViewModelProvider(this, importWalletViewModelFactory)
-                .get(ImportWalletViewModel.class);
         importWalletViewModel.progress().observe(this, this::onProgress);
         importWalletViewModel.error().observe(this, this::onError);
         importWalletViewModel.wallet().observe(this, this::onWallet);

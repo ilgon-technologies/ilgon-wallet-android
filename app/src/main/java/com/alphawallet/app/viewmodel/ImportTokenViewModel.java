@@ -15,7 +15,6 @@ import com.alphawallet.app.entity.GasSettings;
 import com.alphawallet.app.entity.NetworkInfo;
 import com.alphawallet.app.entity.Operation;
 import com.alphawallet.app.entity.SignAuthenticationCallback;
-import com.alphawallet.app.entity.tokens.Ticket;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.entity.tokens.TokenFactory;
 import com.alphawallet.app.entity.tokens.TokenInfo;
@@ -51,7 +50,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
-import static com.alphawallet.app.entity.MagicLinkParcel.generateReverseTradeData;
 import static com.alphawallet.token.tools.ParseMagicLink.currencyLink;
 import static com.alphawallet.token.tools.ParseMagicLink.customizable;
 import static com.alphawallet.token.tools.ParseMagicLink.normal;
@@ -424,46 +422,6 @@ public class ImportTokenViewModel extends BaseViewModel
         txError.postValue(new ErrorEnvelope(C.ErrorCode.UNKNOWN, throwable.getMessage()));
     }
 
-    public void performImport()
-    {
-        try
-        {
-            initParser();
-            MagicLinkData order = parser.parseUniversalLink(universalImportLink);
-            //calculate gas settings
-            final byte[] tradeData = generateReverseTradeData(order, importToken, wallet.getValue().address);
-            GasSettings settings = gasService.getGasSettings(tradeData, true, importOrder.chainId);
-            performImportFinal(settings);
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace(); // TODO: add user interface handling of the exception.
-            error.postValue(new ErrorEnvelope(C.ErrorCode.EMPTY_COLLECTION, "Import Error."));
-        }
-    }
-
-    private void performImportFinal(GasSettings settings)
-    {
-        try
-        {
-            MagicLinkData order = parser.parseUniversalLink(universalImportLink);
-            //ok let's try to drive this guy through
-            final byte[] tradeData = generateReverseTradeData(order, importToken, wallet.getValue().address);
-            Log.d(TAG, "Approx value of trade: " + order.price);
-            //now push the transaction
-            disposable = createTransactionInteract
-                    .create(wallet.getValue(), order.contractAddress, order.priceWei,
-                            settings.gasPrice, settings.gasLimit, tradeData, order.chainId)
-                    .subscribe(this::onCreateTransaction, this::onTransactionError);
-
-            addTokenWatchToWallet();
-        }
-        catch (SalesOrderMalformed e)
-        {
-            e.printStackTrace(); // TODO: add user interface handling of the exception.
-            error.postValue(new ErrorEnvelope(C.ErrorCode.EMPTY_COLLECTION, "Import Error."));
-        }
-    }
 
     public void importThroughFeemaster(String url)
     {

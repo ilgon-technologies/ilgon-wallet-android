@@ -1,7 +1,6 @@
 package com.alphawallet.app.ui;
 
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -26,7 +25,6 @@ import com.alphawallet.app.service.TransactionsBgService;
 import com.alphawallet.app.ui.widget.divider.ListDivider;
 import com.alphawallet.app.ui.widget.entity.NetworkItem;
 import com.alphawallet.app.util.Utils;
-import com.alphawallet.app.viewmodel.RedeemSignatureDisplayModel;
 import com.alphawallet.app.viewmodel.SelectNetworkViewModel;
 import com.alphawallet.app.viewmodel.SelectNetworkViewModelFactory;
 

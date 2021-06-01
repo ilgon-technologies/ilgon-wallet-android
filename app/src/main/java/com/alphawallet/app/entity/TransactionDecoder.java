@@ -263,12 +263,6 @@ public class TransactionDecoder
     private void setupKnownFunctions()
     {
         functionList = new HashMap<>();
-        addFunction("transferFrom(address,address,uint16[])", ContractType.ERC875_LEGACY, false);
-        addFunction("transfer(address,uint16[])", ContractType.ERC875_LEGACY, false);
-        addFunction("trade(uint256,uint16[],uint8,bytes32,bytes32)", ContractType.ERC875_LEGACY, true);
-        addFunction("passTo(uint256,uint16[],uint8,bytes32,bytes32,address)", ContractType.ERC875_LEGACY, true);
-        addFunction("loadNewTickets(bytes32[])", ContractType.ERC875_LEGACY, false);
-        addFunction("balanceOf(address)", ContractType.ERC875_LEGACY, false);
 
         addFunction("transfer(address,uint256)", ContractType.ERC20, false);
         addFunction("transfer(address,uint)", ContractType.ERC20, false);
@@ -286,13 +280,6 @@ public class TransactionDecoder
         addFunction("swapExactTokensForTokens(uint256,uint256,address[],address,uint256)", ContractType.ERC20, false);
         addFunction("withdraw(address,uint256,address)", ContractType.ERC20, false);
         addFunction("deposit(address,uint256,address,uint16)", ContractType.ERC20, false);
-
-        addFunction("transferFrom(address,address,uint256[])", ContractType.ERC875, false);
-        addFunction("transfer(address,uint256[])", ContractType.ERC875, false);
-        addFunction("trade(uint256,uint256[],uint8,bytes32,bytes32)", ContractType.ERC875, true);
-        addFunction("passTo(uint256,uint256[],uint8,bytes32,bytes32,address)", ContractType.ERC875, true);
-        addFunction("loadNewTickets(uint256[])", ContractType.ERC875, false);
-        addFunction("balanceOf(address)", ContractType.ERC875, false);
 
         addFunction("endContract()", ContractType.CREATION, false);
         addFunction("selfdestruct()", ContractType.CREATION, false);
@@ -331,27 +318,8 @@ public class TransactionDecoder
 
         //improve heuristic:
         String balanceMethod = Numeric.cleanHexPrefix(buildMethodId("balanceOf(address)"));
-        String isStormbird = Numeric.cleanHexPrefix(buildMethodId("isStormBirdContract()"));
-        String isStormbird2 = Numeric.cleanHexPrefix(buildMethodId("isStormBird()"));
-        String trade = Numeric.cleanHexPrefix(buildMethodId("trade(uint256,uint256[],uint8,bytes32,bytes32)"));
-        String tradeLegacy = Numeric.cleanHexPrefix(buildMethodId("trade(uint256,uint16[],uint8,bytes32,bytes32)"));
 
-        if (input.contains(balanceMethod))
-        {
-            if (input.contains(isStormbird) || input.contains(isStormbird2) || input.contains(tradeLegacy) || input.contains(trade))
-            {
-                if (input.contains(tradeLegacy))
-                {
-                    return ContractType.ERC875_LEGACY;
-                }
-                else
-                {
-                    return ContractType.ERC875;
-                }
-            }
-        }
-        else
-        {
+        if (!input.contains(balanceMethod)) {
             return ContractType.OTHER;
         }
 

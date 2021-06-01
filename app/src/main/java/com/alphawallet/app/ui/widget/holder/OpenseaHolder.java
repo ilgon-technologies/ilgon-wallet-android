@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import com.alphawallet.token.entity.TicketRange;
 import com.bumptech.glide.Glide;
-import com.alphawallet.app.util.KittyUtils;
 
 import com.alphawallet.app.R;
 import com.alphawallet.app.entity.tokens.Token;
@@ -95,17 +94,6 @@ public class OpenseaHolder extends BinderViewHolder<TicketRange> implements Runn
                     asset.getTraitFromType("gen").getValue()));
         } else {
             generation.setVisibility(View.GONE);
-        }
-
-        if (asset.getTraitFromType("cooldown_index") != null) {
-            cooldown.setText(String.format("%s Cooldown",
-                    KittyUtils.parseCooldownIndex(
-                            asset.getTraitFromType("cooldown_index").getValue())));
-        } else if (asset.getTraitFromType("cooldown") != null) { // Non-CK
-            cooldown.setText(String.format("%s Cooldown",
-                    asset.getTraitFromType("cooldown").getValue()));
-        } else {
-            cooldown.setVisibility(View.GONE);
         }
 
         Glide.with(getContext())

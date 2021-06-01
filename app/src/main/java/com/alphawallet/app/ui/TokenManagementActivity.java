@@ -24,6 +24,7 @@ import com.alphawallet.app.repository.TokensRealmSource;
 import com.alphawallet.app.repository.entity.RealmToken;
 import com.alphawallet.app.router.HomeRouter;
 import com.alphawallet.app.ui.widget.adapter.TokenListAdapter;
+import com.alphawallet.app.util.LocaleUtils;
 import com.alphawallet.app.viewmodel.TokenManagementViewModel;
 import com.alphawallet.app.viewmodel.TokenManagementViewModelFactory;
 
@@ -59,6 +60,7 @@ public class TokenManagementActivity extends BaseActivity implements TokenListAd
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         AndroidInjection.inject(this);
         super.onCreate(savedInstanceState);
+        LocaleUtils.setActiveLocale(this);
         setContentView(R.layout.activity_token_management);
         toolbar();
         setTitle(getString(R.string.add_hide_tokens));

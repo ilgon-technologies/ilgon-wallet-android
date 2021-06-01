@@ -679,7 +679,8 @@ public class WalletFragment extends BaseFragment implements
             viewModel.showMyAddress(getContext());
         }
         if (menuItem.getItemId() == R.id.action_scan) {
-            viewModel.showQRCodeScanning(getActivity());
+            boolean onlyMainnet = viewModel.getTokensService().getNetworkFilters().size() < 2;
+                    viewModel.showQRCodeScanning(getActivity(), onlyMainnet);
         }
         return super.onMenuItemClick(menuItem);
     }

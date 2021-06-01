@@ -1,7 +1,7 @@
 package com.alphawallet.app.ui;
 
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
+
 import android.content.Context;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
@@ -15,11 +15,9 @@ import android.widget.TextView;
 import com.alphawallet.app.R;
 import com.alphawallet.app.entity.FinishReceiver;
 import com.alphawallet.app.entity.tokens.ERC721Token;
-import com.alphawallet.app.entity.tokens.Ticket;
 import com.alphawallet.app.entity.tokens.Token;
 import com.alphawallet.app.ui.widget.OnTokenClickListener;
 import com.alphawallet.app.ui.widget.adapter.NonFungibleTokenAdapter;
-import com.alphawallet.app.viewmodel.TransactionDetailViewModel;
 import com.alphawallet.app.viewmodel.TransferTicketViewModel;
 import com.alphawallet.app.viewmodel.TransferTicketViewModelFactory;
 import com.alphawallet.app.widget.ProgressView;
@@ -122,23 +120,12 @@ public class TransferTicketActivity extends BaseActivity implements OnTokenClick
         {
             handleTransferERC721(token);
         }
-        else if (token instanceof Ticket)
-        {
-            handleTransferERC875(token);
-        }
     }
 
     private void handleTransferERC721(Token token)
     {
         TicketRange txRange = adapter.getSelectedRange(token.getArrayBalance());
         viewModel.openTransferDirectDialog(this, txRange.tokenIds.get(0).toString());
-    }
-
-    private void handleTransferERC875(Token token)
-    {
-        TicketRange txRange = adapter.getSelectedRange(token.getArrayBalance());
-        String idListStr = token.bigIntListToString(txRange.tokenIds, false);
-        viewModel.openSellDialog(this, idListStr);
     }
 
     @Override
